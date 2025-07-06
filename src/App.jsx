@@ -11,6 +11,9 @@ import ProductionWorkflow from "./pages/ProductionWorkflow";
 import Booking from "./pages/Booking";
 import Inventory from "./pages/Inventory";
 import Settings from "./pages/Settings";
+import Campaign from "./pages/Campaign";
+import AmazonReviews from "./pages/AmazonReviews";
+import QRCodeProcessing from "./pages/QRCodeProcessing";
 
 function App() {
   return (
@@ -24,6 +27,9 @@ function App() {
           <Route path="/booking" element={<Booking />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/campaign" element={<Campaign />} />
+          <Route path="/amazonreviews" element={<AmazonReviews />} />
+          <Route path="/qrcode" element={<QRCodeProcessing />} />
 
           <Route path="/signin" element={<Signin />} />
           <Route path="/" element={<Signup />} />
