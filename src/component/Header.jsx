@@ -114,12 +114,39 @@ function Header() {
               }>
               Einstellungen
             </NavLink>
+            <NavLink
+              to="/campaign"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-[14px] font-bold text-[#412666]"
+                  : " text-[14px] font-bold text-gray-600"
+              }>
+              Kampagne
+            </NavLink>
+            <NavLink
+              to="/amazonreviews"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-[14px] font-bold text-[#412666]"
+                  : " text-[14px] font-bold text-gray-600"
+              }>
+              Amazon-Bewertungen
+            </NavLink>
+            <NavLink
+              to="/qrcode"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-[14px] font-bold text-[#412666]"
+                  : " text-[14px] font-bold text-gray-600"
+              }>
+              QR-Code-Verarbeitung
+            </NavLink>
           </nav>
         )}
         {token && (
           <div className=" flex items-center gap-[10px]">
             <button
-              className="  text-[#412666] flex items-center justify-center px-2"
+              className="  text-[#412666] xl:hidden flex items-center justify-center px-2"
               onClick={() => setMobileNav(!mobileNav)}>
               {mobileNav ? <Close /> : <DragHandle fontSize="large" />}
             </button>
@@ -198,6 +225,33 @@ function Header() {
                     : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
                 }>
                 Einstellungen
+              </NavLink>
+              <NavLink
+                to="/campaign"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
+                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
+                }>
+                Kampagne
+              </NavLink>
+              <NavLink
+                to="/amazonreviews"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
+                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
+                }>
+                Amazon-Bewertungen
+              </NavLink>
+              <NavLink
+                to="/qrcode"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
+                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
+                }>
+                QR-Code-Verarbeitung
               </NavLink>
             </nav>
           </div>
