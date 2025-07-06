@@ -14,7 +14,6 @@ import UserLoader from "../component/UserLoader";
 import CreateBrandModal from "./CreateBrandModal";
 import UpdateBrandModal from "./UpdateBrandModal";
 import Articles from "./Articles";
-import BarcodeReader from "@mui/icons-material/BarcodeReader";
 import Categories from "./Categories";
 
 const BRAND_BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
@@ -41,6 +40,7 @@ function Brand() {
   const [brandLogs, setBrandLogs] = useState([]);
   const [showBrandLogsModal, setShowBrandLogsModal] = useState(false);
   const [viewArticles, setViewarticles] = useState(false);
+
   const fetchBrands = async () => {
     try {
       setLoading(true);
@@ -53,7 +53,7 @@ function Brand() {
       });
       const data = await res.json();
       setBrands(data);
-      setFiltered(data);
+      setFiltered(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch brands:", err);
     } finally {
