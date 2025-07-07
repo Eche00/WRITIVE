@@ -214,26 +214,26 @@ const ProductionWorkflow = () => {
     }
   };
 
-  const fetchStatusHistory = async (productionId) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(
-        `${BASE_URL}/production/${productionId}/status/history`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "true",
-          },
-        }
-      );
-      const data = await res.json();
-      setStatusHistory(data);
-      setShowStatusHistoryModal(true);
-    } catch (err) {
-      console.error("Status History fetch failed:", err);
-    }
-  };
+  // const fetchStatusHistory = async (productionId) => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const res = await fetch(
+  //       `${BASE_URL}/production/${productionId}/status/history`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           "Content-Type": "application/json",
+  //           "ngrok-skip-browser-warning": "true",
+  //         },
+  //       }
+  //     );
+  //     const data = await res.json();
+  //     setStatusHistory(data);
+  //     setShowStatusHistoryModal(true);
+  //   } catch (err) {
+  //     console.error("Status History fetch failed:", err);
+  //   }
+  // };
   const [statusCheck, setStatusCheck] = useState(null);
   const [showStatusCheckModal, setShowStatusCheckModal] = useState(false);
   // const handleCheckProductionStatus = async (productionId) => {
@@ -445,7 +445,7 @@ const ProductionWorkflow = () => {
                     Protokolle
                   </span>
                 </button>
-                <button
+                {/* <button
                   onClick={() => fetchStatusHistory(p.ID)}
                   title="Status-Historie anzeigen"
                   className="relative group cursor-pointer ">
@@ -453,7 +453,7 @@ const ProductionWorkflow = () => {
                   <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                     Verlauf
                   </span>
-                </button>
+                </button> */}
                 <button
                   onClick={() => handleDeleteProduction(p.ID)}
                   title="Status-Historie anzeigen"
