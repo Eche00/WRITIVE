@@ -89,7 +89,7 @@ const QRCodeProcessing = () => {
       setSyncedScans(data);
     } catch (err) {
       console.error(err);
-      alert("Fehler beim Laden der synchronisierten Scans.");
+      // alert("Fehler beim Laden der synchronisierten Scans.");
     }
   };
 
@@ -122,7 +122,7 @@ const QRCodeProcessing = () => {
 
     // Validate required fields
     if (!CampaignID || !DeviceID || !Location || !qr_code) {
-      alert("Bitte fülle alle Felder aus.");
+      console.log("Bitte fülle alle Felder aus.");
       return;
     }
 
@@ -147,7 +147,7 @@ const QRCodeProcessing = () => {
       const result = await res.json();
 
       if (result.status === "success") {
-        alert(result.message); // "QR-Scan verarbeitet"
+        console.log(result.message); // "QR-Scan verarbeitet"
         fetchQRScans(); // Refresh list
         setNewScan({
           CampaignID: "",
@@ -156,15 +156,17 @@ const QRCodeProcessing = () => {
           qr_code: "",
         });
       } else if (result.message === "Scan bereits registriert") {
-        alert("⚠️ Dieser Scan wurde bereits registriert.");
+        console.log("⚠️ Dieser Scan wurde bereits registriert.");
       } else if (result.message === "Ungültiger QR-Code") {
-        alert("❌ Ungültiger QR-Code.");
+        console.log(" Ungültiger QR-Code.");
       } else {
-        alert("Fehler: " + result.message);
+        console.log("Fehler: " + result.message);
       }
     } catch (err) {
       console.error("Fehler beim Simulieren des Scans:", err);
-      alert("Netzwerkfehler oder Serverproblem beim Senden des QR-Scans.");
+      console.log(
+        "Netzwerkfehler oder Serverproblem beim Senden des QR-Scans."
+      );
     }
   };
   // now
