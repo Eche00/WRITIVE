@@ -36,6 +36,12 @@ const Campaign = () => {
   const [batchQuantity, setBatchQuantity] = useState(0);
   const [batchStatus, setBatchStatus] = useState("pending");
   const [batches, setBatches] = useState(false);
+  const [showCampaignLogsModal, setShowCampaignLogsModal] = useState(false);
+  const [campaignLogs, setCampaignLogs] = useState([]);
+  const [selectedCampaignID, setSelectedCampaignID] = useState(null);
+  const [showCampaignLogDetailModal, setShowCampaignLogDetailModal] =
+    useState(false);
+  const [campaignLogDetail, setCampaignLogDetail] = useState(null);
   const [showCreateCampaignModal, setShowCreateCampaignModal] = useState(false);
   const [newCampaign, setNewCampaign] = useState({
     ID: "",
@@ -144,7 +150,7 @@ const Campaign = () => {
 
       const data = await res.json();
       if (res.ok) {
-        alert("Kampagne erfolgreich erstellt!");
+        // alert("Kampagne erfolgreich erstellt!");
         setShowCreateCampaignModal(false);
         setNewCampaign({
           ID: "",
@@ -163,11 +169,11 @@ const Campaign = () => {
         fetchCampaigns(); // reload list
       } else {
         console.error("Fehler beim Erstellen:", data);
-        alert("Fehler beim Erstellen der Kampagne.");
+        // alert("Fehler beim Erstellen der Kampagne.");
       }
     } catch (err) {
       console.error("Netzwerkfehler:", err);
-      alert("Netzwerkfehler beim Erstellen der Kampagne.");
+      // alert("Netzwerkfehler beim Erstellen der Kampagne.");
     }
   };
 
@@ -232,7 +238,7 @@ const Campaign = () => {
       }
     } catch (error) {
       console.error("Update failed:", error);
-      alert("Netzwerkfehler beim Aktualisieren der Kampagne.");
+      // alert("Netzwerkfehler beim Aktualisieren der Kampagne.");
     }
   };
   const fetchCampaignTimeline = async (campaignID) => {
@@ -253,11 +259,11 @@ const Campaign = () => {
         setShowTimelineModal(true);
       } else {
         console.error("Timeline fetch error:", data);
-        alert("Fehler beim Laden des Zeitplans.");
+        // alert("Fehler beim Laden des Zeitplans.");
       }
     } catch (err) {
       console.error("Timeline fetch failed:", err);
-      alert("Netzwerkfehler beim Laden des Kampagnen-Zeitplans.");
+      // alert("Netzwerkfehler beim Laden des Kampagnen-Zeitplans.");
     }
   };
   const handleAddBatch = async () => {
@@ -290,7 +296,62 @@ const Campaign = () => {
       }
     } catch (err) {
       console.error("Batch network error:", err);
-      alert("Netzwerkfehler beim Hinzufügen des Batches.");
+      // alert("Netzwerkfehler beim Hinzufügen des Batches.");
+    }
+  };
+  const fetchCampaignLogs = async (campaignID) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/campaigns/${campaignID}/logs`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      const data = await res.json();
+
+      if (!data.logs || !Array.isArray(data.logs)) {
+        console.log("Keine Kampagnen-Logs gefunden.");
+        return;
+      }
+
+      setCampaignLogs(data.logs);
+      setSelectedCampaignID(data.campaign_id);
+      setShowCampaignLogsModal(true);
+    } catch (err) {
+      console.error(err);
+      // alert("Fehler beim Abrufen der Kampagnen-Logs.");
+    }
+  };
+  const fetchCampaignLogByID = async (logID) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/campaigns/logs/${logID}`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        console.log(data.error); // e.g. "Kein Kampagnen-Log."
+        return;
+      }
+
+      setCampaignLogDetail(data);
+      setShowCampaignLogDetailModal(true);
+    } catch (err) {
+      console.error(err);
+      // alert("Fehler beim Abrufen des Kampagnen-Logs.");
     }
   };
 
@@ -338,6 +399,14 @@ const Campaign = () => {
 
   const handleExport = (format) => {
     window.open(`${BASE_URL}/campaigns/export/${format}`, "_blank");
+  };
+  const handleExportCampaignLogs = (format) => {
+    const query = new URLSearchParams({ format });
+
+    window.open(
+      `${BASE_URL}/campaigns/logs/export?${query.toString()}`,
+      "_blank"
+    );
   };
 
   return (
@@ -476,6 +545,14 @@ const Campaign = () => {
                         </span>
                       </button>
 
+                      <button
+                        onClick={() => fetchCampaignLogs(c.id)}
+                        className="relative group cursor-pointer ">
+                        <BarChart />
+                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                          Protokolle
+                        </span>
+                      </button>
                       <button
                         onClick={() => handleDelete(c.id)}
                         className="relative group cursor-pointer ">
@@ -836,6 +913,144 @@ const Campaign = () => {
                 Hinzufügen
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {showCampaignLogsModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Kampagnen-Logs (ID: {selectedCampaignID})
+            </h2>
+
+            <div className="space-y-3 max-h-[400px] overflow-y-auto text-sm text-gray-700">
+              {campaignLogs.length === 0 ? (
+                <p className="text-center text-gray-500">
+                  Keine Logs gefunden.
+                </p>
+              ) : (
+                campaignLogs.map((log) => (
+                  <div
+                    key={log.id}
+                    className="border rounded-lg p-4 bg-gray-50 shadow-sm space-y-1 cursor-pointer"
+                    onClick={() => fetchCampaignLogByID(log.id)}>
+                    <div>
+                      <strong>Aktion:</strong> {log.action}
+                    </div>
+                    <div>
+                      <strong>Details:</strong> {log.details}
+                    </div>
+                    <div>
+                      <strong>Entität:</strong> {log.entity}
+                    </div>
+                    <div>
+                      <strong>Entitäts-ID:</strong> {log.entity_id}
+                    </div>
+                    <div>
+                      <strong>Zeitstempel:</strong>{" "}
+                      {new Date(log.timestamp).toLocaleString()}
+                    </div>
+                    <div>
+                      <strong>IP-Adresse:</strong> {log.ip_address}
+                    </div>
+                    <div>
+                      <strong>Kunde-ID:</strong> {log.kunde_id ?? "—"}
+                    </div>
+                    <div>
+                      <strong>User-Agent:</strong> {log.user_agent}
+                    </div>
+                    <div>
+                      <strong>User ID:</strong> {log.user_id}
+                    </div>
+                  </div>
+                ))
+              )}
+              {campaignLogs.length >= 1 && (
+                <div className="space-x-2 flex items-center justify-between">
+                  <button
+                    onClick={() => handleExportCampaignLogs("csv")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
+                    Exportiere CSV
+                  </button>
+
+                  <button
+                    onClick={() => handleExportCampaignLogs("xlsx")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
+                    Exportiere XLSX
+                  </button>
+
+                  <button
+                    onClick={() => handleExportCampaignLogs("pdf")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
+                    Exportiere PDF
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => setShowCampaignLogsModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+      {showCampaignLogDetailModal && campaignLogDetail && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Kampagnen-Log Detail (ID: {campaignLogDetail.id})
+            </h2>
+
+            <div className="space-y-3 text-sm text-gray-700">
+              <div className="flex justify-between">
+                <span className="font-semibold">Aktion:</span>
+                <span>{campaignLogDetail.action}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Details:</span>
+                <span>{campaignLogDetail.details}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entität:</span>
+                <span>{campaignLogDetail.entity}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entitäts-ID:</span>
+                <span>{campaignLogDetail.entity_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Kunde-ID:</span>
+                <span>{campaignLogDetail.kunde_id ?? "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">IP-Adresse:</span>
+                <span>{campaignLogDetail.ip_address}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">User-Agent:</span>
+                <span className="break-words max-w-[60%]">
+                  {campaignLogDetail.user_agent}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">User ID:</span>
+                <span>{campaignLogDetail.user_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Zeitstempel:</span>
+                <span>
+                  {new Date(campaignLogDetail.timestamp).toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowCampaignLogDetailModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
           </div>
         </div>
       )}
