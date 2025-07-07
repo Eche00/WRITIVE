@@ -10,6 +10,7 @@ const QRCodeProcessing = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [syncSearch, setSyncSearch] = useState("");
+  const [syncedSearch, setSyncedSearch] = useState("");
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [qrStats, setQrStats] = useState(null);
 
@@ -66,6 +67,31 @@ const QRCodeProcessing = () => {
       console.error("Fehler beim Abrufen der Sync-Daten:", err);
     }
   };
+  const [syncedScans, setSyncedScans] = useState([]);
+
+  const fetchSyncedScans = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${BASE_URL}/qr-scans/sync_panel`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Fehler beim Abrufen synchronisierter Scans.");
+      }
+
+      const data = await res.json();
+      setSyncedScans(data);
+    } catch (err) {
+      console.error(err);
+      alert("Fehler beim Laden der synchronisierten Scans.");
+    }
+  };
 
   // const fetchStats = async () => {
   //   try {
@@ -88,44 +114,8 @@ const QRCodeProcessing = () => {
     fetchQRScans();
     fetchSyncData();
     fetchStats();
+    fetchSyncedScans();
   }, []);
-  //  !active
-  const syncSelectedScans = async () => {
-    const ids = qrScans.filter((scan) => !scan.Synced).map((scan) => scan.ID);
-    if (!ids.length) return alert("Keine neuen QR-Codes zum Synchronisieren.");
-
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Token nicht gefunden. Bitte erneut einloggen.");
-      return;
-    }
-
-    try {
-      const res = await fetch(`${BASE_URL}/sync_bulk`, {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify({ sync_ids: ids }), // <- Confirm backend expects "sync_ids"
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`Sync fehlgeschlagen: ${res.status} - ${errorText}`);
-      }
-
-      const result = await res.json();
-      alert(result.message);
-      fetchQRScans();
-      fetchSyncData();
-      fetchStats();
-    } catch (err) {
-      console.error("Fehler beim Synchronisieren:", err);
-      alert("Fehler beim Synchronisieren: " + err.message);
-    }
-  };
 
   const simulateScan = async () => {
     const { CampaignID, DeviceID, Location, qr_code } = newScan;
@@ -195,11 +185,11 @@ const QRCodeProcessing = () => {
 
       console.log("Matching unsynced scans:", idsToSync);
 
-      if (idsToSync.length === 0) {
-        return alert("Keine QR-Codes für diese Kampagne zum Synchronisieren.");
-      }
+      // if (idsToSync.length === 0) {
+      //   return alert("Keine QR-Codes für diese Kampagne zum Synchronisieren.");
+      // }
 
-      const res = await fetch(`${BASE_URL}/sync-bulk/`, {
+      const res = await fetch(`${BASE_URL}/qr-scans/sync_bulk`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -212,15 +202,15 @@ const QRCodeProcessing = () => {
       const data = await res.json();
 
       if (res.ok) {
-        alert(data.message);
+        console.log(data.message);
         fetchQRScans();
         fetchSyncData();
       } else {
-        alert(data.message || "Fehler beim Synchronisieren.");
+        console.log(data.message || "Fehler beim Synchronisieren.");
       }
     } catch (err) {
       console.error("Synchronisierungsfehler:", err);
-      alert("Fehler beim Synchronisieren.");
+      console.log("Fehler beim Synchronisieren.");
     }
   };
 
@@ -336,10 +326,8 @@ const QRCodeProcessing = () => {
               />
             </div>
 
-            <button
-              onClick={syncSelectedScans}
-              className="bg-[#412666] text-white px-4 py-2 rounded-full hover:scale-[102%] transition-all">
-              <Sync className="mr-1" /> Sync ausstehende Scans
+            <button className="bg-[#412666] text-white px-4 py-2 rounded-full hover:scale-[102%] transition-all">
+              <Sync className="mr-1" />
             </button>
           </div>
         </section>
@@ -488,6 +476,61 @@ const QRCodeProcessing = () => {
           </div>
         </div>
       )}
+      <section className="mt-10 mb-6">
+        <h2 className="text-xl font-bold text-[#412666] mb-2">
+          Bereits synchronisierte QR-Scans
+        </h2>
+
+        <div className="flex justify-between items-center mb-3">
+          <div className="border border-[#412666] rounded-lg px-4 w-1/3 flex items-center gap-2">
+            <Search />
+            <input
+              type="text"
+              placeholder="Suche nach Kampagne..."
+              value={syncedSearch}
+              onChange={(e) => setSyncedSearch(e.target.value)}
+              className="flex-1 border-none py-2 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {syncedScans.length === 0 ? (
+          <p className="text-sm text-gray-600">
+            Keine synchronisierten Scans gefunden.
+          </p>
+        ) : (
+          <table className="w-full text-sm text-left">
+            <thead className="text-[#412666] border-b border-gray-200">
+              <tr>
+                <th className="py-2 px-3">Kampagne</th>
+                <th className="py-2 px-3">Gerät</th>
+                <th className="py-2 px-3">Standort</th>
+                <th className="py-2 px-3">Gescannt am</th>
+              </tr>
+            </thead>
+            <tbody>
+              {syncedScans
+                .filter((scan) =>
+                  (scan.Campaign || "")
+                    .toLowerCase()
+                    .includes(syncedSearch.toLowerCase())
+                )
+                .map((scan) => (
+                  <tr
+                    key={scan.ID}
+                    className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="py-2 px-3">{scan.Campaign}</td>
+                    <td className="py-2 px-3">{scan.DeviceID}</td>
+                    <td className="py-2 px-3">{scan.Location}</td>
+                    <td className="py-2 px-3">
+                      {new Date(scan.ScannedAt).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        )}
+      </section>
     </div>
   );
 };
