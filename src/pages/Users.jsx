@@ -253,25 +253,25 @@ const Users = () => {
   };
 
   // handling history
-  const fetchStatusHistory = async (id) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${BASE_URL}/customers/${id}/status-history`, {
-        method: "GET",
-        headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-      const data = await res.json();
-      setStatusHistory(data); // store history data
-      setShowHistoryModal(true); // open modal
-      console.log("Status History:", data);
-    } catch (err) {
-      console.error("Status History fetch failed:", err);
-    }
-  };
+  // const fetchStatusHistory = async (id) => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const res = await fetch(`${BASE_URL}/customers/${id}/status-history`, {
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: "Bearer " + token,
+  //         "Content-Type": "application/json",
+  //         "ngrok-skip-browser-warning": "true",
+  //       },
+  //     });
+  //     const data = await res.json();
+  //     setStatusHistory(data); // store history data
+  //     setShowHistoryModal(true); // open modal
+  //     console.log("Status History:", data);
+  //   } catch (err) {
+  //     console.error("Status History fetch failed:", err);
+  //   }
+  // };
 
   // handling user delete
   const handleDelete = async (id) => {
@@ -502,14 +502,14 @@ const Users = () => {
                         Kundenprotokolle
                       </span>
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => fetchStatusHistory(c.AutoID)}
                       className="relative group cursor-pointer ">
                       <History />
                       <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                         Verlauf
                       </span>
-                    </button>
+                    </button> */}
                     <button
                       onClick={() => fetchAuditLogs(c.AutoID)}
                       className="relative group cursor-pointer ">
