@@ -446,7 +446,7 @@ const Users = () => {
                   <td className="py-2 px-3 text-center space-x-2">
                     <button
                       onClick={() => fetchCustomerDetails(c.AutoID)}
-                      className="relative group cursor-pointer ">
+                      className="relative group cursor-pointer  text-[#4A90E2]">
                       <Visibility />{" "}
                       <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                         Anzeigen
@@ -458,7 +458,7 @@ const Users = () => {
                           setSelectedCustomer(c);
                           setEditModal(true);
                         }}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer text-blue-700">
                         <Edit fontSize="small" />
                         <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                           Edit
@@ -468,9 +468,9 @@ const Users = () => {
                     {!c.is_archived && (
                       <button
                         onClick={() => handleArchive(c.AutoID)}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer text-[#9B9B9B]">
                         <Archive />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden ">
                           Archivieren
                         </span>
                       </button>
@@ -478,7 +478,7 @@ const Users = () => {
                     {c.is_archived && (
                       <button
                         onClick={() => handleRestore(c.AutoID)}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer text-[#9B9B9B]">
                         <Unarchive />
                         <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                           Wiederherstellen
@@ -488,7 +488,7 @@ const Users = () => {
 
                     <button
                       onClick={() => fetchCustomerSummary(c.AutoID)}
-                      className="relative group cursor-pointer ">
+                      className="relative group cursor-pointer   text-[#50E3C2]">
                       <Summarize />
                       <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                         Kundenzusammenfassung
@@ -496,7 +496,7 @@ const Users = () => {
                     </button>
                     <button
                       onClick={() => fetchCustomerLogs(c.AutoID)}
-                      className="relative group cursor-pointer ">
+                      className="relative group cursor-pointer text-green-700">
                       <ListAlt />
                       <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                         Kundenprotokolle
@@ -512,7 +512,7 @@ const Users = () => {
                     </button> */}
                     <button
                       onClick={() => fetchAuditLogs(c.AutoID)}
-                      className="relative group cursor-pointer ">
+                      className="relative group cursor-pointer  text-[#F5A623]">
                       <BarChart />
                       <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                         Protokolle
@@ -521,7 +521,7 @@ const Users = () => {
                     {c.is_archived && (
                       <button
                         onClick={() => handleDelete(c.AutoID)}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer text-red-500 ">
                         <Delete />
                         <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                           Löschen
