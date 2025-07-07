@@ -7,6 +7,7 @@ import {
   Search,
   Add,
   MoveUp,
+  BarChart,
 } from "@mui/icons-material";
 
 const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
@@ -36,6 +37,12 @@ const Inventory = () => {
     ProduktionID: "",
     Buchungswert: 0,
   });
+  const [showInventoryLogsModal, setShowInventoryLogsModal] = useState(false);
+  const [inventoryLogs, setInventoryLogs] = useState([]);
+  const [selectedInventoryID, setSelectedInventoryID] = useState(null);
+  const [showInventoryLogDetailModal, setShowInventoryLogDetailModal] =
+    useState(false);
+  const [inventoryLogDetail, setInventoryLogDetail] = useState(null);
 
   const fetchInventory = async () => {
     setLoading(true);
@@ -90,7 +97,8 @@ const Inventory = () => {
     } = newInventory;
 
     if (!ArtikelID || !ProduktionID) {
-      alert("ArtikelID und ProduktionID dürfen nicht leer sein.");
+      console.log("ArtikelID und ProduktionID dürfen nicht leer sein.");
+      // alert("ArtikelID und ProduktionID dürfen nicht leer sein.");
       return;
     }
 
@@ -117,7 +125,7 @@ const Inventory = () => {
       const data = await res.json();
 
       if (res.ok) {
-        alert(data.message || "Inventar erfolgreich erstellt.");
+        // alert(data.message || "Inventar erfolgreich erstellt.");
         setShowInventoryForm(false);
         setNewInventory({
           Buchung: "",
@@ -130,11 +138,11 @@ const Inventory = () => {
         fetchInventory();
       } else {
         console.error("Inventory creation error:", data);
-        alert(data.error || "Fehler beim Erstellen des Inventars.");
+        // alert(data.error || "Fehler beim Erstellen des Inventars.");
       }
     } catch (err) {
       console.error("Inventory creation failed:", err.message);
-      alert("Netzwerkfehler beim Erstellen des Inventars.");
+      // alert("Netzwerkfehler beim Erstellen des Inventars.");
     }
   };
 
@@ -199,16 +207,67 @@ const Inventory = () => {
       const data = await res.json();
 
       if (res.ok) {
-        alert(data.message || "Bewegung erfolgreich abgeschlossen");
+        // alert(data.message || "Bewegung erfolgreich abgeschlossen");
         setShowMoveModal(false);
         setMoveData({ MoveQuantity: "", ProduktionID: "" });
         fetchInventory(); // Refresh inventory list
       } else {
-        alert(data.error || "Fehler bei der Bewegung");
+        // alert(data.error || "Fehler bei der Bewegung");
         console.error("Move failed:", data);
       }
     } catch (err) {
       console.error("Move request failed:", err.message);
+    }
+  };
+  const fetchInventoryLogs = async (inventoryID) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/inventory/${inventoryID}/logs`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!res.ok) throw new Error("Fehler beim Abrufen der Inventar-Logs");
+
+      const data = await res.json();
+      setInventoryLogs(data);
+      setSelectedInventoryID(inventoryID);
+      setShowInventoryLogsModal(true);
+    } catch (err) {
+      console.error(err);
+      // alert("Inventar-Logs konnten nicht geladen werden.");
+    }
+  };
+  const fetchInventoryLogByID = async (logID) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/inventory/logs/${logID}`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        console.log(data.error); // e.g. "Kein Inventar-Log."
+        return;
+      }
+
+      setInventoryLogDetail(data);
+      setShowInventoryLogDetailModal(true);
+    } catch (err) {
+      console.error(err);
+      // alert("Fehler beim Abrufen des Inventar-Logs.");
     }
   };
 
@@ -228,6 +287,14 @@ const Inventory = () => {
     } catch (err) {
       console.error("Fehler beim Löschen:", err);
     }
+  };
+  const handleExportInventoryLogs = (format) => {
+    const query = new URLSearchParams({ format });
+
+    window.open(
+      `${BASE_URL}/inventory/logs/export?${query.toString()}`,
+      "_blank"
+    );
   };
 
   return (
@@ -349,6 +416,14 @@ const Inventory = () => {
                       </span>
                     </button>
 
+                    <button
+                      onClick={() => fetchInventoryLogs(item.ID)}
+                      className="relative group cursor-pointer ">
+                      <BarChart />
+                      <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        Protokolle
+                      </span>
+                    </button>
                     <button
                       onClick={() => handleDelete(item.ID)}
                       className="relative group cursor-pointer ">
@@ -620,6 +695,144 @@ const Inventory = () => {
                 Bewegen
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {showInventoryLogsModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Inventar-Logs (ID: {selectedInventoryID})
+            </h2>
+
+            <div className="space-y-3 max-h-[400px] overflow-y-auto text-sm text-gray-700">
+              {inventoryLogs.length === 0 ? (
+                <p className="text-center text-gray-500">
+                  Keine Logs gefunden.
+                </p>
+              ) : (
+                inventoryLogs.map((log) => (
+                  <div
+                    key={log.id}
+                    className="border rounded-lg p-4 bg-gray-50 shadow-sm space-y-1 cursor-pointer"
+                    onClick={() => fetchInventoryLogByID(log.id)}>
+                    <div>
+                      <strong>Aktion:</strong> {log.action}
+                    </div>
+                    <div>
+                      <strong>Details:</strong> {log.details}
+                    </div>
+                    <div>
+                      <strong>Entität:</strong> {log.entity}
+                    </div>
+                    <div>
+                      <strong>Entitäts-ID:</strong> {log.entity_id}
+                    </div>
+                    <div>
+                      <strong>Zeitstempel:</strong>{" "}
+                      {new Date(log.timestamp).toLocaleString()}
+                    </div>
+                    <div>
+                      <strong>IP-Adresse:</strong> {log.ip_address}
+                    </div>
+                    <div>
+                      <strong>Kunde-ID:</strong> {log.kunde_id ?? "—"}
+                    </div>
+                    <div>
+                      <strong>User-Agent:</strong> {log.user_agent}
+                    </div>
+                    <div>
+                      <strong>User ID:</strong> {log.user_id}
+                    </div>
+                  </div>
+                ))
+              )}
+              {inventoryLogs.length >= 1 && (
+                <div className="space-x-2 flex items-center justify-between">
+                  <button
+                    onClick={() => handleExportInventoryLogs("csv")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
+                    Exportiere CSV
+                  </button>
+
+                  <button
+                    onClick={() => handleExportInventoryLogs("xlsx")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
+                    Exportiere XLSX
+                  </button>
+
+                  <button
+                    onClick={() => handleExportInventoryLogs("pdf")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
+                    Exportiere PDF
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => setShowInventoryLogsModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+      {showInventoryLogDetailModal && inventoryLogDetail && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Inventar-Log Detail (ID: {inventoryLogDetail.id})
+            </h2>
+
+            <div className="space-y-3 text-sm text-gray-700">
+              <div className="flex justify-between">
+                <span className="font-semibold">Aktion:</span>
+                <span>{inventoryLogDetail.action}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Details:</span>
+                <span>{inventoryLogDetail.details}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entität:</span>
+                <span>{inventoryLogDetail.entity}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entitäts-ID:</span>
+                <span>{inventoryLogDetail.entity_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Kunde-ID:</span>
+                <span>{inventoryLogDetail.kunde_id ?? "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">IP-Adresse:</span>
+                <span>{inventoryLogDetail.ip_address}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">User-Agent:</span>
+                <span className="break-words max-w-[60%]">
+                  {inventoryLogDetail.user_agent}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">User ID:</span>
+                <span>{inventoryLogDetail.user_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Zeitstempel:</span>
+                <span>
+                  {new Date(inventoryLogDetail.timestamp).toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowInventoryLogDetailModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
           </div>
         </div>
       )}
