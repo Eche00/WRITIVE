@@ -461,7 +461,7 @@ const Users = () => {
                         className="relative group cursor-pointer text-blue-700">
                         <Edit fontSize="small" />
                         <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                          Edit
+                          Bearbeiten
                         </span>
                       </button>
                     )}

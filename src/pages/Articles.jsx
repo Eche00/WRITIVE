@@ -213,7 +213,7 @@ const Articles = ({ setViewarticles }) => {
               <td className="p-2 space-x-2">
                 <button
                   onClick={() => fetchSingleArticle(a.ID)}
-                  className="relative group cursor-pointer ">
+                  className="relative group cursor-pointer  text-[#4A90E2]">
                   <Visibility />{" "}
                   <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                     Anzeigen
@@ -225,7 +225,7 @@ const Articles = ({ setViewarticles }) => {
                     setSelectedArticle(a); // `article` is the current item in your list
                     setEditModalOpen(true);
                   }}
-                  className="relative group cursor-pointer ">
+                  className="relative group cursor-pointer text-blue-700">
                   <Edit fontSize="small" />
                   <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                     Bearbeiten
@@ -233,7 +233,7 @@ const Articles = ({ setViewarticles }) => {
                 </button>
                 <button
                   onClick={() => fetchArticleLogs(a.ID)}
-                  className="relative group cursor-pointer ">
+                  className="relative group cursor-pointer  text-[#F5A623]">
                   <BarChart />
                   <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                     Protokolle anzeigen
@@ -241,7 +241,7 @@ const Articles = ({ setViewarticles }) => {
                 </button>
                 <button
                   onClick={() => handleDeleteArticle(a.ID || a.id, a)}
-                  className="relative group cursor-pointer ">
+                  className="relative group cursor-pointer text-red-500">
                   <Delete fontSize="small" />
                   <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                     Löschen

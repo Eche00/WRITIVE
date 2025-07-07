@@ -240,13 +240,16 @@ const Categories = () => {
                       setEditingId(cat.ID);
                       setEditingName(cat.Name);
                     }}
-                    className="text-blue-600 cursor-pointer">
+                    className="relative group cursor-pointer text-blue-700">
                     <Edit fontSize="small" />
+                    <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                      Bearbeiten
+                    </span>
                   </button>
                 )}
                 <button
                   onClick={() => fetchCategoryLogs(cat.ID)}
-                  className="relative group cursor-pointer ">
+                  className="relative group cursor-pointer  text-[#F5A623]">
                   <BarChart />
                   <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                     Protokolle
@@ -254,8 +257,11 @@ const Categories = () => {
                 </button>
                 <button
                   onClick={() => handleDeleteCategory(cat.ID)}
-                  className="text-red-600 	 cursor-pointer">
-                  <Delete fontSize="small" />
+                  className="relative group cursor-pointer text-red-500 ">
+                  <Delete />
+                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                    Löschen
+                  </span>
                 </button>
               </td>
             </tr>

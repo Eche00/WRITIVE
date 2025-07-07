@@ -352,7 +352,7 @@ function Brand() {
                     <td className="py-2 px-3 space-x-2">
                       <button
                         onClick={() => fetchSingleBrand(brand.ID)}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer  text-[#4A90E2]">
                         <Visibility />{" "}
                         <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                           Anzeigen
@@ -364,7 +364,7 @@ function Brand() {
                           setSelectedBrand(brand);
                           setEditModal(true);
                         }}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer text-blue-700">
                         <Edit fontSize="small" />
                         <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                           Bearbeiten
@@ -372,7 +372,7 @@ function Brand() {
                       </button>
                       <button
                         onClick={() => fetchArticlesByBrand(brand.ID)}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer text-[#9B9B9B]">
                         <Article />
                         <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                           Artikel
@@ -381,7 +381,7 @@ function Brand() {
 
                       <button
                         onClick={() => fetchBrandSummary(brand.ID)}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer   text-[#50E3C2]">
                         <Summarize fontSize="small" />
                         <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                           Zusammenfassung
@@ -389,7 +389,7 @@ function Brand() {
                       </button>
                       <button
                         onClick={() => fetchBrandsByCustomer(brand.ID)}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer  text-green-700">
                         <BrandingWatermark />
                         <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                           Markenzusammenfassung
@@ -397,7 +397,7 @@ function Brand() {
                       </button>
                       <button
                         onClick={() => fetchBrandKontingentSummary(brand.ID)}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer  text-green-400">
                         <NoteAdd />
                         <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                           Kontingent Zusammenfassung
@@ -405,7 +405,7 @@ function Brand() {
                       </button>
                       <button
                         onClick={() => fetchBrandLogs(brand.ID)}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer  text-[#F5A623]">
                         <BarChart />
                         <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                           Protokolle
@@ -414,7 +414,7 @@ function Brand() {
 
                       <button
                         onClick={() => handleDelete(brand.ID)}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer text-red-500">
                         <Delete fontSize="small" />
                         <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                           Löschen
