@@ -12,11 +12,13 @@ import {
 import React, { useEffect, useState } from "react";
 import UserLoader from "../component/UserLoader";
 import UpdateCustomerModal from "./UpdateCustomerModal";
+import CreateCustomerModal from "./CreateCustomerModal";
 
 const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
 
 const Users = () => {
   const [customers, setCustomers] = useState([]);
+  const [createModal, setCreateModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filtered, setFiltered] = useState([]);
@@ -367,6 +369,11 @@ const Users = () => {
             </h2>
 
             <div className="flex items-center gap-[10px] text-white text-[12px]">
+              <button
+                onClick={() => setCreateModal(true)}
+                className="bg-[#412666] text-white px-4 py-2 rounded-full hover:bg-[#341f4f] transition cursor-pointer">
+                + Neuer Kunde
+              </button>
               <button
                 onClick={() => setHideArchived(true)}
                 disabled={!showingArchived}
@@ -761,6 +768,14 @@ const Users = () => {
           </div>
         </div>
       )}
+      {/* CREATE CUSTOMER MODAL */}
+      {createModal && (
+        <CreateCustomerModal
+          setCreateModal={setCreateModal}
+          fetchCustomers={fetchCustomers}
+        />
+      )}
+
       {/* UPDATE USER MODAL  */}
       {editModal && selectedCustomer && (
         <UpdateCustomerModal
