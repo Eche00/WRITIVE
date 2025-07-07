@@ -33,7 +33,7 @@ const CreateBrandModal = ({ createModal, setCreateModal, fetchBrands }) => {
       const data = await res.json();
 
       if (res.status === 201) {
-        alert(data.message);
+        // alert(data.message);
         fetchBrands();
         setCreateModal(false);
       } else {
