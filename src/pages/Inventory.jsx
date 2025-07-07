@@ -80,10 +80,24 @@ const Inventory = () => {
   };
 
   const handleCreateInventory = async () => {
+    const {
+      Buchung,
+      Kategorie,
+      Bezeichnung,
+      ArtikelID,
+      ProduktionID,
+      Buchungswert,
+    } = newInventory;
+
+    if (!ArtikelID || !ProduktionID) {
+      alert("ArtikelID und ProduktionID dürfen nicht leer sein.");
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${BASE_URL}/inventory`, {
+      const res = await fetch(`${BASE_URL}/inventory/`, {
         method: "POST",
         headers: {
           Authorization: "Bearer " + token,
@@ -91,12 +105,12 @@ const Inventory = () => {
           "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify({
-          Buchung: newInventory.Buchung,
-          Kategorie: newInventory.Kategorie,
-          Bezeichnung: newInventory.Bezeichnung,
-          ArtikelID: newInventory.ArtikelID,
-          ProduktionID: newInventory.ProduktionID,
-          Buchungswert: parseFloat(newInventory.Buchungswert),
+          Buchung,
+          Kategorie,
+          Bezeichnung,
+          ArtikelID,
+          ProduktionID,
+          Buchungswert: parseFloat(Buchungswert),
         }),
       });
 
@@ -113,14 +127,17 @@ const Inventory = () => {
           ProduktionID: "",
           Buchungswert: "",
         });
-        fetchInventory(); // Optional: Refresh inventory list
+        fetchInventory();
       } else {
         console.error("Inventory creation error:", data);
+        alert(data.error || "Fehler beim Erstellen des Inventars.");
       }
     } catch (err) {
       console.error("Inventory creation failed:", err.message);
+      alert("Netzwerkfehler beim Erstellen des Inventars.");
     }
   };
+
   const handleUpdateInventory = async (id) => {
     try {
       const token = localStorage.getItem("token");
