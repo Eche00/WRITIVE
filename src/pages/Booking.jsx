@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Add, Delete, Edit, Search, Visibility } from "@mui/icons-material";
+import {
+  Add,
+  BarChart,
+  Delete,
+  Edit,
+  Search,
+  Visibility,
+} from "@mui/icons-material";
 
 const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
 
@@ -9,6 +16,13 @@ const Booking = () => {
   const [search, setSearch] = useState("");
   const [bookingDetails, setBookingDetails] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showBuchungLogsModal, setShowBuchungLogsModal] = useState(false);
+  const [buchungLogs, setBuchungLogs] = useState([]);
+  const [selectedBuchungID, setSelectedBuchungID] = useState(null);
+  const [showBuchungLogDetailModal, setShowBuchungLogDetailModal] =
+    useState(false);
+  const [buchungLogDetail, setBuchungLogDetail] = useState(null);
+
   const [newBooking, setNewBooking] = useState({
     KundeID: "",
     Firmenname: "",
@@ -94,7 +108,8 @@ const Booking = () => {
         setBookingDetails(data);
         setShowBookingModal(true);
       } else {
-        alert(data.error || "Unauthorized or booking not found");
+        // alert(data.error || "Unauthorized or booking not found");
+        console.log(data.error || "Unauthorized or booking not found");
       }
     } catch (err) {
       console.error("Fetch booking failed:", err.message);
@@ -131,6 +146,61 @@ const Booking = () => {
       console.error("Update error:", err.message);
     }
   };
+  const fetchBuchungshistorieLogs = async (buchungID) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(
+        `${BASE_URL}/buchungshistorie/${buchungID}/logs`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
+
+      if (!res.ok)
+        throw new Error("Fehler beim Laden der Buchungshistorie-Logs");
+
+      const data = await res.json();
+      setBuchungLogs(data);
+      setSelectedBuchungID(buchungID);
+      setShowBuchungLogsModal(true);
+    } catch (err) {
+      console.error(err);
+      // alert("Logs konnten nicht geladen werden.");
+    }
+  };
+  const fetchBuchungLogByID = async (logID) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/buchungshistorie/logs/${logID}`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        console.log(data.error); // Optional: handle any backend error messages
+        return;
+      }
+
+      setBuchungLogDetail(data);
+      setShowBuchungLogDetailModal(true);
+    } catch (err) {
+      console.error(err);
+      // alert("Buchungslog konnte nicht geladen werden.");
+    }
+  };
 
   const deleteBooking = async (id) => {
     try {
@@ -152,6 +222,14 @@ const Booking = () => {
   useEffect(() => {
     fetchBookings();
   }, []);
+  const handleExportBuchungshistorieLogs = (format) => {
+    const query = new URLSearchParams({ format });
+
+    window.open(
+      `${BASE_URL}/buchungshistorie/logs/export?${query.toString()}`,
+      "_blank"
+    );
+  };
 
   return (
     <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
@@ -249,6 +327,14 @@ const Booking = () => {
                     <Edit fontSize="small" />
                     <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                       Bearbeiten
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => fetchBuchungshistorieLogs(b.ID)}
+                    className="relative group cursor-pointer ">
+                    <BarChart />
+                    <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                      Protokolle
                     </span>
                   </button>
                   <button
@@ -418,6 +504,144 @@ const Booking = () => {
                 Aktualisieren
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {showBuchungLogsModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Buchungshistorie-Logs (ID: {selectedBuchungID})
+            </h2>
+
+            <div className="space-y-3 max-h-[400px] overflow-y-auto text-sm text-gray-700">
+              {buchungLogs.length === 0 ? (
+                <p className="text-center text-gray-500">
+                  Keine Logs gefunden.
+                </p>
+              ) : (
+                buchungLogs.map((log) => (
+                  <div
+                    key={log.id}
+                    className="border rounded-lg p-4 bg-gray-50 shadow-sm space-y-1 cursor-pointer"
+                    onClick={() => fetchBuchungLogByID(log.id)}>
+                    <div>
+                      <strong>Aktion:</strong> {log.action}
+                    </div>
+                    <div>
+                      <strong>Details:</strong> {log.details}
+                    </div>
+                    <div>
+                      <strong>Entität:</strong> {log.entity}
+                    </div>
+                    <div>
+                      <strong>Entitäts-ID:</strong> {log.entity_id}
+                    </div>
+                    <div>
+                      <strong>Zeitstempel:</strong>{" "}
+                      {new Date(log.timestamp).toLocaleString()}
+                    </div>
+                    <div>
+                      <strong>IP-Adresse:</strong> {log.ip_address}
+                    </div>
+                    <div>
+                      <strong>Kunde-ID:</strong> {log.kunde_id ?? "—"}
+                    </div>
+                    <div>
+                      <strong>User-Agent:</strong> {log.user_agent}
+                    </div>
+                    <div>
+                      <strong>User ID:</strong> {log.user_id}
+                    </div>
+                  </div>
+                ))
+              )}
+              {buchungLogs.length >= 1 && (
+                <div className="space-x-2 flex items-center justify-between">
+                  <button
+                    onClick={() => handleExportBuchungshistorieLogs("csv")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
+                    Exportiere CSV
+                  </button>
+
+                  <button
+                    onClick={() => handleExportBuchungshistorieLogs("xlsx")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
+                    Exportiere XLSX
+                  </button>
+
+                  <button
+                    onClick={() => handleExportBuchungshistorieLogs("pdf")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
+                    Exportiere PDF
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => setShowBuchungLogsModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+      {showBuchungLogDetailModal && buchungLogDetail && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Buchungs-Log Detail (ID: {buchungLogDetail.id})
+            </h2>
+
+            <div className="space-y-3 text-sm text-gray-700">
+              <div className="flex justify-between">
+                <span className="font-semibold">Aktion:</span>
+                <span>{buchungLogDetail.action}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Details:</span>
+                <span>{buchungLogDetail.details}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entität:</span>
+                <span>{buchungLogDetail.entity}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entitäts-ID:</span>
+                <span>{buchungLogDetail.entity_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Kunde-ID:</span>
+                <span>{buchungLogDetail.kunde_id ?? "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">IP-Adresse:</span>
+                <span>{buchungLogDetail.ip_address}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">User-Agent:</span>
+                <span className="break-words max-w-[60%]">
+                  {buchungLogDetail.user_agent}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">User ID:</span>
+                <span>{buchungLogDetail.user_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Zeitstempel:</span>
+                <span>
+                  {new Date(buchungLogDetail.timestamp).toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowBuchungLogDetailModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
           </div>
         </div>
       )}
