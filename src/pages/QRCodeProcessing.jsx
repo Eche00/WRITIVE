@@ -299,6 +299,11 @@ const QRCodeProcessing = () => {
       // alert("Fehler beim Abrufen des QR-Scan Logs.");
     }
   };
+  const handleExportQRScanLogs = (format) => {
+    const query = new URLSearchParams({ format });
+
+    window.open(`${BASE_URL}/qr-scans/logs/export/${format}`, "_blank");
+  };
 
   return (
     <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
@@ -648,6 +653,27 @@ const QRCodeProcessing = () => {
                     </div>
                   </div>
                 ))
+              )}
+              {qrScanLogs.length >= 1 && (
+                <div className="space-x-2 flex items-center justify-between">
+                  <button
+                    onClick={() => handleExportQRScanLogs("csv")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
+                    Exportiere CSV
+                  </button>
+
+                  <button
+                    onClick={() => handleExportQRScanLogs("xlsx")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
+                    Exportiere XLSX
+                  </button>
+
+                  <button
+                    onClick={() => handleExportQRScanLogs("pdf")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
+                    Exportiere PDF
+                  </button>
+                </div>
               )}
             </div>
 
