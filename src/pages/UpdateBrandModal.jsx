@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const BASE_URL = "https://6902-102-89-68-78.ngrok-free.app";
+const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
 
 const UpdateBrandModal = ({ brand, setEditModal, fetchBrands }) => {
   const [brandData, setBrandData] = useState({

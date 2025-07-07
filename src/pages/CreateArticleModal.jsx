@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const BASE_URL = "https://6902-102-89-68-78.ngrok-free.app";
+const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
 
 // Replace this with your real category list or fetch from API
 const VALID_CATEGORIES = [
