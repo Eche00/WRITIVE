@@ -236,31 +236,31 @@ const ProductionWorkflow = () => {
   };
   const [statusCheck, setStatusCheck] = useState(null);
   const [showStatusCheckModal, setShowStatusCheckModal] = useState(false);
-  const handleCheckProductionStatus = async (productionId) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${BASE_URL}/production/${productionId}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
+  // const handleCheckProductionStatus = async (productionId) => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const res = await fetch(`${BASE_URL}/production/${productionId}`, {
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         "Content-Type": "application/json",
+  //         "ngrok-skip-browser-warning": "true",
+  //       },
+  //     });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to fetch production.");
-      }
+  //     if (!res.ok) {
+  //       const errorData = await res.json();
+  //       throw new Error(errorData.message || "Failed to fetch production.");
+  //     }
 
-      const data = await res.json();
-      setStatusCheck(data);
-      setShowStatusCheckModal(true);
-    } catch (err) {
-      // alert("❌ Failed to fetch status: " + err.message);
-      console.log(" Failed to fetch status: " + err.message);
-    }
-  };
+  //     const data = await res.json();
+  //     setStatusCheck(data);
+  //     setShowStatusCheckModal(true);
+  //   } catch (err) {
+  //     // alert("❌ Failed to fetch status: " + err.message);
+  //     console.log(" Failed to fetch status: " + err.message);
+  //   }
+  // };
 
   useEffect(() => {
     fetchProductions();
@@ -427,14 +427,14 @@ const ProductionWorkflow = () => {
                     abschließen
                   </span>
                 </button>
-                <button
+                {/* <button
                   onClick={() => handleCheckProductionStatus(p.ID)}
                   className="relative group cursor-pointer ">
                   <span className=" h-1 w-1 px-2 bg-black rounded-full"></span>
                   <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                     Status
                   </span>
-                </button>
+                </button> */}
 
                 <button
                   onClick={() => fetchProductionLogs(p.ID)}
