@@ -291,22 +291,6 @@ const Users = () => {
     }
   };
 
-  const updateCustomer = async (id, updatedData) => {
-    try {
-      const res = await fetch(`${BASE_URL}/customers/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData),
-      });
-      const data = await res.json();
-      setSelectedCustomer(data);
-      setShowModal(true);
-      fetchCustomers();
-    } catch (err) {
-      console.error("Update failed:", err);
-    }
-  };
-
   const fetchAuditLogs = async (customerID) => {
     const token = localStorage.getItem("token");
 
@@ -356,6 +340,16 @@ const Users = () => {
 
   const handleExport = (format) => {
     window.open(`${BASE_URL}/customers/export/${format}`, "_blank");
+  };
+
+  const exportCustomerLogs = (format, kundeId = null) => {
+    const query = new URLSearchParams({ format });
+    if (kundeId) query.append("kunde_id", kundeId);
+
+    window.open(
+      `${BASE_URL}/customers/logs/export?${query.toString()}`,
+      "_blank"
+    );
   };
 
   return (
@@ -821,6 +815,27 @@ const Users = () => {
                     </div>
                   </div>
                 ))
+              )}
+              {auditLogs.length >= 1 && (
+                <div className="space-x-2 flex items-center justify-between">
+                  <button
+                    onClick={() => exportCustomerLogs("csv")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
+                    Exportiere CSV
+                  </button>
+
+                  <button
+                    onClick={() => exportCustomerLogs("xls")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
+                    Exportiere XLS
+                  </button>
+
+                  <button
+                    onClick={() => exportCustomerLogs("pdf", "K001")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
+                    Exportiere PDF (K001)
+                  </button>
+                </div>
               )}
             </div>
 
