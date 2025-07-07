@@ -40,6 +40,8 @@ function Brand() {
   const [brandLogs, setBrandLogs] = useState([]);
   const [showBrandLogsModal, setShowBrandLogsModal] = useState(false);
   const [viewArticles, setViewarticles] = useState(false);
+  const [showBrandLogModal, setShowBrandLogModal] = useState(false);
+  const [brandLogDetail, setBrandLogDetail] = useState(null);
 
   const fetchBrands = async () => {
     try {
@@ -201,6 +203,28 @@ function Brand() {
       setShowBrandLogsModal(true); // open modal
     } catch (err) {
       console.error("Failed to fetch brand logs:", err);
+    }
+  };
+  const fetchBrandLogByID = async (logID) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BRAND_BASE_URL}/brands/logs/${logID}`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!res.ok) throw new Error("Fehler beim Laden des Brand-Logs");
+
+      const data = await res.json();
+      setBrandLogDetail(data);
+      setShowBrandLogModal(true);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -681,7 +705,8 @@ function Brand() {
                 brandLogs.map((log) => (
                   <div
                     key={log.id}
-                    className="border border-gray-200 rounded-lg p-4 shadow-sm bg-gray-50">
+                    className="border border-gray-200 rounded-lg p-4 shadow-sm bg-gray-50 cursor-pointer"
+                    onClick={() => fetchBrandLogByID(log.id)}>
                     <div className="flex justify-between">
                       <span className="font-semibold">Aktion:</span>
                       <span className="capitalize">{log.action}</span>
@@ -731,6 +756,65 @@ function Brand() {
           </div>
         </div>
       )}
+      {showBrandLogModal && brandLogDetail && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Brand-Log Detail (ID: {brandLogDetail.id})
+            </h2>
+
+            <div className="space-y-3 text-sm text-gray-700">
+              <div className="flex justify-between">
+                <span className="font-semibold">Aktion:</span>
+                <span>{brandLogDetail.action}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Details:</span>
+                <span>{brandLogDetail.details}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entität:</span>
+                <span>{brandLogDetail.entity}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entitäts-ID:</span>
+                <span>{brandLogDetail.entity_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Kunde-ID:</span>
+                <span>{brandLogDetail.kunde_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">IP-Adresse:</span>
+                <span>{brandLogDetail.ip_address}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">User-Agent:</span>
+                <span className="break-words max-w-[60%]">
+                  {brandLogDetail.user_agent}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">User ID:</span>
+                <span>{brandLogDetail.user_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Zeitstempel:</span>
+                <span>
+                  {new Date(brandLogDetail.timestamp).toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowBrandLogModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+
       <Categories />
     </div>
   );

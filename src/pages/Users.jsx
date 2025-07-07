@@ -1,5 +1,6 @@
 import {
   Archive,
+  BarChart,
   Delete,
   Edit,
   History,
@@ -54,6 +55,11 @@ const Users = () => {
   // show archived
   const [showingArchived, setShowingArchived] = useState(false);
   const [hideArchived, setHideArchived] = useState(false);
+  const [showAuditLogsModal, setShowAuditLogsModal] = useState(false);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [selectedCustomerID, setSelectedCustomerID] = useState(null);
+  const [showLogDetailModal, setShowLogDetailModal] = useState(false);
+  const [auditLogDetail, setAuditLogDetail] = useState(null);
 
   const fetchCustomers = async (query = "") => {
     setLoading(true);
@@ -143,7 +149,6 @@ const Users = () => {
         body: JSON.stringify(newCustomer),
       });
       const data = await res.json();
-      alert(data.message);
       fetchCustomers();
     } catch (err) {
       console.error("Create failed:", err);
@@ -299,6 +304,53 @@ const Users = () => {
       fetchCustomers();
     } catch (err) {
       console.error("Update failed:", err);
+    }
+  };
+
+  const fetchAuditLogs = async (customerID) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/customers/${customerID}/logs`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!res.ok) throw new Error("Fehler beim Laden der Logs");
+
+      const data = await res.json();
+      setAuditLogs(data);
+      setSelectedCustomerID(customerID);
+      setShowAuditLogsModal(true);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const fetchAuditLogByID = async (logID) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/customers/logs/${logID}`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!res.ok) throw new Error("Fehler beim Abrufen des Log-Eintrags");
+
+      const data = await res.json();
+      setAuditLogDetail(data);
+      setShowLogDetailModal(true);
+    } catch (err) {
+      console.error(err);
+      // alert("Audit-Log konnte nicht geladen werden.");
     }
   };
 
@@ -462,6 +514,14 @@ const Users = () => {
                       <History />
                       <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                         Verlauf
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => fetchAuditLogs(c.AutoID)}
+                      className="relative group cursor-pointer ">
+                      <BarChart />
+                      <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        Protokolle
                       </span>
                     </button>
                     {c.is_archived && (
@@ -715,6 +775,120 @@ const Users = () => {
           setEditModal={setEditModal}
           fetchCustomers={fetchCustomers}
         />
+      )}
+      {showAuditLogsModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Audit-Logs für Kunde {selectedCustomerID}
+            </h2>
+
+            <div className="space-y-3 max-h-[400px] overflow-y-auto text-sm text-gray-700">
+              {auditLogs.length === 0 ? (
+                <p className="text-center text-gray-500">
+                  Keine Logs gefunden.
+                </p>
+              ) : (
+                auditLogs.map((log) => (
+                  <div
+                    key={log.id}
+                    className="border border-gray-200 rounded-lg p-4 bg-gray-50 shadow-sm space-y-1 cursor-pointer"
+                    onClick={() => fetchAuditLogByID(log.entity_id)}>
+                    <div>
+                      <strong>Aktion:</strong> {log.action}
+                    </div>
+                    <div>
+                      <strong>Details:</strong> {log.details}
+                    </div>
+                    <div>
+                      <strong>Entität:</strong> {log.entity}
+                    </div>
+                    <div>
+                      <strong>Entitäts-ID:</strong> {log.entity_id}
+                    </div>
+                    <div>
+                      <strong>Zeitstempel:</strong>{" "}
+                      {new Date(log.timestamp).toLocaleString()}
+                    </div>
+                    <div>
+                      <strong>IP-Adresse:</strong> {log.ip_address}
+                    </div>
+                    <div>
+                      <strong>User-Agent:</strong> {log.user_agent}
+                    </div>
+                    <div>
+                      <strong>User ID:</strong> {log.user_id}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <button
+              onClick={() => setShowAuditLogsModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+      {showLogDetailModal && auditLogDetail && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Audit-Log Detail (ID: {auditLogDetail.id})
+            </h2>
+
+            <div className="space-y-3 text-sm text-gray-700">
+              <div className="flex justify-between">
+                <span className="font-semibold">Aktion:</span>
+                <span>{auditLogDetail.action}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Details:</span>
+                <span>{auditLogDetail.details}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entität:</span>
+                <span>{auditLogDetail.entity}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entitäts-ID:</span>
+                <span>{auditLogDetail.entity_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Kunde-ID:</span>
+                <span>{auditLogDetail.kunde_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">IP-Adresse:</span>
+                <span>{auditLogDetail.ip_address}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">User-Agent:</span>
+                <span className="break-words max-w-[60%]">
+                  {auditLogDetail.user_agent}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">User ID:</span>
+                <span>{auditLogDetail.user_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Zeitstempel:</span>
+                <span>
+                  {new Date(auditLogDetail.timestamp).toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowLogDetailModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
