@@ -3,7 +3,6 @@ import {
   BarChart,
   Delete,
   Edit,
-  History,
   ListAlt,
   Search,
   Summarize,

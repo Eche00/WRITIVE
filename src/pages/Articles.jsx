@@ -1,17 +1,9 @@
-// This will be your new Articles.jsx file with full CRUD logic
-// Based on your Users.jsx structure and UI, adapted to the product endpoints
-
 import React, { useEffect, useState } from "react";
 import {
-  Archive,
   BarChart,
   Delete,
   Edit,
-  History,
-  ListAlt,
   Search,
-  Summarize,
-  Unarchive,
   Visibility,
 } from "@mui/icons-material";
 import CreateArticleModal from "./CreateArticleModal";

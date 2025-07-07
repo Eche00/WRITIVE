@@ -248,7 +248,8 @@ const Dashboard = () => {
                 <th className="py-2 px-3 xl:inline hidden">KontaktName</th>
                 <th className="py-2 px-3">EmailAdresse</th>
                 <th className="py-2 px-3 xl:inline hidden">Firma</th>
-                <th className="py-2 px-3 xl:inline hidden">Status</th>
+                <th className="py-2 px-3 ">Status</th>
+                {/* xl:inline hidden */}
               </tr>
             </thead>
             <tbody>
@@ -264,7 +265,7 @@ const Dashboard = () => {
                   <td className="py-2 px-3 xl:inline hidden">
                     {c.Firma || "-"}
                   </td>
-                  <td className="py-2 px-3 md:inline hidden">
+                  <td className="py-2 px-3 ">
                     <span
                       className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${
                         c.is_active
