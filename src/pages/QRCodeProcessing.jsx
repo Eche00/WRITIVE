@@ -409,6 +409,7 @@ const QRCodeProcessing = () => {
         <table className="w-full text-sm text-left">
           <thead className="text-[#412666] border-b border-gray-200">
             <tr>
+              <th className="py-2 px-3">Kampagne-ID</th>
               <th className="py-2 px-3">Kampagne</th>
               <th className="py-2 px-3">Gerät</th>
               <th className="py-2 px-3">Standort</th>
@@ -427,6 +428,7 @@ const QRCodeProcessing = () => {
                 <tr
                   key={scan.ID}
                   className="border-b border-gray-200 hover:bg-gray-50">
+                  <td className="py-2 px-3">{scan.CampaignID}</td>
                   <td className="py-2 px-3">{scan.Campaign}</td>
                   <td className="py-2 px-3">{scan.DeviceID}</td>
                   <td className="py-2 px-3">{scan.Location}</td>
