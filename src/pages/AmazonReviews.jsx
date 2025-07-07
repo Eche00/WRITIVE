@@ -9,6 +9,7 @@ import {
   Summarize,
   Comment,
   AddCommentOutlined,
+  BarChart,
 } from "@mui/icons-material";
 
 const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
@@ -23,6 +24,13 @@ const AmazonReviews = () => {
   const [campaignID, setCampaignID] = useState("");
   const [fetchResult, setFetchResult] = useState(null);
   const [loadingReview, setLoadingReview] = useState(false);
+  const [showAmazonReviewLogsModal, setShowAmazonReviewLogsModal] =
+    useState(false);
+  const [showAmazonReviewLogDetailModal, setShowAmazonReviewLogDetailModal] =
+    useState(false);
+  const [amazonReviewLogDetail, setAmazonReviewLogDetail] = useState(null);
+
+  const [amazonReviewLogs, setAmazonReviewLogs] = useState([]);
   const [editingReview, setEditingReview] = useState(null); // holds the review being edited
   const [editFields, setEditFields] = useState({
     StarRating: "",
@@ -133,6 +141,69 @@ const AmazonReviews = () => {
       console.error("Update failed:", error);
     }
   };
+  const fetchAmazonReviewLogs = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/amazon_reviews/logs`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      const data = await res.json();
+      if (!Array.isArray(data)) {
+        console.log("Fehler beim Abrufen der Amazon Review Logs.");
+        return;
+      }
+
+      setAmazonReviewLogs(data);
+      setShowAmazonReviewLogsModal(true);
+    } catch (err) {
+      console.error(err);
+      // alert("Netzwerkfehler beim Laden der Logs.");
+    }
+  };
+  const fetchAmazonReviewLogByID = async (logID) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/amazon_reviews/logs/${logID}`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        console.log(data.error); // "Kein AmazonReview-Log."
+        return;
+      }
+
+      if (data.message === "404 Not Found") {
+        console.log("Log-Eintrag wurde nicht gefunden.");
+        return;
+      }
+
+      if (data?.entity === "AmazonReview") {
+        setAmazonReviewLogDetail(data);
+        setShowAmazonReviewLogDetailModal(true);
+      } else {
+        alert("Ungültiges Log-Format oder Entität.");
+      }
+    } catch (err) {
+      console.error(err);
+      // alert("Fehler beim Abrufen des Amazon Review Logs.");
+    }
+  };
+
   // now
   const [reviewComments, setReviewComments] = useState([]);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
@@ -351,12 +422,18 @@ const AmazonReviews = () => {
           <button
             onClick={fetchAndStoreAmazonReview}
             disabled={loadingReview}
-            className="bg-[#412666] text-white px-4 py-2 rounded hover:bg-[#341f4f] transition w-full md:w-auto">
+            className="bg-[#412666] text-white px-4 py-2 rounded hover:bg-[#341f4f] transition w-full md:w-auto cursor-pointer">
             {loadingReview ? "Lädt..." : "Abrufen"}
           </button>
         </div>
       </div>
-
+      <div className=" w-full flex items-encenterd justify-end ">
+        <button
+          onClick={fetchAmazonReviewLogs}
+          className="bg-[#412666] text-white px-[32px] py-2 rounded-full hover:bg-[#341f4f] transition w-fit cursor-pointer">
+          <BarChart fontSize="small" />
+        </button>
+      </div>
       <table className="w-full text-sm text-left">
         <thead className="text-[#412666] border-b border-gray-200">
           <tr>
@@ -688,6 +765,123 @@ const AmazonReviews = () => {
                 {editLoading ? "Kommentar hinzufügen..." : "Hinzufügen"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {showAmazonReviewLogsModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Amazon Review Logs
+            </h2>
+
+            <div className="space-y-3 max-h-[400px] overflow-y-auto text-sm text-gray-700">
+              {amazonReviewLogs.length === 0 ? (
+                <p className="text-center text-gray-500">
+                  Keine Logs gefunden.
+                </p>
+              ) : (
+                amazonReviewLogs.map((log) => (
+                  <div
+                    key={log.id}
+                    onClick={() => fetchAmazonReviewLogByID(log.id)}
+                    className="border rounded-lg p-4 bg-gray-50 shadow-sm space-y-1 cursor-pointer">
+                    <div>
+                      <strong>Aktion:</strong> {log.action}
+                    </div>
+                    <div>
+                      <strong>Details:</strong> {log.details}
+                    </div>
+                    <div>
+                      <strong>Entität:</strong> {log.entity}
+                    </div>
+                    <div>
+                      <strong>Entitäts-ID:</strong> {log.entity_id}
+                    </div>
+                    <div>
+                      <strong>Zeitstempel:</strong>{" "}
+                      {new Date(log.timestamp).toLocaleString()}
+                    </div>
+                    <div>
+                      <strong>IP-Adresse:</strong> {log.ip_address}
+                    </div>
+                    <div>
+                      <strong>Kunde-ID:</strong> {log.kunde_id ?? "—"}
+                    </div>
+                    <div>
+                      <strong>User-Agent:</strong> {log.user_agent}
+                    </div>
+                    <div>
+                      <strong>User ID:</strong> {log.user_id}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <button
+              onClick={() => setShowAmazonReviewLogsModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+      {showAmazonReviewLogDetailModal && amazonReviewLogDetail && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Amazon Review Log (ID: {amazonReviewLogDetail.id})
+            </h2>
+
+            <div className="space-y-3 text-sm text-gray-700">
+              <div className="flex justify-between">
+                <span className="font-semibold">Aktion:</span>
+                <span>{amazonReviewLogDetail.action}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Details:</span>
+                <span>{amazonReviewLogDetail.details}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entität:</span>
+                <span>{amazonReviewLogDetail.entity}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entitäts-ID:</span>
+                <span>{amazonReviewLogDetail.entity_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Kunde-ID:</span>
+                <span>{amazonReviewLogDetail.kunde_id ?? "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">IP-Adresse:</span>
+                <span>{amazonReviewLogDetail.ip_address}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">User-Agent:</span>
+                <span className="break-words max-w-[60%]">
+                  {amazonReviewLogDetail.user_agent}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">User ID:</span>
+                <span>{amazonReviewLogDetail.user_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Zeitstempel:</span>
+                <span>
+                  {new Date(amazonReviewLogDetail.timestamp).toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowAmazonReviewLogDetailModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
           </div>
         </div>
       )}
