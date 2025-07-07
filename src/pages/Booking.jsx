@@ -47,7 +47,7 @@ const Booking = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${BASE_URL}/buchungshistorie`, {
+      const res = await fetch(`${BASE_URL}/buchungshistorie/`, {
         method: "POST",
         headers: {
           Authorization: "Bearer " + token,
