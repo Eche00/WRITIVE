@@ -246,6 +246,12 @@ function Brand() {
   const handleExport = (format) => {
     window.open(`${BRAND_BASE_URL}/brands/export?format=${format}`, "_blank");
   };
+  const handleExportBrandLogs = (format, brandId = null) => {
+    const query = new URLSearchParams({ format });
+    if (brandId) query.append("brand_id", brandId);
+
+    window.open(`${BASE_URL}/brands/logs/export?${query.toString()}`, "_blank");
+  };
 
   return (
     <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
@@ -402,7 +408,7 @@ function Brand() {
                         className="relative group cursor-pointer ">
                         <BarChart />
                         <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                          Protokolle anzeigen
+                          Protokolle
                         </span>
                       </button>
 
@@ -745,6 +751,27 @@ function Brand() {
                     </div>
                   </div>
                 ))
+              )}
+              {brandLogs.length >= 1 && (
+                <div className="space-x-2 flex items-center justify-between">
+                  <button
+                    onClick={() => handleExportBrandLogs("csv")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
+                    Exportiere CSV
+                  </button>
+
+                  <button
+                    onClick={() => handleExportBrandLogs("xls", "B011")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
+                    Exportiere XLS (B011)
+                  </button>
+
+                  <button
+                    onClick={() => handleExportBrandLogs("pdf")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
+                    Exportiere PDF
+                  </button>
+                </div>
               )}
             </div>
 
