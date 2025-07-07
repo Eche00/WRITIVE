@@ -10,6 +10,7 @@ import {
   Cancel,
   History,
   Add,
+  BarChart,
 } from "@mui/icons-material";
 
 const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
@@ -24,6 +25,13 @@ const ProductionWorkflow = () => {
   const [editingProduction, setEditingProduction] = useState({});
   const [statusHistory, setStatusHistory] = useState([]);
   const [showStatusHistoryModal, setShowStatusHistoryModal] = useState(false);
+  const [showProductionLogsModal, setShowProductionLogsModal] = useState(false);
+  const [productionLogs, setProductionLogs] = useState([]);
+  const [selectedProductionID, setSelectedProductionID] = useState(null);
+  const [showProductionLogDetailModal, setShowProductionLogDetailModal] =
+    useState(false);
+  const [productionLogDetail, setProductionLogDetail] = useState(null);
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newProduction, setNewProduction] = useState({
     ID: "",
@@ -154,6 +162,57 @@ const ProductionWorkflow = () => {
       console.error("Delete failed:", err);
     }
   };
+  const fetchProductionLogs = async (productionID) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/production/${productionID}/logs`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!res.ok) throw new Error("Fehler beim Laden der Produktions-Logs");
+
+      const data = await res.json();
+      setProductionLogs(data);
+      setSelectedProductionID(productionID);
+      setShowProductionLogsModal(true);
+    } catch (err) {
+      console.error(err);
+      // alert("Produktions-Logs konnten nicht geladen werden.");
+    }
+  };
+  const fetchProductionLogByID = async (logID) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/production/logs/${logID}`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        console.log(data.error); // e.g., "Kein Produktions-Log-Eintrag"
+        return;
+      }
+
+      setProductionLogDetail(data);
+      setShowProductionLogDetailModal(true);
+    } catch (err) {
+      console.error(err);
+      // alert("Fehler beim Laden des Produktions-Logs.");
+    }
+  };
 
   const fetchStatusHistory = async (productionId) => {
     try {
@@ -198,13 +257,23 @@ const ProductionWorkflow = () => {
       setStatusCheck(data);
       setShowStatusCheckModal(true);
     } catch (err) {
-      alert("❌ Failed to fetch status: " + err.message);
+      // alert("❌ Failed to fetch status: " + err.message);
+      console.log(" Failed to fetch status: " + err.message);
     }
   };
 
   useEffect(() => {
     fetchProductions();
   }, [page, statusFilter, brandFilter, search]);
+  const handleExportProductionLogs = (format, productionId = null) => {
+    const query = new URLSearchParams({ format });
+    if (productionId) query.append("production_id", productionId);
+
+    window.open(
+      `${BASE_URL}/production/logs/export?${query.toString()}`,
+      "_blank"
+    );
+  };
 
   return (
     <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
@@ -368,6 +437,15 @@ const ProductionWorkflow = () => {
                 </button>
 
                 <button
+                  onClick={() => fetchProductionLogs(p.ID)}
+                  title="Status-Historie anzeigen"
+                  className="relative group cursor-pointer ">
+                  <BarChart />
+                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                    Protokolle
+                  </span>
+                </button>
+                <button
                   onClick={() => fetchStatusHistory(p.ID)}
                   title="Status-Historie anzeigen"
                   className="relative group cursor-pointer ">
@@ -526,6 +604,150 @@ const ProductionWorkflow = () => {
                 setShowStatusCheckModal(false);
                 setStatusCheck(null);
               }}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+      {showProductionLogsModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Produktions-Logs (ID: {selectedProductionID})
+            </h2>
+
+            <div className="space-y-3 max-h-[400px] overflow-y-auto text-sm text-gray-700">
+              {productionLogs.length === 0 ? (
+                <p className="text-center text-gray-500">
+                  Keine Logs gefunden.
+                </p>
+              ) : (
+                productionLogs.map((log) => (
+                  <div
+                    key={log.id}
+                    className="border rounded-lg p-4 bg-gray-50 shadow-sm space-y-1 cursor-pointer"
+                    onClick={() => fetchProductionLogByID(log.id)}>
+                    <div>
+                      <strong>Aktion:</strong> {log.action}
+                    </div>
+                    <div>
+                      <strong>Details:</strong> {log.details}
+                    </div>
+                    <div>
+                      <strong>Entität:</strong> {log.entity}
+                    </div>
+                    <div>
+                      <strong>Entitäts-ID:</strong> {log.entity_id}
+                    </div>
+                    <div>
+                      <strong>Zeitstempel:</strong>{" "}
+                      {new Date(log.timestamp).toLocaleString()}
+                    </div>
+                    <div>
+                      <strong>IP-Adresse:</strong> {log.ip_address}
+                    </div>
+                    <div>
+                      <strong>Kunde-ID:</strong> {log.kunde_id}
+                    </div>
+                    <div>
+                      <strong>User-Agent:</strong> {log.user_agent}
+                    </div>
+                    <div>
+                      <strong>User ID:</strong> {log.user_id}
+                    </div>
+                  </div>
+                ))
+              )}
+              {productionLogs.length >= 1 && (
+                <div className="space-x-2 flex items-center justify-between">
+                  <button
+                    onClick={() => handleExportProductionLogs("csv")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
+                    Exportiere CSV
+                  </button>
+
+                  <button
+                    onClick={() => handleExportProductionLogs("xlsx")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
+                    Exportiere XLSX
+                  </button>
+
+                  <button
+                    onClick={() => handleExportProductionLogs("pdf")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
+                    Exportiere PDF
+                  </button>
+
+                  <button
+                    onClick={() => handleExportProductionLogs("csv", "ID33")}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
+                    Exportiere CSV (ID33)
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => setShowProductionLogsModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+      {showProductionLogDetailModal && productionLogDetail && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Produktions-Log Detail (ID: {productionLogDetail.id})
+            </h2>
+
+            <div className="space-y-3 text-sm text-gray-700">
+              <div className="flex justify-between">
+                <span className="font-semibold">Aktion:</span>
+                <span>{productionLogDetail.action}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Details:</span>
+                <span>{productionLogDetail.details}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entität:</span>
+                <span>{productionLogDetail.entity}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Entitäts-ID:</span>
+                <span>{productionLogDetail.entity_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Kunde-ID:</span>
+                <span>{productionLogDetail.kunde_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">IP-Adresse:</span>
+                <span>{productionLogDetail.ip_address}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">User-Agent:</span>
+                <span className="break-words max-w-[60%]">
+                  {productionLogDetail.user_agent}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">User ID:</span>
+                <span>{productionLogDetail.user_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Zeitstempel:</span>
+                <span>
+                  {new Date(productionLogDetail.timestamp).toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowProductionLogDetailModal(false)}
               className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
               Schließen
             </button>
