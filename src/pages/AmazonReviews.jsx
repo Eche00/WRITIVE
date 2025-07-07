@@ -461,12 +461,14 @@ const AmazonReviews = () => {
               </td>
               <td className="p-2 space-x-2">
                 <a
-                  className="text-blue-600 underline"
-                  onClick={() => fetchSingleReview(r.id)}>
-                  <Visibility fontSize="small" />
+                  onClick={() => fetchSingleReview(r.id)}
+                  className="relative group cursor-pointer ">
+                  <Visibility />{" "}
+                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                    Anzeigen
+                  </span>
                 </a>
                 <button
-                  className="cursor-pointer"
                   onClick={() => {
                     setEditingReview(r);
                     setEditFields({
@@ -474,14 +476,21 @@ const AmazonReviews = () => {
                       ReviewText: r.review_text,
                       CampaignID: r.campaign,
                     });
-                  }}>
+                  }}
+                  className="relative group cursor-pointer ">
                   <Edit fontSize="small" />
+                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                    Edit
+                  </span>
                 </button>
                 <button
                   onClick={() => handleShowComments(r.id)}
-                  className="text-blue-500 hover:underline"
+                  className="relative group cursor-pointer "
                   title="Kommentare ansehen">
                   <Comment fontSize="small" />
+                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                    Kommentare ansehen
+                  </span>
                 </button>
                 <button
                   onClick={() => {
@@ -490,14 +499,20 @@ const AmazonReviews = () => {
                     setShowAddCommentModal(true);
                   }}
                   title="Kommentar hinzufügen"
-                  className="text-green-600 hover:underline">
+                  className="relative group cursor-pointer ">
                   <AddCommentOutlined fontSize="small" />
+                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                    Kommentar hinzufügen
+                  </span>
                 </button>
 
                 <button
                   onClick={() => handleDelete(r.id)}
-                  className="cursor-pointer">
-                  <Delete fontSize="small" />
+                  className="relative group cursor-pointer ">
+                  <Delete />
+                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                    Löschen
+                  </span>
                 </button>
               </td>
             </tr>
