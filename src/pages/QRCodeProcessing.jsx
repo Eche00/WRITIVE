@@ -13,6 +13,11 @@ const QRCodeProcessing = () => {
   const [syncedSearch, setSyncedSearch] = useState("");
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [qrStats, setQrStats] = useState(null);
+  const [showQRScanLogsModal, setShowQRScanLogsModal] = useState(false);
+  const [qrScanLogs, setQRScanLogs] = useState([]);
+  const [showQRScanLogDetailModal, setShowQRScanLogDetailModal] =
+    useState(false);
+  const [qrScanLogDetail, setQRScanLogDetail] = useState(null);
 
   const [newScan, setNewScan] = useState({
     CampaignID: "",
@@ -169,7 +174,7 @@ const QRCodeProcessing = () => {
       );
     }
   };
-  // now
+
   const syncByCampaign = async (campaignID) => {
     try {
       const token = localStorage.getItem("token");
@@ -216,7 +221,6 @@ const QRCodeProcessing = () => {
     }
   };
 
-  // new
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -232,6 +236,67 @@ const QRCodeProcessing = () => {
       setQrStats(data); // Save full stats response
     } catch (err) {
       console.error("Fehler beim Abrufen der Statistiken:", err);
+    }
+  };
+
+  const fetchQRScanLogs = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/qr-scans/logs`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      const data = await res.json();
+      if (!Array.isArray(data)) {
+        console.log("Fehler beim Abrufen der QR-Scan Logs.");
+        return;
+      }
+
+      setQRScanLogs(data);
+      setShowQRScanLogsModal(true);
+    } catch (err) {
+      console.error(err);
+      // alert("Netzwerkfehler beim Laden der QR-Scan Logs.");
+    }
+  };
+  const fetchQRScanLogByID = async (logID) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/qr-scans/logs/${logID}`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      const data = await res.json();
+
+      //  Invalid or missing log
+      if (data?.message === "404 Not Found") {
+        console.log("QR-Scan-Log-Eintrag wurde nicht gefunden.");
+        return;
+      }
+
+      if (data?.entity !== "QRScan") {
+        console.log("Ungültige Entität – kein QR-Scan-Log.");
+        return;
+      }
+
+      // ✅ Valid
+      setQRScanLogDetail(data);
+      setShowQRScanLogDetailModal(true);
+    } catch (err) {
+      console.error(err);
+      // alert("Fehler beim Abrufen des QR-Scan Logs.");
     }
   };
 
@@ -328,8 +393,10 @@ const QRCodeProcessing = () => {
               />
             </div>
 
-            <button className="bg-[#412666] text-white px-4 py-2 rounded-full hover:scale-[102%] transition-all">
-              <Sync className="mr-1" />
+            <button
+              onClick={fetchQRScanLogs}
+              className="bg-[#412666] text-white px-4 py-2 rounded-full hover:scale-[102%] transition-all cursor-pointer">
+              <Sync className="mr-1" /> QR-Scan-Protokolle anzeigen
             </button>
           </div>
         </section>
@@ -374,7 +441,7 @@ const QRCodeProcessing = () => {
         </table>
       </>
 
-      {/* 222222222 */}
+      {/* QR-Scans zur Synchronisation */}
       <section className="mt-10 mb-6">
         <h2 className="text-xl font-bold text-[#412666] mb-2">
           QR-Scans zur Synchronisation
@@ -533,6 +600,114 @@ const QRCodeProcessing = () => {
           </table>
         )}
       </section>
+      {showQRScanLogsModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              QR-Scan Logs
+            </h2>
+
+            <div className="space-y-3 max-h-[400px] overflow-y-auto text-sm text-gray-700">
+              {qrScanLogs.length === 0 ? (
+                <p className="text-center text-gray-500">
+                  Keine Logs gefunden.
+                </p>
+              ) : (
+                qrScanLogs.map((log) => (
+                  <div
+                    key={log.id}
+                    className="border rounded-lg p-4 bg-gray-50 shadow-sm space-y-1 cursor-pointer"
+                    onClick={() => fetchQRScanLogByID(log.id)}>
+                    <div>
+                      <strong>Aktion:</strong> {log.action}
+                    </div>
+                    <div>
+                      <strong>Details:</strong> {log.details}
+                    </div>
+                    <div>
+                      <strong>Entität:</strong> {log.entity}
+                    </div>
+                    <div>
+                      <strong>Entitäts-ID:</strong> {log.entity_id}
+                    </div>
+                    <div>
+                      <strong>Zeitstempel:</strong>{" "}
+                      {new Date(log.timestamp).toLocaleString()}
+                    </div>
+                    <div>
+                      <strong>IP-Adresse:</strong> {log.ip_address}
+                    </div>
+                    <div>
+                      <strong>Kunde-ID:</strong> {log.kunde_id ?? "—"}
+                    </div>
+                    <div>
+                      <strong>User-Agent:</strong> {log.user_agent}
+                    </div>
+                    <div>
+                      <strong>User ID:</strong> {log.user_id}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <button
+              onClick={() => setShowQRScanLogsModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+      {showQRScanLogDetailModal && qrScanLogDetail && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              QR-Scan Log Details
+            </h2>
+
+            <div className="space-y-2 text-sm text-gray-700">
+              <div>
+                <strong>Aktion:</strong> {qrScanLogDetail.action}
+              </div>
+              <div>
+                <strong>Details:</strong> {qrScanLogDetail.details}
+              </div>
+              <div>
+                <strong>Entität:</strong> {qrScanLogDetail.entity}
+              </div>
+              <div>
+                <strong>Entitäts-ID:</strong> {qrScanLogDetail.entity_id}
+              </div>
+              <div>
+                <strong>ID:</strong> {qrScanLogDetail.id}
+              </div>
+              <div>
+                <strong>IP-Adresse:</strong> {qrScanLogDetail.ip_address}
+              </div>
+              <div>
+                <strong>Kunde-ID:</strong> {qrScanLogDetail.kunde_id ?? "—"}
+              </div>
+              <div>
+                <strong>Timestamp:</strong>{" "}
+                {new Date(qrScanLogDetail.timestamp).toLocaleString()}
+              </div>
+              <div>
+                <strong>User-Agent:</strong> {qrScanLogDetail.user_agent}
+              </div>
+              <div>
+                <strong>User ID:</strong> {qrScanLogDetail.user_id}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowQRScanLogDetailModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition">
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
