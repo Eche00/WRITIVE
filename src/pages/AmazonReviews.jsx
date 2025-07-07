@@ -76,7 +76,7 @@ const AmazonReviews = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${BASE_URL}/amazon-reviews/fetch`, {
+      const res = await fetch(`${BASE_URL}/amazon_reviews/fetch`, {
         method: "POST",
         headers: {
           Authorization: "Bearer " + token,
