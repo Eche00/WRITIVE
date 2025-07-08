@@ -16,6 +16,10 @@ import AmazonReviews from "./pages/AmazonReviews";
 import QRCodeProcessing from "./pages/QRCodeProcessing";
 import CustomerContainer from "./component/CustomerContainer";
 import Profile from "./customer/profile";
+import CustomerBooking from "./customer/CustomerBooking";
+import CustomerCampaigns from "./customer/CustomerCampaigns";
+import CustomerQRScans from "./customer/CustomerQRScans";
+import CustomerAmazonReviews from "./customer/CustomerAmazonReviews";
 
 function App() {
   return (
@@ -52,8 +56,14 @@ function App() {
         </Route>
         {/* Customer routes */}
         <Route path="/customer" element={<CustomerContainer />}>
-          {/* Profile */}
           <Route path="/customer/home" element={<Profile />} />
+          <Route path="/customer/booking" element={<CustomerBooking />} />
+          <Route path="/customer/campaign" element={<CustomerCampaigns />} />
+          <Route path="/customer/qrcode" element={<CustomerQRScans />} />
+          <Route
+            path="/customer/amazonreviews"
+            element={<CustomerAmazonReviews />}
+          />
         </Route>
       </Routes>
     </div>
