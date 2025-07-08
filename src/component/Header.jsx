@@ -50,13 +50,13 @@ function Header() {
         </section>
         {/* navigation */}
         {token && (
-          <nav className=" hidden xl:flex items-center gap-[20px] text-black">
+          <nav className=" hidden xl:flex flex-wrap  items-center justify-center gap-[20px] gap-y-[10px] text-black text-[12px]">
             <NavLink
               to="/admin/home"
               className={({ isActive }) =>
                 isActive
-                  ? "text-[14px] font-bold text-[#412666]"
-                  : " text-[14px] font-bold text-gray-600"
+                  ? " font-bold text-[#412666]"
+                  : "  font-bold text-gray-600"
               }>
               Übersicht
             </NavLink>
@@ -64,8 +64,8 @@ function Header() {
               to="/admin/users"
               className={({ isActive }) =>
                 isActive
-                  ? "text-[14px] font-bold text-[#412666]"
-                  : " text-[14px] font-bold text-gray-600"
+                  ? " font-bold text-[#412666]"
+                  : "  font-bold text-gray-600"
               }>
               Nutzer
             </NavLink>
@@ -73,8 +73,8 @@ function Header() {
               to="/admin/brand"
               className={({ isActive }) =>
                 isActive
-                  ? "text-[14px] font-bold text-[#412666]"
-                  : " text-[14px] font-bold text-gray-600"
+                  ? " font-bold text-[#412666]"
+                  : "  font-bold text-gray-600"
               }>
               Marken
             </NavLink>
@@ -82,8 +82,8 @@ function Header() {
               to="/admin/workflow"
               className={({ isActive }) =>
                 isActive
-                  ? "text-[14px] font-bold text-[#412666]"
-                  : " text-[14px] font-bold text-gray-600"
+                  ? " font-bold text-[#412666]"
+                  : "  font-bold text-gray-600"
               }>
               Produktionsablauf
             </NavLink>
@@ -91,8 +91,8 @@ function Header() {
               to="/admin/booking"
               className={({ isActive }) =>
                 isActive
-                  ? "text-[14px] font-bold text-[#412666]"
-                  : " text-[14px] font-bold text-gray-600"
+                  ? " font-bold text-[#412666]"
+                  : "  font-bold text-gray-600"
               }>
               Buchungshistorie
             </NavLink>
@@ -100,8 +100,8 @@ function Header() {
               to="/admin/inventory"
               className={({ isActive }) =>
                 isActive
-                  ? "text-[14px] font-bold text-[#412666]"
-                  : " text-[14px] font-bold text-gray-600"
+                  ? " font-bold text-[#412666]"
+                  : "  font-bold text-gray-600"
               }>
               Inventarsystem
             </NavLink>
@@ -109,8 +109,8 @@ function Header() {
               to="/admin/settings"
               className={({ isActive }) =>
                 isActive
-                  ? "text-[14px] font-bold text-[#412666]"
-                  : " text-[14px] font-bold text-gray-600"
+                  ? " font-bold text-[#412666]"
+                  : "  font-bold text-gray-600"
               }>
               Einstellungen
             </NavLink>
@@ -118,8 +118,8 @@ function Header() {
               to="/admin/campaign"
               className={({ isActive }) =>
                 isActive
-                  ? "text-[14px] font-bold text-[#412666]"
-                  : " text-[14px] font-bold text-gray-600"
+                  ? " font-bold text-[#412666]"
+                  : "  font-bold text-gray-600"
               }>
               Kampagne
             </NavLink>
@@ -127,8 +127,8 @@ function Header() {
               to="/admin/amazonreviews"
               className={({ isActive }) =>
                 isActive
-                  ? "text-[14px] font-bold text-[#412666]"
-                  : " text-[14px] font-bold text-gray-600"
+                  ? " font-bold text-[#412666]"
+                  : "  font-bold text-gray-600"
               }>
               Amazon-Bewertungen
             </NavLink>
@@ -136,8 +136,8 @@ function Header() {
               to="/admin/qrcode"
               className={({ isActive }) =>
                 isActive
-                  ? "text-[14px] font-bold text-[#412666]"
-                  : " text-[14px] font-bold text-gray-600"
+                  ? " font-bold text-[#412666]"
+                  : "  font-bold text-gray-600"
               }>
               QR-Code-Verarbeitung
             </NavLink>
