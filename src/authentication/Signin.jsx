@@ -21,12 +21,12 @@ function Signin() {
   const navigate = useNavigate();
 
   // user
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/home");
-    }
-  }, [navigate]);
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (token && ) {
+  //     navigate("/home/");
+  //   }
+  // }, [navigate]);
 
   // handling change function
   const handleChange = (e) => {
