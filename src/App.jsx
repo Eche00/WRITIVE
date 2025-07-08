@@ -19,7 +19,7 @@ import CustomerBooking from "./customer/CustomerBooking";
 import CustomerCampaigns from "./customer/CustomerCampaigns";
 import CustomerQRScans from "./customer/CustomerQRScans";
 import CustomerAmazonReviews from "./customer/CustomerAmazonReviews";
-import CustomerProfile from "./customer/CustomerProfile";
+import CustomerProfile from "./pages/CustomerProfile";
 
 function App() {
   return (
