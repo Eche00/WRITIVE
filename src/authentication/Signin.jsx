@@ -88,7 +88,11 @@ function Signin() {
       localStorage.setItem("userEmail", formData.email);
 
       // redirect to homepage
-      navigate("/");
+      if (result.is_admin) {
+        navigate("/admin/home"); //  admin route t
+      } else {
+        navigate("/customer/home"); // customer
+      }
     } catch (error) {
       // handle backend error response
       setError(
