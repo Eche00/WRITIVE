@@ -19,7 +19,7 @@ import CustomerBooking from "./customer/CustomerBooking";
 import CustomerCampaigns from "./customer/CustomerCampaigns";
 import CustomerQRScans from "./customer/CustomerQRScans";
 import CustomerAmazonReviews from "./customer/CustomerAmazonReviews";
-import Profile from "./customer/profile";
+import CustomerProfile from "./customer/CustomerProfile";
 
 function App() {
   return (
@@ -56,7 +56,7 @@ function App() {
         </Route>
         {/* Customer routes */}
         <Route path="/customer" element={<CustomerContainer />}>
-          <Route path="/customer/home" element={<Profile />} />
+          <Route path="/customer/home" element={<CustomerProfile />} />
           <Route path="/customer/booking" element={<CustomerBooking />} />
           <Route path="/customer/campaign" element={<CustomerCampaigns />} />
           <Route path="/customer/qrcode" element={<CustomerQRScans />} />
