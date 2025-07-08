@@ -60,6 +60,42 @@ function CustomerHeader() {
               }>
               Kundenübersicht
             </NavLink>
+            <NavLink
+              to="/customer/booking"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-[14px] font-bold text-[#412666]"
+                  : " text-[14px] font-bold text-gray-600"
+              }>
+              Buchungshistorie
+            </NavLink>
+            <NavLink
+              to="/customer/campaign"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-[14px] font-bold text-[#412666]"
+                  : " text-[14px] font-bold text-gray-600"
+              }>
+              Kampagne
+            </NavLink>
+            <NavLink
+              to="/customer/amazonreviews"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-[14px] font-bold text-[#412666]"
+                  : " text-[14px] font-bold text-gray-600"
+              }>
+              Amazon-Bewertungen
+            </NavLink>
+            <NavLink
+              to="/customer/qrcode"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-[14px] font-bold text-[#412666]"
+                  : " text-[14px] font-bold text-gray-600"
+              }>
+              QR-Code-Verarbeitung
+            </NavLink>
           </nav>
         )}
         {token && (
@@ -90,6 +126,42 @@ function CustomerHeader() {
                     : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
                 }>
                 Kundenübersicht
+              </NavLink>
+              <NavLink
+                to="/customer/booking"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
+                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
+                }>
+                Buchungshistorie
+              </NavLink>
+              <NavLink
+                to="/customer/campaign"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
+                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
+                }>
+                Kampagne
+              </NavLink>
+              <NavLink
+                to="/customer/amazonreviews"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
+                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
+                }>
+                Amazon-Bewertungen
+              </NavLink>
+              <NavLink
+                to="/customer/qrcode"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
+                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
+                }>
+                QR-Code-Verarbeitung
               </NavLink>
             </nav>
           </div>
