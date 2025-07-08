@@ -52,7 +52,7 @@ function Header() {
         {token && (
           <nav className=" hidden xl:flex items-center gap-[20px] text-black">
             <NavLink
-              to="/home"
+              to="/admin/home"
               className={({ isActive }) =>
                 isActive
                   ? "text-[14px] font-bold text-[#412666]"
@@ -61,7 +61,7 @@ function Header() {
               Übersicht
             </NavLink>
             <NavLink
-              to="/users"
+              to="/admin/users"
               className={({ isActive }) =>
                 isActive
                   ? "text-[14px] font-bold text-[#412666]"
@@ -70,7 +70,7 @@ function Header() {
               Nutzer
             </NavLink>
             <NavLink
-              to="/brand"
+              to="/admin/brand"
               className={({ isActive }) =>
                 isActive
                   ? "text-[14px] font-bold text-[#412666]"
@@ -79,7 +79,7 @@ function Header() {
               Marken
             </NavLink>
             <NavLink
-              to="/workflow"
+              to="/admin/workflow"
               className={({ isActive }) =>
                 isActive
                   ? "text-[14px] font-bold text-[#412666]"
@@ -88,7 +88,7 @@ function Header() {
               Produktionsablauf
             </NavLink>
             <NavLink
-              to="/booking"
+              to="/admin/booking"
               className={({ isActive }) =>
                 isActive
                   ? "text-[14px] font-bold text-[#412666]"
@@ -97,7 +97,7 @@ function Header() {
               Buchungshistorie
             </NavLink>
             <NavLink
-              to="/inventory"
+              to="/admin/inventory"
               className={({ isActive }) =>
                 isActive
                   ? "text-[14px] font-bold text-[#412666]"
@@ -106,7 +106,7 @@ function Header() {
               Inventarsystem
             </NavLink>
             <NavLink
-              to="/settings"
+              to="/admin/settings"
               className={({ isActive }) =>
                 isActive
                   ? "text-[14px] font-bold text-[#412666]"
@@ -115,7 +115,7 @@ function Header() {
               Einstellungen
             </NavLink>
             <NavLink
-              to="/campaign"
+              to="/admin/campaign"
               className={({ isActive }) =>
                 isActive
                   ? "text-[14px] font-bold text-[#412666]"
@@ -124,7 +124,7 @@ function Header() {
               Kampagne
             </NavLink>
             <NavLink
-              to="/amazonreviews"
+              to="/admin/amazonreviews"
               className={({ isActive }) =>
                 isActive
                   ? "text-[14px] font-bold text-[#412666]"
@@ -133,7 +133,7 @@ function Header() {
               Amazon-Bewertungen
             </NavLink>
             <NavLink
-              to="/qrcode"
+              to="/admin/qrcode"
               className={({ isActive }) =>
                 isActive
                   ? "text-[14px] font-bold text-[#412666]"
@@ -164,7 +164,7 @@ function Header() {
             onClick={() => setMobileNav(false)}>
             <nav className=" flex flex-col  text-black p-10">
               <NavLink
-                to="/home"
+                to="/admin/home"
                 className={({ isActive }) =>
                   isActive
                     ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
@@ -173,7 +173,7 @@ function Header() {
                 Übersicht
               </NavLink>
               <NavLink
-                to="/users"
+                to="/admin/users"
                 className={({ isActive }) =>
                   isActive
                     ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
@@ -182,7 +182,7 @@ function Header() {
                 Nutzer
               </NavLink>
               <NavLink
-                to="/brand"
+                to="/admin/brand"
                 className={({ isActive }) =>
                   isActive
                     ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
@@ -191,7 +191,7 @@ function Header() {
                 Marken
               </NavLink>
               <NavLink
-                to="/workflow"
+                to="/admin/workflow"
                 className={({ isActive }) =>
                   isActive
                     ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
@@ -200,7 +200,7 @@ function Header() {
                 Produktionsablauf
               </NavLink>
               <NavLink
-                to="/booking"
+                to="/admin/booking"
                 className={({ isActive }) =>
                   isActive
                     ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
@@ -209,7 +209,7 @@ function Header() {
                 Buchungshistorie
               </NavLink>
               <NavLink
-                to="/inventory"
+                to="/admin/inventory"
                 className={({ isActive }) =>
                   isActive
                     ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
@@ -218,7 +218,7 @@ function Header() {
                 Inventarsystem
               </NavLink>
               <NavLink
-                to="/settings"
+                to="/admin/settings"
                 className={({ isActive }) =>
                   isActive
                     ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
@@ -227,7 +227,7 @@ function Header() {
                 Einstellungen
               </NavLink>
               <NavLink
-                to="/campaign"
+                to="/admin/campaign"
                 className={({ isActive }) =>
                   isActive
                     ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
@@ -236,7 +236,7 @@ function Header() {
                 Kampagne
               </NavLink>
               <NavLink
-                to="/amazonreviews"
+                to="/admin/amazonreviews"
                 className={({ isActive }) =>
                   isActive
                     ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
@@ -245,7 +245,7 @@ function Header() {
                 Amazon-Bewertungen
               </NavLink>
               <NavLink
-                to="/qrcode"
+                to="/admin/qrcode"
                 className={({ isActive }) =>
                   isActive
                     ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
