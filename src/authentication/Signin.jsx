@@ -204,7 +204,7 @@ function Signin() {
             </p>
             <p className="text-sm font-bold text-center my-2">
               <Link to="/forgotpassword" className="  text-blue-600 ">
-                Forgotten password
+                Passwort vergessen
               </Link>
             </p>
           </form>
