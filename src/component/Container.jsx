@@ -1,9 +1,19 @@
 import React from "react";
-import { Outlet, useLocation } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import Header from "./Header";
 
 function Container() {
-  const location = useLocation();
+  const token = localStorage.getItem("token");
+  const is_Admin = localStorage.getItem("is_admin");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/signin");
+    } else if (is_Admin === "false") {
+      navigate("/customer/home");
+    }
+  }, [navigate]);
   return (
     <div className=" relative sm:h-full bg-white dark:bg-[#1F1F1F]">
       {/* header  */}
