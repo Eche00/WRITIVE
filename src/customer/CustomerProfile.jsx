@@ -9,7 +9,7 @@ function CustomerProfile() {
     const fetchProfile = async () => {
       try {
         const res = await fetch(
-          `https://716f-102-89-69-162.ngrok-free.app/${token}`,
+          `https://716f-102-89-69-162.ngrok-free.app/customers/me`,
           {
             method: "GET",
             headers: {
@@ -33,7 +33,11 @@ function CustomerProfile() {
       }
     };
 
-    fetchProfile();
+    if (token) {
+      fetchProfile();
+    } else {
+      setLoading(false);
+    }
   }, [token]);
 
   if (loading) return <div>Loading profile...</div>;
@@ -42,7 +46,7 @@ function CustomerProfile() {
   return (
     <div className="p-4">
       <h2 className="text-xl font-semibold mb-4">Customer Profile</h2>
-      <ul className="space-y-2">
+      <ul className="space-y-2 text-black dark:text-white">
         <li>
           <strong>AutoID:</strong> {profile.AutoID}
         </li>
