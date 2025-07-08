@@ -82,7 +82,6 @@ const Users = () => {
       const data = await res.json();
       setCustomers(data.customers || []);
       setFiltered(data.customers || []);
-      console.log("hello");
     } catch (err) {
       console.error("Error fetching customers:", err);
     } finally {
@@ -286,6 +285,7 @@ const Users = () => {
           "ngrok-skip-browser-warning": "true",
         },
       });
+
       fetchCustomers();
     } catch (err) {
       console.error(err);
