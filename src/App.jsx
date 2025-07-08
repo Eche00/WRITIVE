@@ -14,27 +14,47 @@ import Settings from "./pages/Settings";
 import Campaign from "./pages/Campaign";
 import AmazonReviews from "./pages/AmazonReviews";
 import QRCodeProcessing from "./pages/QRCodeProcessing";
+import CustomerContainer from "./component/CustomerContainer";
+import Profile from "./customer/profile";
 
 function App() {
   return (
     <div className=" text-white  overflow-hidden bg-white  dark:bg-[#1F1F1F]">
       <Routes>
-        <Route element={<Container />}>
-          <Route path="/home" element={<Dashboard />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/brand" element={<Brand />} />
-          <Route path="/workflow" element={<ProductionWorkflow />} />
-          <Route path="/booking" element={<Booking />} />
-          <Route path="/inventory" element={<Inventory />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/campaign" element={<Campaign />} />
-          <Route path="/amazonreviews" element={<AmazonReviews />} />
-          <Route path="/qrcode" element={<QRCodeProcessing />} />
-
-          <Route path="/signin" element={<Signin />} />
-          <Route path="/" element={<Signup />} />
-        </Route>
+        {/* Auth Routes */}
+        <Route path="/signin" element={<Signin />} />
+        <Route path="/" element={<Signup />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
+
+        {/* Admin Protected Routes  */}
+        <Route path="/admin" element={<Container />}>
+          {/* Dashboard */}
+          <Route path="/admin/home" element={<Dashboard />} />
+
+          {/* User Management */}
+          <Route path="/admin/users" element={<Users />} />
+
+          {/* Brand & Campaign */}
+          <Route path="/admin/brand" element={<Brand />} />
+          <Route path="/admin/campaign" element={<Campaign />} />
+
+          {/* Workflow & Inventory */}
+          <Route path="/admin/workflow" element={<ProductionWorkflow />} />
+          <Route path="/admin/booking" element={<Booking />} />
+          <Route path="/admin/inventory" element={<Inventory />} />
+
+          {/* Reviews & QR Code */}
+          <Route path="/admin/amazonreviews" element={<AmazonReviews />} />
+          <Route path="/admin/qrcode" element={<QRCodeProcessing />} />
+
+          {/* Settings */}
+          <Route path="/admin/settings" element={<Settings />} />
+        </Route>
+        {/* Customer routes */}
+        <Route path="/customer" element={<CustomerContainer />}>
+          {/* Profile */}
+          <Route path="/customer/home" element={<Profile />} />
+        </Route>
       </Routes>
     </div>
   );
