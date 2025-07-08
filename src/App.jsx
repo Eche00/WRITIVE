@@ -15,11 +15,11 @@ import Campaign from "./pages/Campaign";
 import AmazonReviews from "./pages/AmazonReviews";
 import QRCodeProcessing from "./pages/QRCodeProcessing";
 import CustomerContainer from "./component/CustomerContainer";
-import Profile from "./customer/profile";
 import CustomerBooking from "./customer/CustomerBooking";
 import CustomerCampaigns from "./customer/CustomerCampaigns";
 import CustomerQRScans from "./customer/CustomerQRScans";
 import CustomerAmazonReviews from "./customer/CustomerAmazonReviews";
+import Profile from "./customer/profile";
 
 function App() {
   return (
