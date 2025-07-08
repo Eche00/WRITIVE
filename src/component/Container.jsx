@@ -1,5 +1,5 @@
-import React from "react";
-import { Outlet, useLocation, useNavigate } from "react-router";
+import React, { useEffect } from "react";
+import { Outlet, useNavigate } from "react-router";
 import Header from "./Header";
 
 function Container() {
