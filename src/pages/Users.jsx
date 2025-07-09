@@ -352,7 +352,8 @@ const Users = () => {
       "_blank"
     );
   };
-
+  const [openFormats, setOpenFormats] = useState(false);
+  const formats = ["csv", "xls", "pdf"];
   return (
     <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
       <h1 className="text-2xl font-bold mb-4 capitalize"> Nutzerseite</h1>
@@ -407,15 +408,29 @@ const Users = () => {
                 className=" border-none focus:outline-none py-2 flex-1"
               />
             </div>
-            <div className="flex gap-2">
-              {["csv", "xls", "pdf"].map((format) => (
-                <button
-                  key={format}
-                  onClick={() => handleExport(format)}
-                  className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
-                  {format.toUpperCase()} Exportieren
-                </button>
-              ))}
+
+            <div className="relative inline-block text-left">
+              <button
+                onClick={() => setOpenFormats(!openFormats)}
+                className="border border-[#412666] px-4 py-2 rounded-lg text-sm text-[#412666] hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
+                Exportieren ▾
+              </button>
+
+              {openFormats && (
+                <div className="absolute mt-2 w-48 right-0 bg-white border border-gray-200 rounded-lg shadow z-50 p-2 ">
+                  {formats.map((format) => (
+                    <button
+                      key={format}
+                      onClick={() => {
+                        handleExport(format);
+                        setOpenFormats(false); // close dropdown
+                      }}
+                      className="w-full  px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                      {format.toUpperCase()} Exportieren
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           <table className="w-full text-left text-sm">
@@ -449,91 +464,85 @@ const Users = () => {
                       {c.is_active ? "abgeschlossen" : "inaktiv"}
                     </span>
                   </td>
-                  <td className="py-2 px-3 text-center space-x-2">
-                    <button
-                      onClick={() => fetchCustomerDetails(c.AutoID)}
-                      className="relative group cursor-pointer  text-[#4A90E2]">
-                      <Visibility />{" "}
-                      <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                        Anzeigen
-                      </span>
-                    </button>
-                    {!c.is_archived && (
-                      <button
-                        onClick={() => {
-                          setSelectedCustomer(c);
-                          setEditModal(true);
-                        }}
-                        className="relative group cursor-pointer text-blue-700">
-                        <Edit fontSize="small" />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                          Bearbeiten
-                        </span>
-                      </button>
-                    )}
-                    {!c.is_archived && (
-                      <button
-                        onClick={() => handleArchive(c.AutoID)}
-                        className="relative group cursor-pointer text-[#9B9B9B]">
-                        <Archive />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden ">
-                          Archivieren
-                        </span>
-                      </button>
-                    )}
-                    {c.is_archived && (
-                      <button
-                        onClick={() => handleRestore(c.AutoID)}
-                        className="relative group cursor-pointer text-[#9B9B9B]">
-                        <Unarchive />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                          Wiederherstellen
-                        </span>
-                      </button>
-                    )}
+                  <td className="py-2 px-3 text-center ">
+                    <select
+                      onChange={(e) => {
+                        const action = e.target.value;
+                        if (!action) return;
 
-                    <button
-                      onClick={() => fetchCustomerSummary(c.AutoID)}
-                      className="relative group cursor-pointer   text-[#50E3C2]">
-                      <Summarize />
-                      <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                        Kundenzusammenfassung
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => fetchCustomerLogs(c.AutoID)}
-                      className="relative group cursor-pointer text-green-700">
-                      <ListAlt />
-                      <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                        Kundenprotokolle
-                      </span>
-                    </button>
-                    {/* <button
-                      onClick={() => fetchStatusHistory(c.AutoID)}
-                      className="relative group cursor-pointer ">
-                      <History />
-                      <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                        Verlauf
-                      </span>
-                    </button> */}
-                    <button
-                      onClick={() => fetchAuditLogs(c.AutoID)}
-                      className="relative group cursor-pointer  text-[#F5A623]">
-                      <BarChart />
-                      <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                        Protokolle
-                      </span>
-                    </button>
-                    {c.is_archived && (
-                      <button
-                        onClick={() => handleDelete(c.AutoID)}
-                        className="relative group cursor-pointer text-red-500 ">
-                        <Delete />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                          Löschen
-                        </span>
-                      </button>
-                    )}
+                        switch (action) {
+                          case "view":
+                            fetchCustomerDetails(c.AutoID);
+                            break;
+                          case "edit":
+                            setSelectedCustomer(c);
+                            setEditModal(true);
+                            break;
+                          case "archive":
+                            handleArchive(c.AutoID);
+                            break;
+                          case "restore":
+                            handleRestore(c.AutoID);
+                            break;
+                          case "audit":
+                            fetchAuditLogs(c.AutoID);
+                            break;
+                          case "delete":
+                            handleDelete(c.AutoID);
+                            break;
+                          default:
+                            break;
+                        }
+
+                        // Reset selection after action
+                        e.target.selectedIndex = 0;
+                      }}
+                      className="border border-gray-300 rounded px-2 py-1 text-sm text-[#412666] bg-white cursor-pointer">
+                      <option value="">Aktion wählen</option>
+                      <option value="view">
+                        <Visibility /> Anzeigen
+                      </option>
+                      {!c.is_archived && (
+                        <option value="edit">
+                          <Edit /> Bearbeiten
+                        </option>
+                      )}
+                      {!c.is_archived && (
+                        <option value="archive">
+                          <Archive /> Archivieren
+                        </option>
+                      )}
+                      {c.is_archived && (
+                        <option value="restore">
+                          <Unarchive /> Wiederherstellen
+                        </option>
+                      )}
+                      <option value="audit">
+                        <BarChart /> Protokolle
+                      </option>
+                      {c.is_archived && (
+                        <option value="delete">
+                          <Delete /> Löschen
+                        </option>
+                      )}
+                    </select>
+
+                    {/* 
+  <button onClick={() => fetchCustomerSummary(c.AutoID)} className="relative group cursor-pointer text-[#50E3C2]">
+    <Summarize />
+    <span className="absolute ...">Kundenzusammenfassung</span>
+  </button>
+
+  <button onClick={() => fetchCustomerLogs(c.AutoID)} className="relative group cursor-pointer text-green-700">
+    <ListAlt />
+    <span className="absolute ...">Kundenprotokolle</span>
+  </button>
+
+  <button onClick={() => fetchStatusHistory(c.AutoID)} className="relative group cursor-pointer">
+    <History />
+    <span className="absolute ...">Verlauf</span>
+  </button>
+  */}
                   </td>
                 </tr>
               ))}
@@ -785,7 +794,7 @@ const Users = () => {
         />
       )}
       {showAuditLogsModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4 text-wrap">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
             <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
               Audit-Logs für Kunde {selectedCustomerID}
@@ -800,7 +809,7 @@ const Users = () => {
                 auditLogs.map((log) => (
                   <div
                     key={log.id}
-                    className="border border-gray-200 rounded-lg p-4 bg-gray-50 shadow-sm space-y-1 cursor-pointer"
+                    className="border border-gray-200 rounded-lg p-4 bg-gray-50 shadow-sm space-y-1 cursor-pointer w-full "
                     onClick={() => fetchAuditLogByID(log.entity_id)}>
                     <div>
                       <strong>Aktion:</strong> {log.action}
