@@ -20,13 +20,17 @@ function Signin() {
 
   const navigate = useNavigate();
 
-  // user
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   if (token && ) {
-  //     navigate("/home/");
-  //   }
-  // }, [navigate]);
+  // check if user is already logged in
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const is_admin = localStorage.getItem("is_admin");
+    if (!token) return;
+    if (is_admin === "true") {
+      navigate("/admin/home"); //  admin route t
+    } else if (is_admin === "false") {
+      navigate("/customer/home"); // customer
+    }
+  }, [navigate]);
 
   // handling change function
   const handleChange = (e) => {
