@@ -154,7 +154,17 @@ const Categories = () => {
       "_blank"
     );
   };
+  const handleExport = (format) => {
+    window.open(`${BASE_URL}/categories/export/${format}`, "_blank");
+  };
+  const [openFormats, setOpenFormats] = useState(false);
+  const formats = ["csv", "xlsx", "pdf"];
 
+  const [openCustom, setOpenCustom] = useState(false);
+  const handleClick = (format, categoryID = null) => {
+    handleExportCategoryLogs(format, categoryID);
+    setOpenCustom(false);
+  };
   return (
     <div className="w-full mt-10">
       <h1 className="text-2xl font-bold mb-4 text-[#412666]">Kategorien</h1>
@@ -170,20 +180,28 @@ const Categories = () => {
             className="flex-1 py-2 px-2 focus:outline-none"
           />
         </div>
-        <div className="flex gap-2">
-          {["csv", "xlsx", "pdf"].map((fmt) => (
-            <button
-              key={fmt}
-              onClick={() =>
-                window.open(
-                  `${BASE_URL}/categories/export?format=${fmt}`,
-                  "_blank"
-                )
-              }
-              className="px-3 py-1 border border-[#412666] rounded hover:bg-[#412666] hover:text-white transition-all">
-              {fmt.toUpperCase()}
-            </button>
-          ))}
+        <div className="relative inline-block text-left">
+          <button
+            onClick={() => setOpenFormats(!openFormats)}
+            className="border border-[#412666] px-4 py-2 rounded-lg text-sm text-[#412666] hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
+            Exportieren ▾
+          </button>
+
+          {openFormats && (
+            <div className="absolute mt-2 w-48 right-0 bg-white border border-gray-200 rounded-lg shadow z-50 p-2 ">
+              {formats.map((format) => (
+                <button
+                  key={format}
+                  onClick={() => {
+                    handleExport(format);
+                    setOpenFormats(false); // close dropdown
+                  }}
+                  className="w-full  px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                  {format.toUpperCase()} Exportieren
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -227,49 +245,60 @@ const Categories = () => {
                   cat.Name
                 )}
               </td>
-              <td className="p-2 flex gap-2 justify-between">
-                {editingId === cat.ID ? (
-                  <button
-                    onClick={() => handleUpdateCategory(cat.ID)}
-                    className="text-green-600 cursor-pointer">
-                    <Save fontSize="small" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => {
-                      setEditingId(cat.ID);
-                      setEditingName(cat.Name);
-                    }}
-                    className="relative group cursor-pointer text-blue-700">
-                    <Edit fontSize="small" />
-                    <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                      Bearbeiten
-                    </span>
-                  </button>
+              <td className="py-2 px-3 text-center flex items-center gap-2">
+                {editingId === cat.ID && (
+                  <p
+                    className="text-[#412666] font-bold cursor-pointer"
+                    onClick={() => handleUpdateCategory(cat.ID)}>
+                    {" "}
+                    Speichern
+                  </p>
                 )}
-                <button
-                  onClick={() => fetchCategoryLogs(cat.ID)}
-                  className="relative group cursor-pointer  text-[#F5A623]">
-                  <BarChart />
-                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                    Protokolle
-                  </span>
-                </button>
-                <button
-                  onClick={() => handleDeleteCategory(cat.ID)}
-                  className="relative group cursor-pointer text-red-500 ">
-                  <Delete />
-                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                    Löschen
-                  </span>
-                </button>
+                <select
+                  onChange={(e) => {
+                    const action = e.target.value;
+                    if (!action) return;
+
+                    switch (action) {
+                      case "edit":
+                        setEditingId(cat.ID);
+                        setEditingName(cat.Name);
+                        break;
+                      case "save":
+                        handleUpdateCategory(cat.ID);
+                        break;
+                      case "logs":
+                        fetchCategoryLogs(cat.ID);
+                        break;
+                      case "delete":
+                        handleDeleteCategory(cat.ID);
+                        break;
+                      default:
+                        break;
+                    }
+
+                    // Reset the selection
+                    e.target.selectedIndex = 0;
+                  }}
+                  className="border border-gray-300 rounded px-2 py-1 text-sm text-[#412666] bg-white cursor-pointer">
+                  <option value="" hidden>
+                    Aktion wählen
+                  </option>
+                  {editingId === cat.ID ? (
+                    <option value="save"> Speichern</option>
+                  ) : (
+                    <option value="edit"> Bearbeiten</option>
+                  )}
+                  <option value="logs"> Protokolle</option>
+                  <option value="delete"> Löschen</option>
+                </select>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
       {showCategoryLogsModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4 text-wrap">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
             <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
               Kategorie-Logs (ID: {selectedCategoryID})
@@ -318,30 +347,37 @@ const Categories = () => {
                 ))
               )}
               {categoryLogs.length >= 1 && (
-                <div className="space-x-2 flex items-center justify-between">
+                <div className="relative inline-block text-left">
                   <button
-                    onClick={() => handleExportCategoryLogs("csv")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
-                    Exportiere CSV
+                    onClick={() => setOpenCustom(!openCustom)}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm text-[#412666] hover:bg-[#412666] hover:text-white transition-all duration-300">
+                    Exportieren ▾
                   </button>
 
-                  <button
-                    onClick={() => handleExportCategoryLogs("xlsx")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
-                    Exportiere XLSX
-                  </button>
-
-                  <button
-                    onClick={() => handleExportCategoryLogs("pdf")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
-                    Exportiere PDF
-                  </button>
-
-                  <button
-                    onClick={() => handleExportCategoryLogs("csv", 1)}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
-                    Exportiere CSV (Kategorie 1)
-                  </button>
+                  {openCustom && (
+                    <div className="absolute left-0 -top-58 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow z-50 p-2">
+                      <button
+                        onClick={() => handleClick("csv")}
+                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                        Exportiere CSV
+                      </button>
+                      <button
+                        onClick={() => handleClick("xlsx")}
+                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                        Exportiere XLSX
+                      </button>
+                      <button
+                        onClick={() => handleClick("pdf")}
+                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                        Exportiere PDF
+                      </button>
+                      <button
+                        onClick={() => handleClick("csv", 1)}
+                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                        Exportiere CSV (Kategorie 1)
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -355,7 +391,7 @@ const Categories = () => {
         </div>
       )}
       {showCategoryLogDetailModal && categoryLogDetail && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4 text-wrap">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-xl w-full relative">
             <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
               Kategorie-Log Detail (ID: {categoryLogDetail.id})
