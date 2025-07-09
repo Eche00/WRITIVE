@@ -354,6 +354,15 @@ const Users = () => {
   };
   const [openFormats, setOpenFormats] = useState(false);
   const formats = ["csv", "xls", "pdf"];
+  const [openCustomLogs, setOpenCustomLogs] = useState(false);
+  const handleClick = (format) => {
+    if (format === "pdf") {
+      exportCustomerLogs("pdf", "K001");
+    } else {
+      exportCustomerLogs(format);
+    }
+    setOpen(false);
+  };
   return (
     <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
       <h1 className="text-2xl font-bold mb-4 capitalize"> Nutzerseite</h1>
@@ -363,7 +372,7 @@ const Users = () => {
           <UserLoader />
         </section>
       ) : (
-        <div className="bg-white p-4 rounded-xl shadow border border-gray-100">
+        <div className="bg-white p-4 rounded-xl shadow border border-gray-100 w-fit">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-[#412666] mb-4">
               Nutzer
@@ -840,24 +849,32 @@ const Users = () => {
                 ))
               )}
               {auditLogs.length >= 1 && (
-                <div className="space-x-2 flex items-center justify-between">
+                <div className="relative inline-block text-left">
                   <button
-                    onClick={() => exportCustomerLogs("csv")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
-                    Exportiere CSV
+                    onClick={() => setOpenCustomLogs(!openCustomLogs)}
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm text-[#412666] hover:bg-[#412666] hover:text-white transition-all duration-300">
+                    Exportiere Logs ▾
                   </button>
 
-                  <button
-                    onClick={() => exportCustomerLogs("xls")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
-                    Exportiere XLS
-                  </button>
-
-                  <button
-                    onClick={() => exportCustomerLogs("pdf", "K001")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
-                    Exportiere PDF (K001)
-                  </button>
+                  {openCustomLogs && (
+                    <div className="absolute left-0 -top-42 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow z-50 p-2">
+                      <button
+                        onClick={() => handleClick("csv")}
+                        className="w-full  px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                        Exportiere CSV
+                      </button>
+                      <button
+                        onClick={() => handleClick("xls")}
+                        className="w-full  px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                        Exportiere XLS
+                      </button>
+                      <button
+                        onClick={() => handleClick("pdf")}
+                        className="w-full  px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                        Exportiere PDF (K001)
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
