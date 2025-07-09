@@ -1,8 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
 
 const CreateBrandModal = ({ createModal, setCreateModal, fetchBrands }) => {
+  const [customers, setCustomers] = useState([]);
+  const fetchCustomers = async () => {
+    try {
+      const token = localStorage.getItem("token"); // or however you store the token
+      const res = await fetch(`${BASE_URL}/customers/`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true", // <-- this fixes it
+        },
+      });
+      const data = await res.json();
+      setCustomers(data.customers || []);
+    } catch (err) {
+      console.error("Error fetching customers:", err);
+    }
+  };
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
   const [brandData, setBrandData] = useState({
     KundeID: "",
     Firmenname: "",
@@ -57,14 +78,24 @@ const CreateBrandModal = ({ createModal, setCreateModal, fetchBrands }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
           <div>
             <label className="font-semibold block mb-1">Kunde ID:</label>
-            <input
-              type="text"
+            <select
               name="KundeID"
               value={brandData.KundeID}
               onChange={handleChange}
-              className="w-full border border-gray-300 px-3 py-2 rounded"
-            />
+              className="w-full border border-gray-300 px-3 py-2 rounded text-sm curpor-pointer">
+              <option value="">Bitte wählen</option>
+              {customers.map((customer) => (
+                <option
+                  key={customer.AutoID}
+                  value={customer.AutoID}
+                  className=" cursor-pointer">
+                  {customer.AutoID} –{" "}
+                  {customer.KontaktName || customer.Vorname || "Unbenannt"}
+                </option>
+              ))}
+            </select>
           </div>
+
           <div>
             <label className="font-semibold block mb-1">Firmenname:</label>
             <input
