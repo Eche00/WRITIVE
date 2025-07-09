@@ -35,10 +35,14 @@ const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
   }, [customer]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
+
+    // Prevent changes to is_active
+    if (name === "is_active") return;
+
     setCustomerData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
   };
 
@@ -81,34 +85,52 @@ const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
           </h2>
 
           <div className="grid grid-cols-1 gap-4 text-sm text-gray-700">
-            {Object.keys(customerData).map((key) =>
-              key !== "is_active" ? (
+            {Object.keys(customerData).map((key) => {
+              if (key === "is_active") {
+                // Hidden input to preserve the value
+                return (
+                  <input
+                    key={key}
+                    type="hidden"
+                    name="is_active"
+                    value={customerData.is_active}
+                  />
+                );
+              }
+
+              return (
                 <div key={key}>
                   <label className="font-semibold block mb-1 capitalize">
                     {key}:
                   </label>
-                  <input
-                    type={key === "Geburtstag" ? "date" : "text"}
-                    name={key}
-                    value={customerData[key]}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 px-3 py-2 rounded"
-                  />
+
+                  {key === "Anrede" ? (
+                    <select
+                      name="Anrede"
+                      value={customerData.Anrede}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 px-3 py-2 rounded">
+                      <option value="" disabled hidden>
+                        -- auswählen --
+                      </option>
+                      <option value="Frau">Frau</option>
+                      <option value="Herr">Herr</option>
+                    </select>
+                  ) : (
+                    <input
+                      type={key === "Geburtstag" ? "date" : "text"}
+                      name={key}
+                      value={customerData[key]}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 px-3 py-2 rounded"
+                    />
+                  )}
                 </div>
-              ) : (
-                <div key={key} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    name="is_active"
-                    checked={customerData.is_active}
-                    onChange={handleChange}
-                  />
-                  <label className="font-semibold">Aktiv</label>
-                </div>
-              )
-            )}
+              );
+            })}
           </div>
         </div>
+
         <div className="flex gap-4 border-t border-gray-200 pt-6">
           <button
             onClick={() => setEditModal(false)}
@@ -121,6 +143,7 @@ const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
             Aktualisieren
           </button>
         </div>
+
         {error && (
           <div className="text-red-600 mt-4 text-sm font-medium text-center">
             {error}
