@@ -372,7 +372,7 @@ const Users = () => {
           <UserLoader />
         </section>
       ) : (
-        <div className="bg-white p-4 rounded-xl shadow border border-gray-100 w-fit">
+        <div className="bg-white p-4 rounded-xl shadow border border-gray-100 w-fit xl:w-full">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-[#412666] mb-4">
               Nutzer
