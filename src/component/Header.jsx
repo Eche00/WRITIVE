@@ -105,15 +105,7 @@ function Header() {
               }>
               Inventarsystem
             </NavLink>
-            <NavLink
-              to="/admin/settings"
-              className={({ isActive }) =>
-                isActive
-                  ? " font-bold text-[#412666]"
-                  : "  font-bold text-gray-600"
-              }>
-              Einstellungen
-            </NavLink>
+
             <NavLink
               to="/admin/campaign"
               className={({ isActive }) =>
@@ -133,6 +125,15 @@ function Header() {
               Amazon-Bewertungen
             </NavLink>
             <NavLink
+              to="/admin/categories"
+              className={({ isActive }) =>
+                isActive
+                  ? " font-bold text-[#412666]"
+                  : "  font-bold text-gray-600"
+              }>
+              Kategorien
+            </NavLink>
+            <NavLink
               to="/admin/qrcode"
               className={({ isActive }) =>
                 isActive
@@ -140,6 +141,15 @@ function Header() {
                   : "  font-bold text-gray-600"
               }>
               QR-Code-Verarbeitung
+            </NavLink>
+            <NavLink
+              to="/admin/settings"
+              className={({ isActive }) =>
+                isActive
+                  ? " font-bold text-[#412666]"
+                  : "  font-bold text-gray-600"
+              }>
+              Einstellungen
             </NavLink>
           </nav>
         )}
@@ -217,15 +227,7 @@ function Header() {
                 }>
                 Inventarsystem
               </NavLink>
-              <NavLink
-                to="/admin/settings"
-                className={({ isActive }) =>
-                  isActive
-                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
-                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
-                }>
-                Einstellungen
-              </NavLink>
+
               <NavLink
                 to="/admin/campaign"
                 className={({ isActive }) =>
@@ -245,6 +247,15 @@ function Header() {
                 Amazon-Bewertungen
               </NavLink>
               <NavLink
+                to="/admin/categories"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
+                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
+                }>
+                Kategorien
+              </NavLink>
+              <NavLink
                 to="/admin/qrcode"
                 className={({ isActive }) =>
                   isActive
@@ -252,6 +263,16 @@ function Header() {
                     : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
                 }>
                 QR-Code-Verarbeitung
+              </NavLink>
+
+              <NavLink
+                to="/admin/settings"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
+                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
+                }>
+                Einstellungen
               </NavLink>
             </nav>
           </div>
