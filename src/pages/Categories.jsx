@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Delete, Edit, Search, Save, Add, BarChart } from "@mui/icons-material";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BASE_URL = "https://40fe56c82e49.ngrok-free.app";
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -165,8 +165,113 @@ const Categories = () => {
     handleExportCategoryLogs(format, categoryID);
     setOpenCustom(false);
   };
+  const addCategoryEntry = async (categoryId, value = "0,70€") => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/categories/${categoryId}/entries`, {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+        body: JSON.stringify({ Wert: value }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Fehler beim Hinzufügen");
+
+      alert(data.message || "Eintrag erfolgreich hinzugefügt.");
+    } catch (err) {
+      console.error(err);
+      alert("Fehler beim Hinzufügen des Eintrags.");
+    }
+  };
+
+  const [categoryEntries, setCategoryEntries] = useState([]);
+  const [showCategoryEntriesModal, setShowCategoryEntriesModal] =
+    useState(false);
+
+  const fetchCategoryEntries = async (categoryId) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/categories/${categoryId}/entries`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!res.ok)
+        throw new Error("Fehler beim Abrufen der Kategorie-Einträge");
+
+      const data = await res.json();
+      setCategoryEntries(data); // set to state
+      setSelectedCategoryID(categoryId);
+      setShowCategoryEntriesModal(true); // open modal
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const deleteCategoryEntry = async (entryId) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/categories/entries/${entryId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Fehler beim Löschen");
+
+      // Refresh entries after deletion
+      setCategoryEntries((prev) => prev.filter((e) => e.ID !== entryId));
+      log("Eintrag erfolgreich gelöscht.");
+    } catch (err) {
+      console.error("Delete failed:", err);
+      log("Fehler beim Löschen des Eintrags.");
+    }
+  };
+  const [groupedEntries, setGroupedEntries] = useState({});
+  const [showGroupedEntriesModal, setShowGroupedEntriesModal] = useState(false);
+
+  const fetchGroupedEntries = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/categories/entries/grouped`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!res.ok)
+        throw new Error("Fehler beim Abrufen der gruppierten Einträge");
+
+      const data = await res.json();
+      setGroupedEntries(data);
+      setShowGroupedEntriesModal(true);
+    } catch (err) {
+      console.error("Error fetching grouped entries:", err);
+    }
+  };
   return (
-    <div className="w-full mt-10">
+    <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
       <h1 className="text-2xl font-bold mb-4 text-[#412666]">Kategorien</h1>
 
       <div className="flex gap-2 items-center mb-4">
@@ -203,6 +308,11 @@ const Categories = () => {
             </div>
           )}
         </div>
+        <button
+          onClick={fetchGroupedEntries}
+          className="bg-[#412666] text-white px-6 py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+          Gruppierte Einträge anzeigen
+        </button>
       </div>
 
       <div className="flex gap-2 mb-4">
@@ -225,6 +335,7 @@ const Categories = () => {
           <tr>
             <th className="py-2 px-3">Kategorie ID</th>
             <th className="py-2 px-3">Name</th>
+            <th className="py-2 px-3">Artikelanzahl</th>
             <th className="py-2 px-3">Aktionen</th>
           </tr>
         </thead>
@@ -245,6 +356,7 @@ const Categories = () => {
                   cat.Name
                 )}
               </td>
+              <td className="py-2 px-3">{cat.AnzahlArtikel}</td>
               <td className="py-2 px-3 text-center flex items-center gap-2">
                 {editingId === cat.ID && (
                   <p
@@ -270,6 +382,12 @@ const Categories = () => {
                       case "logs":
                         fetchCategoryLogs(cat.ID);
                         break;
+                      case "addEntry":
+                        addCategoryEntry(cat.ID);
+                        break;
+                      case "viewEntries":
+                        fetchCategoryEntries(cat.ID);
+                        break;
                       case "delete":
                         handleDeleteCategory(cat.ID);
                         break;
@@ -277,7 +395,6 @@ const Categories = () => {
                         break;
                     }
 
-                    // Reset the selection
                     e.target.selectedIndex = 0;
                   }}
                   className="border border-gray-300 rounded px-2 py-1 text-sm text-[#412666] bg-white cursor-pointer">
@@ -285,18 +402,65 @@ const Categories = () => {
                     Aktion wählen
                   </option>
                   {editingId === cat.ID ? (
-                    <option value="save"> Speichern</option>
+                    <option value="save">Speichern</option>
                   ) : (
-                    <option value="edit"> Bearbeiten</option>
+                    <option value="edit">Bearbeiten</option>
                   )}
-                  <option value="logs"> Protokolle</option>
-                  <option value="delete"> Löschen</option>
+                  <option value="logs">Protokolle</option>
+                  <option value="addEntry">Eintrag hinzufügen</option>
+                  <option value="viewEntries">Einträge anzeigen</option>
+
+                  <option value="delete">Löschen</option>
                 </select>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      {showCategoryEntriesModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-xl w-full relative">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Kategorie-Einträge (ID: {selectedCategoryID})
+            </h2>
+
+            <div className="space-y-3 max-h-[400px] overflow-y-auto text-sm text-gray-700">
+              {categoryEntries.length === 0 ? (
+                <p className="text-center text-gray-500">
+                  Keine Einträge gefunden.
+                </p>
+              ) : (
+                categoryEntries.map((entry) => (
+                  <div
+                    key={entry.ID}
+                    className="border rounded-lg p-3 bg-gray-50 shadow-sm">
+                    <div className="flex justify-between">
+                      <strong>ID:</strong>
+                      <span>{entry.ID}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <strong>Wert:</strong>
+                      <span>{entry.Wert}</span>
+                    </div>
+                    <span
+                      className="flex w-full items-center justify-center text-red-600 cursor-pointer"
+                      onClick={() => deleteCategoryEntry(entry.ID)}>
+                      Löschen
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <button
+              onClick={() => setShowCategoryEntriesModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+
       {showCategoryLogsModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4 text-wrap">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
@@ -442,6 +606,44 @@ const Categories = () => {
 
             <button
               onClick={() => setShowCategoryLogDetailModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+      {showGroupedEntriesModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-4xl w-full relative max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Gruppierte Kategorie-Einträge
+            </h2>
+
+            {Object.keys(groupedEntries).length === 0 ? (
+              <p className="text-center text-gray-500">Keine Daten gefunden.</p>
+            ) : (
+              <div className="space-y-6 text-sm text-gray-700">
+                {Object.entries(groupedEntries).map(([category, values]) => (
+                  <div key={category}>
+                    <h3 className="text-lg font-semibold text-[#412666] border-b pb-1 mb-2">
+                      {category}
+                    </h3>
+                    {values.length === 0 ? (
+                      <p className="text-gray-400 italic">Keine Einträge</p>
+                    ) : (
+                      <ul className="list-disc list-inside space-y-1">
+                        {values.map((value, idx) => (
+                          <li key={idx}>{value}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button
+              onClick={() => setShowGroupedEntriesModal(false)}
               className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
               Schließen
             </button>
