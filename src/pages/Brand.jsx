@@ -7,7 +7,6 @@ import {
   Edit,
   NoteAdd,
   Search,
-  Summarize,
   Visibility,
 } from "@mui/icons-material";
 import UserLoader from "../component/UserLoader";
@@ -16,7 +15,7 @@ import UpdateBrandModal from "./UpdateBrandModal";
 import Articles from "./Articles";
 import Categories from "./Categories";
 
-const BRAND_BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BRAND_BASE_URL = "https://40fe56c82e49.ngrok-free.app";
 
 function Brand() {
   const [brands, setBrands] = useState([]);
@@ -28,8 +27,6 @@ function Brand() {
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [showArticlesModal, setShowArticlesModal] = useState(false);
   const [articles, setArticles] = useState([]);
-  const [brandSummary, setBrandSummary] = useState(null);
-  const [showBrandSummaryModal, setShowBrandSummaryModal] = useState(false);
   const [singleBrand, setSingleBrand] = useState(null);
   const [showBrandModal, setShowBrandModal] = useState(false);
   // 1. Add state at the top of your component
@@ -102,26 +99,6 @@ function Brand() {
       console.error("Failed to fetch articles for brand:", err);
     }
   };
-  const fetchBrandSummary = async (brandID) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${BRAND_BASE_URL}/brands/summary/${brandID}`, {
-        method: "GET",
-        headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      const data = await res.json();
-      console.log("Brand Summary:", data);
-      setBrandSummary(data);
-      setShowBrandSummaryModal(true);
-    } catch (err) {
-      console.error("Failed to fetch brand summary:", err);
-    }
-  };
   const fetchSingleBrand = async (brandID) => {
     try {
       const token = localStorage.getItem("token");
@@ -143,10 +120,12 @@ function Brand() {
     }
   };
   const fetchBrandsByCustomer = async (kundeID) => {
+    const kundeId = kundeID.slice(0, 3);
+
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        `${BRAND_BASE_URL}/brands/by-customer/${kundeID}`,
+        `${BRAND_BASE_URL}/brands/by-customer/${kundeId}`,
         {
           method: "GET",
           headers: {
@@ -320,8 +299,7 @@ function Brand() {
                   <th className="py-2 px-3">Firma</th>
                   <th className="py-2 px-3">Kunde</th>
                   <th className="py-2 px-3">Kontingent</th>
-                  <th className="py-2 px-3">Belegt</th>
-                  <th className="py-2 px-3">Verbleibend</th>
+                  <th className="py-2 px-3">Gebuchte </th>
                   <th className="py-2 px-3">Status</th>
                   <th className="py-2 px-3">Aktionen</th>
                 </tr>
@@ -333,11 +311,10 @@ function Brand() {
                     className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="py-2 px-3">{brand.ID}</td>
                     <td className="py-2 px-3">{brand.Brandname}</td>
-                    <td className="py-2 px-3">{brand.Firmenname}</td>
-                    <td className="py-2 px-3">{brand.KundeFirma}</td>
-                    <td className="py-2 px-3">{brand.Kontingent}</td>
-                    <td className="py-2 px-3">{brand.Belegt}</td>
-                    <td className="py-2 px-3">{brand.Verbleibend}</td>
+                    <td className="py-2 px-3">{brand.Firmenname || "—"}</td>
+                    <td className="py-2 px-3">{brand.KundeFirma || "—"}</td>
+                    <td className="py-2 px-3">{brand.BuchungsKontingent}</td>
+                    <td className="py-2 px-3">{brand.Belegt || 0}</td>
                     <td className="py-2 px-3">
                       <span
                         className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${
@@ -379,14 +356,6 @@ function Brand() {
                         </span>
                       </button>
 
-                      <button
-                        onClick={() => fetchBrandSummary(brand.ID)}
-                        className="relative group cursor-pointer   text-[#50E3C2]">
-                        <Summarize fontSize="small" />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                          Zusammenfassung
-                        </span>
-                      </button>
                       <button
                         onClick={() => fetchBrandsByCustomer(brand.ID)}
                         className="relative group cursor-pointer  text-green-700">
@@ -501,32 +470,7 @@ function Brand() {
           </div>
         </div>
       )}
-      {showBrandSummaryModal && brandSummary && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full relative">
-            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
-              Markenübersicht
-            </h2>
 
-            <div className="text-gray-700 text-sm space-y-3">
-              <div className="flex justify-between">
-                <span className="font-semibold">Marken-ID:</span>
-                <span>{brandSummary.BrandID}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Anzahl der Artikel:</span>
-                <span>{brandSummary.TotalArticles}</span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowBrandSummaryModal(false)}
-              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
-              Schließen
-            </button>
-          </div>
-        </div>
-      )}
       {showBrandModal && singleBrand && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full relative">
@@ -540,28 +484,16 @@ function Brand() {
                 <span>{singleBrand.ID}</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-semibold">Firmenname:</span>
-                <span>{singleBrand.Firmenname}</span>
-              </div>
-              <div className="flex justify-between">
                 <span className="font-semibold">Brandname:</span>
                 <span>{singleBrand.Brandname}</span>
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold">Kunde:</span>
-                <span>{singleBrand.Kunde}</span>
+                <span>{singleBrand.Kunde || "—"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold">Kontingent:</span>
-                <span>{singleBrand.Kontingent}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Belegt:</span>
-                <span>{singleBrand.Belegt}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Verbleibend:</span>
-                <span>{singleBrand.Verbleibend}</span>
+                <span>{singleBrand.BuchungsKontingent}</span>
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold">Status:</span>
@@ -586,6 +518,8 @@ function Brand() {
           </div>
         </div>
       )}
+
+      {/* show all brands that a user has  */}
       {showBrandsModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-3xl w-full relative">
@@ -612,24 +546,12 @@ function Brand() {
                       <span>{brand.Brandname}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-semibold">Firma:</span>
-                      <span>{brand.Firmenname}</span>
-                    </div>
-                    <div className="flex justify-between">
                       <span className="font-semibold">Kunde:</span>
-                      <span>{brand.Kunde}</span>
+                      <span>{brand.Kunde || "—"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-semibold">Kontingent:</span>
-                      <span>{brand.Kontingent}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Belegt:</span>
-                      <span>{brand.Belegt}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Verbleibend:</span>
-                      <span>{brand.Verbleibend}</span>
+                      <span>{brand.BuchungsKontingent}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-semibold">Status:</span>
@@ -657,6 +579,7 @@ function Brand() {
           </div>
         </div>
       )}
+
       {showKontingentModal && kontingentSummary && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full relative">
@@ -675,15 +598,7 @@ function Brand() {
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold">Kontingent:</span>
-                <span>{kontingentSummary.Kontingent}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Belegt:</span>
-                <span>{kontingentSummary.Belegt}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Verbleibend:</span>
-                <span>{kontingentSummary.Verbleibend}</span>
+                <span>{kontingentSummary.BuchungsKontingent}</span>
               </div>
             </div>
 
@@ -841,8 +756,6 @@ function Brand() {
           </div>
         </div>
       )}
-
-      <Categories />
     </div>
   );
 }
