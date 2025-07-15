@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import UserLoader from "../component/UserLoader";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BASE_URL = "https://40fe56c82e49.ngrok-free.app";
 
 const Dashboard = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -75,6 +75,7 @@ const Dashboard = () => {
       const data = await res.json();
       setCustomers(data.customers || []);
       setFiltered(data.customers || []);
+      console.log("Fetched customers:", data.customers);
     } catch (err) {
       console.error("Error fetching customers:", err);
     } finally {
@@ -124,7 +125,7 @@ const Dashboard = () => {
           (c) =>
             (c.EmailAdresse && c.EmailAdresse.toLowerCase().includes(q)) ||
             (c.KontaktName && c.KontaktName.toLowerCase().includes(q)) ||
-            (c.AutoID && c.AutoID.toLowerCase().includes(q)) ||
+            (c.ID && c.ID.toLowerCase().includes(q)) ||
             (c.Firma && c.Firma.toLowerCase().includes(q))
         )
       );
@@ -244,7 +245,7 @@ const Dashboard = () => {
           <table className="w-full text-left text-sm">
             <thead className="text-[#412666] border-b border-gray-200">
               <tr>
-                <th className="py-2 px-3 ">AutoID</th>
+                <th className="py-2 px-3 ">ID</th>
                 <th className="py-2 px-3 xl:inline hidden">KontaktName</th>
                 <th className="py-2 px-3">EmailAdresse</th>
                 <th className="py-2 px-3 xl:inline hidden">Firma</th>
@@ -255,9 +256,9 @@ const Dashboard = () => {
             <tbody>
               {filtered.map((c) => (
                 <tr
-                  key={c.AutoID}
+                  key={c.ID}
                   className="border-b border-gray-200 hover:bg-gray-50 transition">
-                  <td className="py-2 px-3">{c.AutoID}</td>
+                  <td className="py-2 px-3">{c.ID}</td>
                   <td className="py-2 px-3 xl:inline hidden">
                     {c.KontaktName || "-"}
                   </td>
