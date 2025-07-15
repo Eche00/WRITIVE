@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BASE_URL = "https://40fe56c82e49.ngrok-free.app";
 
 const CreateBrandModal = ({ createModal, setCreateModal, fetchBrands }) => {
   const [customers, setCustomers] = useState([]);
@@ -86,10 +86,10 @@ const CreateBrandModal = ({ createModal, setCreateModal, fetchBrands }) => {
               <option value="">Bitte wählen</option>
               {customers.map((customer) => (
                 <option
-                  key={customer.AutoID}
-                  value={customer.AutoID}
+                  key={customer.ID}
+                  value={customer.ID}
                   className=" cursor-pointer">
-                  {customer.AutoID} –{" "}
+                  {customer.ID} –{" "}
                   {customer.KontaktName || customer.Vorname || "Unbenannt"}
                 </option>
               ))}
