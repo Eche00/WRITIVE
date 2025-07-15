@@ -16,7 +16,7 @@ import {
 import UserLoader from "../component/UserLoader";
 import CampaignBatches from "./CampaignBatches";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BASE_URL = "https://40fe56c82e49.ngrok-free.app";
 
 const Campaign = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -44,22 +44,13 @@ const Campaign = () => {
   const [campaignLogDetail, setCampaignLogDetail] = useState(null);
   const [showCreateCampaignModal, setShowCreateCampaignModal] = useState(false);
   const [newCampaign, setNewCampaign] = useState({
-    ID: "",
-    ArtikelID: "",
+    BrandID: "",
     Name: "",
-    Description: "",
-    StartDate: "",
-    EndDate: "",
-    CreditsUsed: 0,
-    Status: "draft",
-    ExpectedScans: 0,
-    ConversionGoal: 0,
-    StarRatingGoal: 0,
     QRCode: "",
   });
 
   // fetch and store valid articles
-  const [articles, setArticles] = useState([]);
+  const [brands, setBrands] = useState([]);
   const fetchCampaigns = async () => {
     try {
       setLoading(true);
@@ -79,26 +70,27 @@ const Campaign = () => {
       setLoading(false);
     }
   };
-  const fetchArticles = async () => {
-    const token = localStorage.getItem("token");
+  const fetchBrands = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/products/`, {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${BASE_URL}/brands/`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
         },
       });
       const data = await res.json();
-      setArticles(data.articles);
+      setBrands(data);
     } catch (err) {
-      console.error("Failed to fetch articles:", err);
-      setArticles([]); // fallback to empty array
+      console.error("Failed to fetch brands:", err);
+    } finally {
+      setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchCampaigns();
-    fetchArticles();
+    fetchBrands();
   }, []);
 
   useEffect(() => {
@@ -121,19 +113,11 @@ const Campaign = () => {
       setUpdatedCampaign({
         id: selectedCampaign.id,
         Name: selectedCampaign.name,
-        Description: selectedCampaign.description,
-        ArtikelID: selectedCampaign.ArtikelID || "", // ensure this is passed
-        StartDate: selectedCampaign.start_date,
-        EndDate: selectedCampaign.end_date,
-        CreditsUsed: selectedCampaign.credits_used,
-        Status: selectedCampaign.status,
-        ExpectedScans: selectedCampaign.expected_scans,
-        ConversionGoal: selectedCampaign.conversion_goal,
-        StarRatingGoal: selectedCampaign.star_rating_goal,
         QRCode: selectedCampaign.qr_code,
       });
     }
   }, [selectedCampaign]);
+
   const handleCreateCampaign = async () => {
     const token = localStorage.getItem("token");
 
@@ -149,31 +133,30 @@ const Campaign = () => {
       });
 
       const data = await res.json();
+
       if (res.ok) {
+        // Success feedback (can be toast/snackbar)
         // alert("Kampagne erfolgreich erstellt!");
+
         setShowCreateCampaignModal(false);
+
+        // Reset the form
         setNewCampaign({
-          ID: "",
-          ArtikelID: "",
+          BrandID: "",
           Name: "",
-          Description: "",
-          StartDate: "",
-          EndDate: "",
-          CreditsUsed: 0,
-          Status: "draft",
-          ExpectedScans: 0,
-          ConversionGoal: 0,
-          StarRatingGoal: 0,
           QRCode: "",
         });
-        fetchCampaigns(); // reload list
+
+        // Optionally refresh campaigns list if needed
+        fetchCampaigns();
       } else {
-        console.error("Fehler beim Erstellen:", data);
-        // alert("Fehler beim Erstellen der Kampagne.");
+        console.error(
+          "Fehler beim Erstellen der Kampagne:",
+          data?.message || data
+        );
       }
     } catch (err) {
-      console.error("Netzwerkfehler:", err);
-      // alert("Netzwerkfehler beim Erstellen der Kampagne.");
+      console.error("Netzwerkfehler beim Erstellen der Kampagne:", err);
     }
   };
 
@@ -201,22 +184,10 @@ const Campaign = () => {
   const handleUpdateCampaign = async (campaignID) => {
     const token = localStorage.getItem("token");
 
-    // Check for required fields
     const payload = {
       Name: updatedCampaign.Name || "",
-      Description: updatedCampaign.Description || "",
-      ArtikelID: updatedCampaign.ArtikelID || "",
-      StartDate: updatedCampaign.StartDate || null,
-      EndDate: updatedCampaign.EndDate || null,
-      CreditsUsed: updatedCampaign.CreditsUsed ?? 0,
-      Status: updatedCampaign.Status || "draft",
-      ExpectedScans: updatedCampaign.ExpectedScans ?? 0,
-      ConversionGoal: updatedCampaign.ConversionGoal ?? 0,
-      StarRatingGoal: updatedCampaign.StarRatingGoal ?? 0,
       QRCode: updatedCampaign.QRCode || "",
     };
-
-    console.log("Updating campaign with payload:", payload);
 
     try {
       const response = await fetch(`${BASE_URL}/campaigns/${campaignID}`, {
@@ -232,15 +203,15 @@ const Campaign = () => {
       const data = await response.json();
       if (response.ok) {
         setShowUpdateCampaignModal(false);
-        fetchCampaigns(); // reload list
+        fetchCampaigns(); // refresh the campaign list
       } else {
         console.error("Update error:", data);
       }
     } catch (error) {
       console.error("Update failed:", error);
-      // alert("Netzwerkfehler beim Aktualisieren der Kampagne.");
     }
   };
+
   const fetchCampaignTimeline = async (campaignID) => {
     const token = localStorage.getItem("token");
     try {
@@ -469,10 +440,9 @@ const Campaign = () => {
                 <tr>
                   <th className="py-2 px-3">ID</th>
                   <th className="py-2 px-3">Name</th>
-                  <th className="py-2 px-3">Produkt</th>
                   <th className="py-2 px-3">Start</th>
-                  <th className="py-2 px-3">Ende</th>
-                  <th className="py-2 px-3">Status</th>
+                  {/* <th className="py-2 px-3">Ende</th> */}
+                  <th className="py-2 px-3">QR-code</th>
                   <th className="py-2 px-3">Aktionen</th>
                 </tr>
               </thead>
@@ -483,36 +453,41 @@ const Campaign = () => {
                     className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="py-2 px-3">{c.id}</td>
                     <td className="py-2 px-3">{c.name}</td>
-                    <td className="py-2 px-3">{c.product}</td>
                     <td className="py-2 px-3">
-                      {new Date(c.start_date).toLocaleDateString()}
+                      {c.created_at
+                        ? new Date(c.created_at).toLocaleDateString()
+                        : new Date(c.created_at).toLocaleDateString()}
                     </td>
-                    <td className="py-2 px-3">
-                      {new Date(c.end_date).toLocaleDateString()}
+                    {/* <td className="py-2 px-3">
+                      {c.end_date
+                        ? new Date(c.end_date).toLocaleDateString()
+                        : new Date(c.updated_at).toLocaleDateString()}
+                    </td> */}
+                    <td className="py-2 px-3 capitalize  text-blue-500 underline cursor-pointer">
+                      <a href={c.qr_code}>{c.qr_code}</a>
                     </td>
-                    <td className="py-2 px-3 capitalize">{c.status}</td>
                     <td className="py-2 px-3 space-x-2">
                       <button
                         onClick={() => fetchSingleCampaign(c.id)}
-                        className="relative group cursor-pointer ">
-                        <Visibility />{" "}
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        className="relative group cursor-pointer">
+                        <Visibility />
+                        <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded bg-gray-400 text-white text-[12px] group-hover:block hidden">
                           Anzeigen
                         </span>
                       </button>
                       <button
                         onClick={() => {
-                          setSelectedCampaign(c); // campaign is the object for that row
+                          setSelectedCampaign(c);
                           setShowUpdateCampaignModal(true);
                         }}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer">
                         <Edit fontSize="small" />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded bg-gray-400 text-white text-[12px] group-hover:block hidden">
                           Bearbeiten
                         </span>
                       </button>
-                      <select
-                        value={c.status}
+                      {/* <select
+                        value={c.status || "draft"}
                         onChange={(e) =>
                           handleStatusUpdate(c.id, e.target.value)
                         }
@@ -524,40 +499,39 @@ const Campaign = () => {
                             </option>
                           )
                         )}
-                      </select>
-                      <button
+                      </select> */}
+                      {/* <button
                         onClick={() => fetchCampaignTimeline(c.id)}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer">
                         <Timeline fontSize="small" />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded bg-gray-400 text-white text-[12px] group-hover:block hidden">
                           Línea de tiempo
                         </span>
-                      </button>
-                      <button
-                        className="relative group cursor-pointer "
+                      </button> */}
+                      {/* <button
+                        className="relative group cursor-pointer"
                         onClick={() => {
                           setBatchCampaignID(c.id);
                           setShowAddBatchModal(true);
                         }}>
                         <NoteAdd fontSize="small" />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded bg-gray-400 text-white text-[12px] group-hover:block hidden">
                           Agregar lote
                         </span>
-                      </button>
-
+                      </button> */}
                       <button
                         onClick={() => fetchCampaignLogs(c.id)}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer">
                         <BarChart />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded bg-gray-400 text-white text-[12px] group-hover:block hidden">
                           Protokolle
                         </span>
                       </button>
                       <button
                         onClick={() => handleDelete(c.id)}
-                        className="relative group cursor-pointer ">
+                        className="relative group cursor-pointer">
                         <Delete fontSize="small" />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded bg-gray-400 text-white text-[12px] group-hover:block hidden">
                           Löschen
                         </span>
                       </button>
@@ -572,81 +546,63 @@ const Campaign = () => {
       {showCreateCampaignModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full relative h-fit">
-            <div className="w-full relative h-[280px] overflow-scroll">
-              <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
-                Neue Kampagne erstellen
-              </h2>
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Neue Kampagne erstellen
+            </h2>
 
-              <div className="space-y-4 text-sm text-gray-700">
-                {[
-                  "ID",
-                  "Name",
-                  "Description",
-                  "StartDate",
-                  "EndDate",
-                  "CreditsUsed",
-                  "Status",
-                  "ExpectedScans",
-                  "ConversionGoal",
-                  "StarRatingGoal",
-                  "QRCode",
-                ].map((field) => (
-                  <div key={field}>
-                    <label className="block font-medium">{field}:</label>
-                    <input
-                      type={
-                        [
-                          "CreditsUsed",
-                          "ExpectedScans",
-                          "ConversionGoal",
-                          "StarRatingGoal",
-                        ].includes(field)
-                          ? "number"
-                          : field.toLowerCase().includes("date")
-                          ? "datetime-local"
-                          : "text"
-                      }
-                      className="w-full border px-2 py-1 rounded"
-                      value={newCampaign[field]}
-                      onChange={(e) =>
-                        setNewCampaign((prev) => ({
-                          ...prev,
-                          [field]: [
-                            "CreditsUsed",
-                            "ExpectedScans",
-                            "ConversionGoal",
-                            "StarRatingGoal",
-                          ].includes(field)
-                            ? parseFloat(e.target.value)
-                            : e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                ))}
+            <div className="space-y-4 text-sm text-gray-700">
+              <div>
+                <label className="block font-medium">Brand ID:</label>
+                <select
+                  className="w-full border px-2 py-1 rounded"
+                  value={newCampaign.BrandID}
+                  onChange={(e) =>
+                    setNewCampaign((prev) => ({
+                      ...prev,
+                      BrandID: e.target.value,
+                    }))
+                  }>
+                  <option value="">-- Brand ID --</option>
+                  {brands.map((brand) => (
+                    <option key={brand.ID} value={brand.ID}>
+                      {brand.ID}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-                <div>
-                  <label className="block font-medium">ArtikelID:</label>
-                  <select
-                    className="w-full border px-2 py-1 rounded"
-                    value={newCampaign.ArtikelID}
-                    onChange={(e) =>
-                      setNewCampaign((prev) => ({
-                        ...prev,
-                        ArtikelID: e.target.value,
-                      }))
-                    }>
-                    <option value="">-- Wähle einen Artikel --</option>
-                    {articles.map((article) => (
-                      <option key={article.ID} value={article.ID}>
-                        {article.ID} - {article.name || article.Bezeichnung}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="block font-medium">Name:</label>
+                <input
+                  type="text"
+                  className="w-full border px-2 py-1 rounded"
+                  value={newCampaign.Name}
+                  onChange={(e) =>
+                    setNewCampaign((prev) => ({
+                      ...prev,
+                      Name: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <div>
+                <label className="block font-medium">QR Code URL:</label>
+                <input
+                  type="text"
+                  className="w-full border px-2 py-1 rounded"
+                  value={newCampaign.QRCode}
+                  onChange={(e) =>
+                    setNewCampaign((prev) => ({
+                      ...prev,
+                      QRCode: e.target.value,
+                    }))
+                  }
+                />
               </div>
             </div>
-            <div className="flex gap-4 mt-6 bg-white z-50">
+
+            <div className="flex gap-4 mt-6">
               <button
                 onClick={() => setShowCreateCampaignModal(false)}
                 className="w-full border border-[#412666] text-[#412666] py-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
@@ -679,46 +635,26 @@ const Campaign = () => {
                 <span>{singleCampaign.name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-semibold">Produkt:</span>
-                <span>{singleCampaign.product || "—"}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Status:</span>
-                <span>{singleCampaign.status}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Credits verwendet:</span>
-                <span>{singleCampaign.credits_used}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Startdatum:</span>
-                <span>{singleCampaign.start_date?.split("T")[0]}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Enddatum:</span>
-                <span>{singleCampaign.end_date?.split("T")[0]}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Erwartete Scans:</span>
-                <span>{singleCampaign.expected_scans || "—"}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Ziel-Bewertung:</span>
-                <span>{singleCampaign.star_rating_goal || "—"}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Conversion-Ziel:</span>
-                <span>{singleCampaign.conversion_goal || "—"}</span>
-              </div>
-              <div className="flex justify-between">
                 <span className="font-semibold">QR Code:</span>
-                <span className="truncate max-w-[60%] text-blue-600">
-                  {singleCampaign.qr_code || "—"}
+                <a
+                  href={singleCampaign.qr_code}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 truncate max-w-[60%] hover:underline">
+                  {singleCampaign.qr_code}
+                </a>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Erstellt am:</span>
+                <span>
+                  {new Date(singleCampaign.created_at).toLocaleDateString()}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="font-semibold">Beschreibung:</span>
-                <span>{singleCampaign.description || "—"}</span>
+                <span className="font-semibold">Zuletzt aktualisiert:</span>
+                <span>
+                  {new Date(singleCampaign.updated_at).toLocaleDateString()}
+                </span>
               </div>
             </div>
 
@@ -733,84 +669,50 @@ const Campaign = () => {
       {showUpdateCampaignModal && selectedCampaign && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full relative h-fit">
-            <div className="w-full relative h-[280px] overflow-scroll">
-              <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
-                Kampagne aktualisieren
-              </h2>
+            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+              Kampagne aktualisieren
+            </h2>
 
-              <div className="space-y-4 text-sm text-gray-700">
-                {[
-                  "id",
-                  "Name",
-                  "Description",
-                  "StartDate",
-                  "EndDate",
-                  "CreditsUsed",
-                  "Status",
-                  "ExpectedScans",
-                  "ConversionGoal",
-                  "StarRatingGoal",
-                  "QRCode",
-                ].map((field) => (
-                  <div key={field}>
-                    <label className="block font-medium">{field}:</label>
-                    <input
-                      type={
-                        [
-                          "CreditsUsed",
-                          "ExpectedScans",
-                          "ConversionGoal",
-                          "StarRatingGoal",
-                        ].includes(field)
-                          ? "number"
-                          : field.toLowerCase().includes("date")
-                          ? "datetime-local"
-                          : "text"
-                      }
-                      className={`w-full border px-2 py-1 rounded ${
-                        field === "id" ? "bg-gray-100 cursor-not-allowed" : ""
-                      }`}
-                      value={updatedCampaign[field] || ""}
-                      readOnly={field === "id"}
-                      onChange={(e) =>
-                        setUpdatedCampaign((prev) => ({
-                          ...prev,
-                          [field]: [
-                            "CreditsUsed",
-                            "ExpectedScans",
-                            "ConversionGoal",
-                            "StarRatingGoal",
-                          ].includes(field)
-                            ? parseFloat(e.target.value)
-                            : e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                ))}
-
-                {/* Custom ArtikelID dropdown */}
-                <div>
-                  <label className="block font-medium">ArtikelID:</label>
-                  <select
-                    className="w-full border px-2 py-1 rounded"
-                    value={updatedCampaign.ArtikelID}
-                    onChange={(e) =>
-                      setUpdatedCampaign((prev) => ({
-                        ...prev,
-                        ArtikelID: e.target.value,
-                      }))
-                    }>
-                    <option value="">-- Wähle einen Artikel --</option>
-                    {articles?.map((article) => (
-                      <option key={article.ID} value={article.ID}>
-                        {article.ID} - {article.name || article.Bezeichnung}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            <div className="space-y-4 text-sm text-gray-700">
+              <div>
+                <label className="block font-medium">ID:</label>
+                <input
+                  type="text"
+                  className="w-full border px-2 py-1 rounded bg-gray-100 cursor-not-allowed"
+                  value={updatedCampaign.id}
+                  readOnly
+                />
+              </div>
+              <div>
+                <label className="block font-medium">Name:</label>
+                <input
+                  type="text"
+                  className="w-full border px-2 py-1 rounded"
+                  value={updatedCampaign.Name}
+                  onChange={(e) =>
+                    setUpdatedCampaign((prev) => ({
+                      ...prev,
+                      Name: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div>
+                <label className="block font-medium">QR Code URL:</label>
+                <input
+                  type="text"
+                  className="w-full border px-2 py-1 rounded"
+                  value={updatedCampaign.QRCode}
+                  onChange={(e) =>
+                    setUpdatedCampaign((prev) => ({
+                      ...prev,
+                      QRCode: e.target.value,
+                    }))
+                  }
+                />
               </div>
             </div>
+
             <div className="flex gap-4 mt-6 bg-white z-50">
               <button
                 onClick={() => setShowUpdateCampaignModal(false)}
@@ -818,7 +720,7 @@ const Campaign = () => {
                 Abbrechen
               </button>
               <button
-                onClick={() => handleUpdateCampaign(selectedCampaign.id)}
+                onClick={() => handleUpdateCampaign(updatedCampaign.id)}
                 className="w-full bg-[#412666] text-white py-2 rounded-lg transition cursor-pointer">
                 Aktualisieren
               </button>
