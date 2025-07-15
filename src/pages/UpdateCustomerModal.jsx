@@ -1,34 +1,31 @@
 import React, { useState, useEffect } from "react";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BASE_URL = "https://40fe56c82e49.ngrok-free.app";
 
 const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
   const [customerData, setCustomerData] = useState({
     KontaktName: "",
-    Vorname: "",
     Firma: "",
-    EmailAdresse: "",
     Handynr: "",
     Anrede: "",
-    Geburtstag: "",
     MusterAdresse: "",
-    UStIdNr: "",
+    GesamtStueckzahlAbgeschickt: 0,
+    GesamtStueckzahlGebucht: 0,
     is_active: true,
   });
+
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (customer) {
       setCustomerData({
         KontaktName: customer.KontaktName || "",
-        Vorname: customer.Vorname || "",
         Firma: customer.Firma || "",
-        EmailAdresse: customer.EmailAdresse || "",
         Handynr: customer.Handynr || "",
         Anrede: customer.Anrede || "",
-        Geburtstag: customer.Geburtstag ? customer.Geburtstag.slice(0, 10) : "",
         MusterAdresse: customer.MusterAdresse || "",
-        UStIdNr: customer.UStIdNr || "",
+        GesamtStueckzahlAbgeschickt: customer.GesamtStueckzahlAbgeschickt || 0,
+        GesamtStueckzahlGebucht: customer.GesamtStueckzahlGebucht || 0,
         is_active: customer.is_active ?? true,
       });
     }
@@ -36,13 +33,11 @@ const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Prevent changes to is_active
     if (name === "is_active") return;
 
     setCustomerData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name.includes("GesamtStueckzahl") ? parseInt(value) || 0 : value,
     }));
   };
 
@@ -50,7 +45,7 @@ const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
     setError(null);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${BASE_URL}/customers/${customer.AutoID}`, {
+      const res = await fetch(`${BASE_URL}/customers/${customer.ID}`, {
         method: "PUT",
         headers: {
           Authorization: "Bearer " + token,
@@ -79,7 +74,7 @@ const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4 ">
       <section className="bg-white p-6 rounded-xl shadow-lg max-w-lg w-full relative h-fit overflow-scroll">
-        <div className="w-full relative h-[280px] overflow-scroll">
+        <div className="w-full relative h-[280px] overflow-scroll pb-7">
           <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
             Kunde aktualisieren
           </h2>
@@ -87,7 +82,6 @@ const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
           <div className="grid grid-cols-1 gap-4 text-sm text-gray-700">
             {Object.keys(customerData).map((key) => {
               if (key === "is_active") {
-                // Hidden input to preserve the value
                 return (
                   <input
                     key={key}
@@ -118,7 +112,12 @@ const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
                     </select>
                   ) : (
                     <input
-                      type={key === "Geburtstag" ? "date" : "text"}
+                      type={
+                        key === "GesamtStueckzahlAbgeschickt" ||
+                        key === "GesamtStueckzahlGebucht"
+                          ? "number"
+                          : "text"
+                      }
                       name={key}
                       value={customerData[key]}
                       onChange={handleChange}

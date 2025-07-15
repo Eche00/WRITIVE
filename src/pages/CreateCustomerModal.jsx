@@ -1,19 +1,18 @@
 import React, { useState } from "react";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BASE_URL = "https://40fe56c82e49.ngrok-free.app";
 
 const CreateCustomerModal = ({ setCreateModal, fetchCustomers }) => {
+  const [loading, setLoading] = useState(false);
+
   const [customerData, setCustomerData] = useState({
-    AutoID: "",
     KontaktName: "",
-    Vorname: "",
     Firma: "",
     EmailAdresse: "",
     Handynr: "",
     Anrede: "",
     Geburtstag: "",
     MusterAdresse: "",
-    UStIdNr: "",
     is_active: true, // always true
   });
 
@@ -21,7 +20,6 @@ const CreateCustomerModal = ({ setCreateModal, fetchCustomers }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Prevent updates to is_active
     if (name === "is_active") return;
 
     setCustomerData((prev) => ({
@@ -32,6 +30,7 @@ const CreateCustomerModal = ({ setCreateModal, fetchCustomers }) => {
 
   const handleSubmit = async () => {
     setError(null);
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`${BASE_URL}/customers/new`, {
@@ -59,6 +58,8 @@ const CreateCustomerModal = ({ setCreateModal, fetchCustomers }) => {
     } catch (err) {
       console.error("Create failed:", err);
       setError("Ein Serverfehler ist aufgetreten. Bitte versuche es erneut.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -114,9 +115,10 @@ const CreateCustomerModal = ({ setCreateModal, fetchCustomers }) => {
             Abbrechen
           </button>
           <button
+            disabled={loading}
             onClick={handleSubmit}
             className="w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
-            Erstellen
+            {loading ? "Lädt..." : "Erstellen"}
           </button>
         </div>
 
