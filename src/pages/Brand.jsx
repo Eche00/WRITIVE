@@ -12,8 +12,6 @@ import {
 import UserLoader from "../component/UserLoader";
 import CreateBrandModal from "./CreateBrandModal";
 import UpdateBrandModal from "./UpdateBrandModal";
-import Articles from "./Articles";
-import Categories from "./Categories";
 
 const BRAND_BASE_URL = "https://40fe56c82e49.ngrok-free.app";
 
@@ -36,7 +34,6 @@ function Brand() {
   const [showKontingentModal, setShowKontingentModal] = useState(false);
   const [brandLogs, setBrandLogs] = useState([]);
   const [showBrandLogsModal, setShowBrandLogsModal] = useState(false);
-  const [viewArticles, setViewarticles] = useState(false);
   const [showBrandLogModal, setShowBrandLogModal] = useState(false);
   const [brandLogDetail, setBrandLogDetail] = useState(null);
 
@@ -234,169 +231,148 @@ function Brand() {
 
   return (
     <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
-      <h1 className="text-2xl font-bold mb-4">
-        {viewArticles ? "Artikelverwaltung" : "Markenverwaltung"}
-      </h1>
-      {viewArticles ? (
-        <Articles setViewarticles={setViewarticles} />
-      ) : (
-        <>
-          <div className="flex flex-col justify-between  mb-4 gap-4">
-            <section className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-[#412666] mb-4">
-                Marken
-              </h2>
-              <div className="flex items-center gap-[10px] text-white text-[12px]">
-                <button
-                  onClick={() => setViewarticles(true)}
-                  className=" py-[6px] px-[16px] border border-[#412666] text-[#412666] rounded-full cursor-pointer hover:scale-[102%] transition-all duration-300">
-                  Artikel anzeigen
-                </button>
+      <h1 className="text-2xl font-bold mb-4">Markenverwaltung</h1>
 
-                <button
-                  onClick={() => setCreateModal(true)}
-                  className=" py-[6px] px-[16px] bg-[#412666] rounded-full cursor-pointer hover:scale-[102%] transition-all duration-300">
-                  Marke erstellen
-                </button>
-              </div>
-            </section>
+      <>
+        <div className="flex flex-col justify-between  mb-4 gap-4">
+          <h2 className="text-xl font-semibold text-[#412666] mb-4">Marken</h2>
 
-            <section className="flex items-center justify-between">
-              <div className="border border-[#412666] rounded-lg px-4 w-1/3 flex items-center gap-2">
-                <Search />
-                <input
-                  type="text"
-                  placeholder="Suche nach Brand, Firma oder ID..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="py-2 w-full focus:outline-none"
-                />
-              </div>
-
-              <div className="flex gap-2">
-                {["csv", "xlsx", "pdf"].map((format) => (
-                  <button
-                    key={format}
-                    onClick={() => handleExport(format)}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
-                    {format.toUpperCase()} Export
-                  </button>
-                ))}
-              </div>
-            </section>
-          </div>
-
-          {loading ? (
-            <div>
-              <UserLoader />
+          <section className="flex items-center justify-between">
+            <div className="border border-[#412666] rounded-lg px-4 w-1/3 flex items-center gap-2">
+              <Search />
+              <input
+                type="text"
+                placeholder="Suche nach Brand, Firma oder ID..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="py-2 w-full focus:outline-none"
+              />
             </div>
-          ) : (
-            <table className="w-full text-sm text-left">
-              <thead className="text-[#412666] border-b border-gray-200">
-                <tr>
-                  <th className="py-2 px-3">ID</th>
-                  <th className="py-2 px-3">Brandname</th>
-                  <th className="py-2 px-3">Firma</th>
-                  <th className="py-2 px-3">Kunde</th>
-                  <th className="py-2 px-3">Kontingent</th>
-                  <th className="py-2 px-3">Gebuchte </th>
-                  <th className="py-2 px-3">Status</th>
-                  <th className="py-2 px-3">Aktionen</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((brand) => (
-                  <tr
-                    key={brand.ID}
-                    className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="py-2 px-3">{brand.ID}</td>
-                    <td className="py-2 px-3">{brand.Brandname}</td>
-                    <td className="py-2 px-3">{brand.Firmenname || "—"}</td>
-                    <td className="py-2 px-3">{brand.KundeFirma || "—"}</td>
-                    <td className="py-2 px-3">{brand.BuchungsKontingent}</td>
-                    <td className="py-2 px-3">{brand.Belegt || 0}</td>
-                    <td className="py-2 px-3">
-                      <span
-                        className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${
-                          brand.is_active
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}>
-                        <span className="w-2 h-2 bg-current rounded-full"></span>
-                        {brand.is_active ? "Aktiv" : "Inaktiv"}
+
+            <div className="flex gap-2">
+              {["csv", "xlsx", "pdf"].map((format) => (
+                <button
+                  key={format}
+                  onClick={() => handleExport(format)}
+                  className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
+                  {format.toUpperCase()} Export
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        {loading ? (
+          <div>
+            <UserLoader />
+          </div>
+        ) : (
+          <table className="w-full text-sm text-left">
+            <thead className="text-[#412666] border-b border-gray-200">
+              <tr>
+                <th className="py-2 px-3">ID</th>
+                <th className="py-2 px-3">Brandname</th>
+                <th className="py-2 px-3">Firma</th>
+                <th className="py-2 px-3">Kunde</th>
+                <th className="py-2 px-3">Kontingent</th>
+                <th className="py-2 px-3">Gebuchte </th>
+                <th className="py-2 px-3">Status</th>
+                <th className="py-2 px-3">Aktionen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((brand) => (
+                <tr
+                  key={brand.ID}
+                  className="border-b border-gray-200 hover:bg-gray-50">
+                  <td className="py-2 px-3">{brand.ID}</td>
+                  <td className="py-2 px-3">{brand.Brandname}</td>
+                  <td className="py-2 px-3">{brand.Firmenname || "—"}</td>
+                  <td className="py-2 px-3">{brand.KundeFirma || "—"}</td>
+                  <td className="py-2 px-3">{brand.BuchungsKontingent}</td>
+                  <td className="py-2 px-3">{brand.Belegt || 0}</td>
+                  <td className="py-2 px-3">
+                    <span
+                      className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${
+                        brand.is_active
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}>
+                      <span className="w-2 h-2 bg-current rounded-full"></span>
+                      {brand.is_active ? "Aktiv" : "Inaktiv"}
+                    </span>
+                  </td>
+                  <td className="py-2 px-3 space-x-2">
+                    <button
+                      onClick={() => fetchSingleBrand(brand.ID)}
+                      className="relative group cursor-pointer  text-[#4A90E2]">
+                      <Visibility />{" "}
+                      <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        Anzeigen
                       </span>
-                    </td>
-                    <td className="py-2 px-3 space-x-2">
-                      <button
-                        onClick={() => fetchSingleBrand(brand.ID)}
-                        className="relative group cursor-pointer  text-[#4A90E2]">
-                        <Visibility />{" "}
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                          Anzeigen
-                        </span>
-                      </button>
+                    </button>
 
-                      <button
-                        onClick={() => {
-                          setSelectedBrand(brand);
-                          setEditModal(true);
-                        }}
-                        className="relative group cursor-pointer text-blue-700">
-                        <Edit fontSize="small" />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                          Bearbeiten
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => fetchArticlesByBrand(brand.ID)}
-                        className="relative group cursor-pointer text-[#9B9B9B]">
-                        <Article />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                          Artikel
-                        </span>
-                      </button>
+                    <button
+                      onClick={() => {
+                        setSelectedBrand(brand);
+                        setEditModal(true);
+                      }}
+                      className="relative group cursor-pointer text-blue-700">
+                      <Edit fontSize="small" />
+                      <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        Bearbeiten
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => fetchArticlesByBrand(brand.ID)}
+                      className="relative group cursor-pointer text-[#9B9B9B]">
+                      <Article />
+                      <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        Artikel
+                      </span>
+                    </button>
 
-                      <button
-                        onClick={() => fetchBrandsByCustomer(brand.ID)}
-                        className="relative group cursor-pointer  text-green-700">
-                        <BrandingWatermark />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                          Markenzusammenfassung
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => fetchBrandKontingentSummary(brand.ID)}
-                        className="relative group cursor-pointer  text-green-400">
-                        <NoteAdd />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                          Kontingent Zusammenfassung
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => fetchBrandLogs(brand.ID)}
-                        className="relative group cursor-pointer  text-[#F5A623]">
-                        <BarChart />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                          Protokolle
-                        </span>
-                      </button>
+                    <button
+                      onClick={() => fetchBrandsByCustomer(brand.ID)}
+                      className="relative group cursor-pointer  text-green-700">
+                      <BrandingWatermark />
+                      <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        Markenzusammenfassung
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => fetchBrandKontingentSummary(brand.ID)}
+                      className="relative group cursor-pointer  text-green-400">
+                      <NoteAdd />
+                      <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        Kontingent Zusammenfassung
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => fetchBrandLogs(brand.ID)}
+                      className="relative group cursor-pointer  text-[#F5A623]">
+                      <BarChart />
+                      <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        Protokolle
+                      </span>
+                    </button>
 
-                      <button
-                        onClick={() => handleDelete(brand.ID)}
-                        className="relative group cursor-pointer text-red-500">
-                        <Delete fontSize="small" />
-                        <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                          Löschen
-                        </span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </>
-      )}
+                    <button
+                      onClick={() => handleDelete(brand.ID)}
+                      className="relative group cursor-pointer text-red-500">
+                      <Delete fontSize="small" />
+                      <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                        Löschen
+                      </span>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </>
+
       {createModal && (
         <CreateBrandModal
           createModal={createModal}
