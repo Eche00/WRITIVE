@@ -48,7 +48,7 @@ function ForgotPassword() {
 
     try {
       const response = await fetch(
-        "https://716f-102-89-69-162.ngrok-free.app/auth/forgot-password",
+        "https://40fe56c82e49.ngrok-free.app/auth/forgot-password",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
