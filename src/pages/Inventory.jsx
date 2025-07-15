@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Search, Add } from "@mui/icons-material";
+import { Search } from "@mui/icons-material";
 
 const BASE_URL = "https://40fe56c82e49.ngrok-free.app";
 
