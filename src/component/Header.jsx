@@ -79,6 +79,24 @@ function Header() {
               Marken
             </NavLink>
             <NavLink
+              to="/admin/campaign"
+              className={({ isActive }) =>
+                isActive
+                  ? " font-bold text-[#412666]"
+                  : "  font-bold text-gray-600"
+              }>
+              Kampagne
+            </NavLink>
+            <NavLink
+              to="/admin/articles"
+              className={({ isActive }) =>
+                isActive
+                  ? " font-bold text-[#412666]"
+                  : "  font-bold text-gray-600"
+              }>
+              Artikelverwaltung
+            </NavLink>
+            <NavLink
               to="/admin/workflow"
               className={({ isActive }) =>
                 isActive
@@ -106,15 +124,6 @@ function Header() {
               Inventarsystem
             </NavLink>
 
-            <NavLink
-              to="/admin/campaign"
-              className={({ isActive }) =>
-                isActive
-                  ? " font-bold text-[#412666]"
-                  : "  font-bold text-gray-600"
-              }>
-              Kampagne
-            </NavLink>
             <NavLink
               to="/admin/amazonreviews"
               className={({ isActive }) =>
@@ -201,6 +210,24 @@ function Header() {
                 Marken
               </NavLink>
               <NavLink
+                to="/admin/campaign"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
+                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
+                }>
+                Kampagne
+              </NavLink>
+              <NavLink
+                to="/admin/articles"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
+                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
+                }>
+                Artikelverwaltung
+              </NavLink>
+              <NavLink
                 to="/admin/workflow"
                 className={({ isActive }) =>
                   isActive
@@ -228,15 +255,6 @@ function Header() {
                 Inventarsystem
               </NavLink>
 
-              <NavLink
-                to="/admin/campaign"
-                className={({ isActive }) =>
-                  isActive
-                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
-                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
-                }>
-                Kampagne
-              </NavLink>
               <NavLink
                 to="/admin/amazonreviews"
                 className={({ isActive }) =>

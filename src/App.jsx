@@ -21,6 +21,7 @@ import CustomerQRScans from "./customer/CustomerQRScans";
 import CustomerAmazonReviews from "./customer/CustomerAmazonReviews";
 import CustomerProfile from "./pages/CustomerProfile";
 import Categories from "./pages/Categories";
+import Articles from "./pages/Articles";
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
           {/* Brand & Campaign */}
           <Route path="/admin/brand" element={<Brand />} />
           <Route path="/admin/categories" element={<Categories />} />
+          <Route path="/admin/articles" element={<Articles />} />
           <Route path="/admin/campaign" element={<Campaign />} />
 
           {/* Workflow & Inventory */}
