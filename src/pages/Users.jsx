@@ -1,20 +1,10 @@
-import {
-  Archive,
-  BarChart,
-  Delete,
-  Edit,
-  ListAlt,
-  Search,
-  Summarize,
-  Unarchive,
-  Visibility,
-} from "@mui/icons-material";
+import { Search } from "@mui/icons-material";
 import React, { useEffect, useState } from "react";
 import UserLoader from "../component/UserLoader";
 import UpdateCustomerModal from "./UpdateCustomerModal";
 import CreateCustomerModal from "./CreateCustomerModal";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BASE_URL = "https://40fe56c82e49.ngrok-free.app";
 
 const Users = () => {
   const [customers, setCustomers] = useState([]);
@@ -23,35 +13,10 @@ const Users = () => {
   const [search, setSearch] = useState("");
   const [filtered, setFiltered] = useState([]);
   const [editModal, setEditModal] = useState(false);
-  const [newCustomer, setNewCustomer] = useState({
-    AutoID: "",
-    KontaktName: "",
-    Vorname: "",
-    Firma: "",
-    EmailAdresse: "",
-    Handynr: "",
-    Anrede: "",
-    Geburtstag: "",
-    MusterAdresse: "",
-    UStIdNr: "",
-    is_active: true,
-  });
 
   // user visibility
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
-  // user summary
-  const [showSummaryModal, setShowSummaryModal] = useState(false);
-  const [customerSummary, setCustomerSummary] = useState(null);
-
-  // user logs
-  const [logs, setLogs] = useState([]);
-  const [showLogsModal, setShowLogsModal] = useState(false);
-
-  // user history
-  const [showHistoryModal, setShowHistoryModal] = useState(false);
-  const [statusHistory, setStatusHistory] = useState([]);
 
   // show archived
   const [showingArchived, setShowingArchived] = useState(false);
@@ -59,8 +24,6 @@ const Users = () => {
   const [showAuditLogsModal, setShowAuditLogsModal] = useState(false);
   const [auditLogs, setAuditLogs] = useState([]);
   const [selectedCustomerID, setSelectedCustomerID] = useState(null);
-  const [showLogDetailModal, setShowLogDetailModal] = useState(false);
-  const [auditLogDetail, setAuditLogDetail] = useState(null);
 
   const fetchCustomers = async (query = "") => {
     setLoading(true);
@@ -132,7 +95,7 @@ const Users = () => {
           (c) =>
             (c.EmailAdresse && c.EmailAdresse.toLowerCase().includes(q)) ||
             (c.KontaktName && c.KontaktName.toLowerCase().includes(q)) ||
-            (c.AutoID && c.AutoID.toLowerCase().includes(q)) ||
+            (c.ID && c.ID.toLowerCase().includes(q)) ||
             (c.Firma && c.Firma.toLowerCase().includes(q))
         )
       );
@@ -140,20 +103,6 @@ const Users = () => {
       setFiltered(customers);
     }
   }, [search, customers]);
-
-  const createCustomer = async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/customers/new`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newCustomer),
-      });
-      const data = await res.json();
-      fetchCustomers();
-    } catch (err) {
-      console.error("Create failed:", err);
-    }
-  };
 
   // fetching customer details
   const fetchCustomerDetails = async (id) => {
@@ -211,69 +160,6 @@ const Users = () => {
     }
   };
 
-  // handling customer summary
-  const fetchCustomerSummary = async (id) => {
-    try {
-      const token = localStorage.getItem("token"); // retrieve saved token
-      const res = await fetch(`${BASE_URL}/customers/${id}/summary`, {
-        method: "GET",
-        headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-      const data = await res.json();
-      setCustomerSummary(data);
-      setShowSummaryModal(true);
-    } catch (err) {
-      console.error("Summary fetch failed:", err);
-    }
-  };
-
-  // handling user logs
-  const fetchCustomerLogs = async (id) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${BASE_URL}/customers/${id}/logs`, {
-        method: "GET",
-        headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-      const data = await res.json();
-      setLogs(data);
-      setShowLogsModal(true);
-      console.log(data);
-    } catch (err) {
-      console.error("Log fetch failed:", err);
-    }
-  };
-
-  // handling history
-  // const fetchStatusHistory = async (id) => {
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const res = await fetch(`${BASE_URL}/customers/${id}/status-history`, {
-  //       method: "GET",
-  //       headers: {
-  //         Authorization: "Bearer " + token,
-  //         "Content-Type": "application/json",
-  //         "ngrok-skip-browser-warning": "true",
-  //       },
-  //     });
-  //     const data = await res.json();
-  //     setStatusHistory(data); // store history data
-  //     setShowHistoryModal(true); // open modal
-  //     console.log("Status History:", data);
-  //   } catch (err) {
-  //     console.error("Status History fetch failed:", err);
-  //   }
-  // };
-
-  // handling user delete
   const handleDelete = async (id) => {
     const token = localStorage.getItem("token");
     try {
@@ -313,29 +199,6 @@ const Users = () => {
       setShowAuditLogsModal(true);
     } catch (err) {
       console.error(err);
-    }
-  };
-  const fetchAuditLogByID = async (logID) => {
-    const token = localStorage.getItem("token");
-
-    try {
-      const res = await fetch(`${BASE_URL}/customers/logs/${logID}`, {
-        method: "GET",
-        headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      if (!res.ok) throw new Error("Fehler beim Abrufen des Log-Eintrags");
-
-      const data = await res.json();
-      setAuditLogDetail(data);
-      setShowLogDetailModal(true);
-    } catch (err) {
-      console.error(err);
-      // alert("Audit-Log konnte nicht geladen werden.");
     }
   };
 
@@ -445,9 +308,9 @@ const Users = () => {
           <table className="w-full text-left text-sm">
             <thead className="text-[#412666] border-b border-gray-200">
               <tr>
-                <th className="py-2 px-3">AutoID</th>
-                <th className="py-2 px-3">KontaktName</th>
-                <th className="py-2 px-3">EmailAdresse</th>
+                <th className="py-2 px-3">ID</th>
+                <th className="py-2 px-3">Kontaktname</th>
+                <th className="py-2 px-3">E-Mail</th>
                 <th className="py-2 px-3">Firma</th>
                 <th className="py-2 px-3">Status</th>
                 <th className="py-2 px-3">Aktionen</th>
@@ -456,9 +319,9 @@ const Users = () => {
             <tbody>
               {filtered.map((c) => (
                 <tr
-                  key={c.AutoID}
+                  key={c.ID}
                   className="border-b hover:bg-gray-50 transition border-gray-200">
-                  <td className="py-2 px-3">{c.AutoID}</td>
+                  <td className="py-2 px-3">{c.ID}</td>
                   <td className="py-2 px-3">{c.KontaktName || "-"}</td>
                   <td className="py-2 px-3">{c.EmailAdresse}</td>
                   <td className="py-2 px-3">{c.Firma || "-"}</td>
@@ -473,7 +336,7 @@ const Users = () => {
                       {c.is_active ? "abgeschlossen" : "inaktiv"}
                     </span>
                   </td>
-                  <td className="py-2 px-3 text-center ">
+                  <td className="py-2 px-3 text-center">
                     <select
                       onChange={(e) => {
                         const action = e.target.value;
@@ -481,77 +344,43 @@ const Users = () => {
 
                         switch (action) {
                           case "view":
-                            fetchCustomerDetails(c.AutoID);
+                            fetchCustomerDetails(c.ID);
                             break;
                           case "edit":
                             setSelectedCustomer(c);
                             setEditModal(true);
                             break;
                           case "archive":
-                            handleArchive(c.AutoID);
+                            handleArchive(c.ID);
                             break;
                           case "restore":
-                            handleRestore(c.AutoID);
+                            handleRestore(c.ID);
                             break;
                           case "audit":
-                            fetchAuditLogs(c.AutoID);
+                            fetchAuditLogs(c.ID);
                             break;
                           case "delete":
-                            handleDelete(c.AutoID);
+                            handleDelete(c.ID);
                             break;
                           default:
                             break;
                         }
 
-                        // Reset selection after action
-                        e.target.selectedIndex = 0;
+                        e.target.selectedIndex = 0; // Reset selection
                       }}
                       className="border border-gray-300 rounded px-2 py-1 text-sm text-[#412666] bg-white cursor-pointer">
                       <option value="">Aktion wählen</option>
-                      <option value="view">
-                        <Visibility /> Anzeigen
-                      </option>
-                      {!c.is_archived && (
-                        <option value="edit">
-                          <Edit /> Bearbeiten
-                        </option>
+                      <option value="view">Anzeigen</option>
+                      <option value="edit">Bearbeiten</option>
+                      {c.is_active ? (
+                        <option value="archive">Archivieren</option>
+                      ) : (
+                        <option value="restore">Wiederherstellen</option>
                       )}
-                      {!c.is_archived && (
-                        <option value="archive">
-                          <Archive /> Archivieren
-                        </option>
-                      )}
-                      {c.is_archived && (
-                        <option value="restore">
-                          <Unarchive /> Wiederherstellen
-                        </option>
-                      )}
-                      <option value="audit">
-                        <BarChart /> Protokolle
-                      </option>
-                      {c.is_archived && (
-                        <option value="delete">
-                          <Delete /> Löschen
-                        </option>
-                      )}
+
+                      <option value="audit">Protokolle</option>
+                      {!c.is_active && <option value="delete">Löschen</option>}
                     </select>
-
-                    {/* 
-  <button onClick={() => fetchCustomerSummary(c.AutoID)} className="relative group cursor-pointer text-[#50E3C2]">
-    <Summarize />
-    <span className="absolute ...">Kundenzusammenfassung</span>
-  </button>
-
-  <button onClick={() => fetchCustomerLogs(c.AutoID)} className="relative group cursor-pointer text-green-700">
-    <ListAlt />
-    <span className="absolute ...">Kundenprotokolle</span>
-  </button>
-
-  <button onClick={() => fetchStatusHistory(c.AutoID)} className="relative group cursor-pointer">
-    <History />
-    <span className="absolute ...">Verlauf</span>
-  </button>
-  */}
                   </td>
                 </tr>
               ))}
@@ -569,16 +398,12 @@ const Users = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
               <div>
-                <span className="font-semibold">AutoID:</span>{" "}
-                {selectedCustomer.AutoID}
+                <span className="font-semibold">ID:</span>{" "}
+                {selectedCustomer.ID || "—"}
               </div>
               <div>
                 <span className="font-semibold">Anrede:</span>{" "}
                 {selectedCustomer.Anrede || "—"}
-              </div>
-              <div>
-                <span className="font-semibold">Vorname:</span>{" "}
-                {selectedCustomer.Vorname || "—"}
               </div>
               <div>
                 <span className="font-semibold">Kontaktname:</span>{" "}
@@ -586,7 +411,7 @@ const Users = () => {
               </div>
               <div>
                 <span className="font-semibold">Email:</span>{" "}
-                {selectedCustomer.EmailAdresse}
+                {selectedCustomer.EmailAdresse || "—"}
               </div>
               <div>
                 <span className="font-semibold">Firma:</span>{" "}
@@ -598,22 +423,26 @@ const Users = () => {
               </div>
               <div>
                 <span className="font-semibold">Geburtstag:</span>{" "}
-                {selectedCustomer.Geburtstag || "—"}
+                {selectedCustomer.Geburtstag
+                  ? new Date(selectedCustomer.Geburtstag).toLocaleDateString(
+                      "de-DE"
+                    )
+                  : "—"}
               </div>
               <div>
                 <span className="font-semibold">Adresse:</span>{" "}
                 {selectedCustomer.MusterAdresse || "—"}
               </div>
               <div>
-                <span className="font-semibold">USt-ID:</span>{" "}
-                {selectedCustomer.UStIdNr || "—"}
-              </div>
-              <div>
                 <span className="font-semibold">Erstellt am:</span>{" "}
-                {selectedCustomer.ErstellungsDatum || "—"}
+                {selectedCustomer.ErstellungsDatum
+                  ? new Date(selectedCustomer.ErstellungsDatum).toLocaleString(
+                      "de-DE"
+                    )
+                  : "—"}
               </div>
               <div>
-                <span className="font-semibold">Status:</span>
+                <span className="font-semibold">Status:</span>{" "}
                 <span
                   className={
                     selectedCustomer.is_active
@@ -641,151 +470,7 @@ const Users = () => {
           </div>
         </div>
       )}
-      {/* SUMMARY MODAL */}
-      {showSummaryModal && customerSummary && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full relative">
-            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
-              Kundenzusammenfassung
-            </h2>
 
-            <div className="space-y-4 text-sm text-gray-700">
-              <div className="flex justify-between">
-                <span className="font-semibold">Artikel:</span>
-                <span>{customerSummary.artikel_count}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Marken:</span>
-                <span>{customerSummary.brand_count}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Kampagnen:</span>
-                <span>{customerSummary.campaign_count}</span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowSummaryModal(false)}
-              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
-              Schließen
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* LOGS MODAL */}
-      {showLogsModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
-            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
-              Kundenprotokolle
-            </h2>
-
-            <div className="space-y-4 text-sm text-gray-700 max-h-[400px] overflow-y-auto pr-2">
-              {logs.length === 0 ? (
-                <p className="text-center text-gray-500">
-                  Keine Protokolle gefunden.
-                </p>
-              ) : (
-                logs.map((log) => (
-                  <div
-                    key={log.id}
-                    className="border border-gray-200 rounded-lg p-4 shadow-sm bg-gray-50">
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Aktion:</span>
-                      <span className="capitalize">{log.action}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Details:</span>
-                      <span>{log.details}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Entität:</span>
-                      <span>
-                        {log.entity} (ID: {log.entity_id})
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Zeitstempel:</span>
-                      <span>
-                        {new Date(log.timestamp).toLocaleString("de-DE")}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">IP-Adresse:</span>
-                      <span>{log.ip_address}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">User-Agent:</span>
-                      <span>{log.user_agent}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">User ID:</span>
-                      <span>{log.user_id}</span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <button
-              onClick={() => setShowLogsModal(false)}
-              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
-              Schließen
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* HISTORY MODAL  */}
-      {showHistoryModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
-            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
-              Statusverlauf
-            </h2>
-
-            <div className="space-y-4 text-sm text-gray-700 max-h-[400px] overflow-y-auto pr-2">
-              {statusHistory.length === 0 ? (
-                <p className="text-center text-gray-500">
-                  Keine Änderungen im Verlauf gefunden.
-                </p>
-              ) : (
-                statusHistory.map((entry, index) => (
-                  <div
-                    key={index}
-                    className="border border-gray-200 rounded-lg p-4 shadow-sm bg-gray-50">
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Aktion:</span>
-                      <span className="capitalize">{entry.action}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Details:</span>
-                      <span>{entry.details}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Modell:</span>
-                      <span>{entry.model}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Zeitstempel:</span>
-                      <span>
-                        {new Date(entry.timestamp).toLocaleString("de-DE")}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <button
-              onClick={() => setShowHistoryModal(false)}
-              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
-              Schließen
-            </button>
-          </div>
-        </div>
-      )}
       {/* CREATE CUSTOMER MODAL */}
       {createModal && (
         <CreateCustomerModal
@@ -818,8 +503,7 @@ const Users = () => {
                 auditLogs.map((log) => (
                   <div
                     key={log.id}
-                    className="border border-gray-200 rounded-lg p-4 bg-gray-50 shadow-sm space-y-1 cursor-pointer w-full "
-                    onClick={() => fetchAuditLogByID(log.entity_id)}>
+                    className="border border-gray-200 rounded-lg p-4 bg-gray-50 shadow-sm space-y-1 cursor-pointer w-full ">
                     <div>
                       <strong>Aktion:</strong> {log.action}
                     </div>
@@ -881,64 +565,6 @@ const Users = () => {
 
             <button
               onClick={() => setShowAuditLogsModal(false)}
-              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
-              Schließen
-            </button>
-          </div>
-        </div>
-      )}
-      {showLogDetailModal && auditLogDetail && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 rounded-xl shadow-lg max-w-xl w-full relative">
-            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
-              Audit-Log Detail (ID: {auditLogDetail.id})
-            </h2>
-
-            <div className="space-y-3 text-sm text-gray-700">
-              <div className="flex justify-between">
-                <span className="font-semibold">Aktion:</span>
-                <span>{auditLogDetail.action}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Details:</span>
-                <span>{auditLogDetail.details}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Entität:</span>
-                <span>{auditLogDetail.entity}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Entitäts-ID:</span>
-                <span>{auditLogDetail.entity_id}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Kunde-ID:</span>
-                <span>{auditLogDetail.kunde_id}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">IP-Adresse:</span>
-                <span>{auditLogDetail.ip_address}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">User-Agent:</span>
-                <span className="break-words max-w-[60%]">
-                  {auditLogDetail.user_agent}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">User ID:</span>
-                <span>{auditLogDetail.user_id}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Zeitstempel:</span>
-                <span>
-                  {new Date(auditLogDetail.timestamp).toLocaleString()}
-                </span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowLogDetailModal(false)}
               className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
               Schließen
             </button>
