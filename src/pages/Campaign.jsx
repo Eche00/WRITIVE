@@ -5,12 +5,7 @@ import {
   Delete,
   Edit,
   Search,
-  Summarize,
-  NoteAdd,
-  Article,
   BarChart,
-  BrandingWatermark,
-  Timeline,
   Add,
 } from "@mui/icons-material";
 import UserLoader from "../component/UserLoader";
