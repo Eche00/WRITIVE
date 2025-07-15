@@ -1,34 +1,57 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
-
-// Replace this with your real category list or fetch from API
-const VALID_CATEGORIES = [
-  { id: 1, name: "Postkarten" },
-  { id: 2, name: "Geburtstagskarten" },
-  { id: 3, name: "Weihnachtskarten" },
-];
+const BASE_URL = "https://40fe56c82e49.ngrok-free.app";
 
 const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
   const [formData, setFormData] = useState({
-    BrandID: "B011",
+    BrandID: "",
+    KampagneID: "",
     Artikelname: "",
     Text: "",
-    Variablen: "",
-    MusterkarteDesign: "",
-    Versandart: "",
-    Frankierung: "",
-    Stift: "",
-    Schrift: "",
-    Format: "",
-    ZusatzInfos: "",
     StueckzahlProMonat: "",
-    ArtikelBezeichnungName: "",
-    ArtikelKategorieID: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [brands, setBrands] = useState([]);
+  const [campaigns, setCampaigns] = useState([]);
+
+  const fetchBrands = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${BASE_URL}/brands/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+      const data = await res.json();
+      setBrands(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch brands:", err);
+    }
+  };
+
+  const fetchCampaigns = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${BASE_URL}/campaigns/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+      const data = await res.json();
+      setCampaigns(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Failed to fetch campaigns:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBrands();
+    fetchCampaigns();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,32 +64,23 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
   const handleSubmit = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
+
     if (!token) {
       setMessage("No token found. Please log in.");
       setLoading(false);
       return;
     }
 
-    // Validation
     for (let key in formData) {
-      if (formData[key] === "") {
+      if (!formData[key]) {
         setMessage(`Field "${key}" cannot be empty.`);
         setLoading(false);
         return;
       }
     }
 
-    const categoryId = Number(formData.ArtikelKategorieID);
-    const validCategory = VALID_CATEGORIES.find((cat) => cat.id === categoryId);
-    if (!validCategory) {
-      setMessage("Invalid category selected.");
-      setLoading(false);
-      return;
-    }
-
     const payload = {
       ...formData,
-      ArtikelKategorieID: categoryId,
       StueckzahlProMonat: Number(formData.StueckzahlProMonat),
     };
 
@@ -84,16 +98,15 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage(data.message || "Article created successfully.");
+        setMessage(data.message || "Artikel erfolgreich erstellt.");
         onCreated?.(data.artikel);
         setTimeout(() => setShowModal(false), 1500);
       } else {
-        console.error("Error response:", res.status, data);
-        setMessage(data.message || "Error while creating article.");
+        setMessage(data.message || "Fehler beim Erstellen des Artikels.");
       }
     } catch (err) {
-      console.error("Network error:", err);
-      setMessage("Server error. Please try again.");
+      console.error("Netzwerkfehler:", err);
+      setMessage("Serverfehler. Bitte erneut versuchen.");
     } finally {
       setLoading(false);
     }
@@ -108,21 +121,33 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
           Create Article
         </h2>
 
-        <div className="grid grid-cols-2 gap-4 text-sm text-black">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-black">
           {Object.entries(formData).map(([key, value]) => (
             <div key={key} className="flex flex-col">
               <label className="mb-1 font-medium">{key}</label>
-
-              {key === "ArtikelKategorieID" ? (
+              {key === "BrandID" ? (
                 <select
                   name={key}
                   value={value}
                   onChange={handleChange}
                   className="border rounded px-2 py-1">
-                  <option value="">Select category</option>
-                  {VALID_CATEGORIES.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
+                  <option value="">Select brand</option>
+                  {brands.map((brand) => (
+                    <option key={brand.ID} value={brand.ID}>
+                      {brand.ID}
+                    </option>
+                  ))}
+                </select>
+              ) : key === "KampagneID" ? (
+                <select
+                  name={key}
+                  value={value}
+                  onChange={handleChange}
+                  className="border rounded px-2 py-1">
+                  <option value="">Select campaign</option>
+                  {campaigns.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.id}
                     </option>
                   ))}
                 </select>
@@ -156,7 +181,7 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
             disabled={loading}
             onClick={handleSubmit}
             className="w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
-            {loading ? "Aktualisiere..." : "Aktualisieren"}
+            {loading ? "Wird erstellt..." : "Erstellen"}
           </button>
         </div>
       </div>

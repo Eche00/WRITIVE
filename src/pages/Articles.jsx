@@ -9,7 +9,7 @@ import {
 import CreateArticleModal from "./CreateArticleModal";
 import EditArticleModal from "./EditArticleModal";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BASE_URL = "https://40fe56c82e49.ngrok-free.app";
 
 const Articles = ({ setViewarticles }) => {
   const [articles, setArticles] = useState([]);
@@ -130,13 +130,10 @@ const Articles = ({ setViewarticles }) => {
   };
 
   return (
-    <div className="w-full">
+    <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
       <div className="flex flex-col  mb-4">
         <section className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-[#412666] mb-4">
-            {" "}
-            Artikel
-          </h2>
+          Artikelverwaltung
           <div className="flex items-center gap-[10px] text-white text-[12px]">
             <button
               onClick={() => setViewarticles(false)}
@@ -278,24 +275,20 @@ const Articles = ({ setViewarticles }) => {
                 {selectedArticle.Artikelname || "—"}
               </div>
               <div>
-                <span className="font-semibold">Edition:</span>{" "}
-                {selectedArticle.ArtikelBezeichnungName || "—"}
-              </div>
-              <div>
                 <span className="font-semibold">Brand:</span>{" "}
                 {selectedArticle.Brandname || "—"}
               </div>
               <div>
-                <span className="font-semibold">Kategorie ID:</span>{" "}
-                {selectedArticle.ArtikelKategorieID || "—"}
+                <span className="font-semibold">Kunde:</span>{" "}
+                {selectedArticle.KundeFirmenname?.trim() || "—"}
               </div>
               <div>
-                <span className="font-semibold">Text:</span>{" "}
-                {selectedArticle.Text || "—"}
+                <span className="font-semibold">Stück/Monat:</span>{" "}
+                {selectedArticle.StueckzahlProMonat || "—"}
               </div>
               <div>
-                <span className="font-semibold">Variablen:</span>{" "}
-                {selectedArticle.Variablen || "—"}
+                <span className="font-semibold">Format:</span>{" "}
+                {selectedArticle.Format || "—"}
               </div>
               <div>
                 <span className="font-semibold">Versandart:</span>{" "}
@@ -306,14 +299,6 @@ const Articles = ({ setViewarticles }) => {
                 {selectedArticle.Frankierung || "—"}
               </div>
               <div>
-                <span className="font-semibold">Format:</span>{" "}
-                {selectedArticle.Format || "—"}
-              </div>
-              <div>
-                <span className="font-semibold">Musterdesign:</span>{" "}
-                {selectedArticle.MusterkarteDesign || "—"}
-              </div>
-              <div>
                 <span className="font-semibold">Stift:</span>{" "}
                 {selectedArticle.Stift || "—"}
               </div>
@@ -322,20 +307,26 @@ const Articles = ({ setViewarticles }) => {
                 {selectedArticle.Schrift || "—"}
               </div>
               <div>
-                <span className="font-semibold">Stück/Monat:</span>{" "}
-                {selectedArticle.StueckzahlProMonat || "—"}
+                <span className="font-semibold">Text:</span>{" "}
+                {selectedArticle?.Text || "—"}
+              </div>
+              <div>
+                <span className="font-semibold">Variablen:</span>{" "}
+                {selectedArticle.Variablen || "—"}
+              </div>
+              <div>
+                <span className="font-semibold">Musterdesign:</span>{" "}
+                {selectedArticle.MusterkarteDesign || "—"}
               </div>
               <div>
                 <span className="font-semibold">Zusatzinfos:</span>{" "}
                 {selectedArticle.ZusatzInfos || "—"}
               </div>
               <div>
-                <span className="font-semibold">Kunde:</span>{" "}
-                {selectedArticle.KundeFirmenname?.trim() || "—"}
-              </div>
-              <div>
                 <span className="font-semibold">Erstellt am:</span>{" "}
-                {new Date(selectedArticle.created_at).toLocaleString("de-DE")}
+                {selectedArticle.created_at
+                  ? new Date(selectedArticle.created_at).toLocaleString("de-DE")
+                  : "—"}
               </div>
               <div>
                 <span className="font-semibold">Status:</span>{" "}
