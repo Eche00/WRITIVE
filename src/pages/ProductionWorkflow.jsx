@@ -41,6 +41,15 @@ const ProductionWorkflow = () => {
     "In Progress": "CleanDataPcs",
     "Quality Check Started": "CleanPcs",
   };
+  const statusColorMap = {
+    "Data Received": "text-red-600 bg-red-100",
+    "Data Preparation": "text-orange-600 bg-orange-100",
+    "Quality Check Started": "text-yellow-600 bg-yellow-100",
+    "In Progress": "text-blue-600 bg-blue-100",
+    "Production Completed": "text-emerald-600 bg-emerald-100",
+    "Order Completed": "text-green-600 bg-green-100",
+  };
+
   const [openLogExportProduction, setOpenLogExportProduction] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newProduction, setNewProduction] = useState({
@@ -484,9 +493,9 @@ const ProductionWorkflow = () => {
               <tr>
                 <th className="py-2 px-3">ID</th>
                 <th className="py-2 px-3">Artikelname</th>
-                <th className="py-2 px-3">Status</th>
                 <th className="py-2 px-3">Stückzahl (Standard / Geändert)</th>
                 <th className="py-2 px-3">Zusatzinfos</th>
+                <th className="py-2 px-3">Status</th>
                 <th className="py-2 px-3">Aktionen</th>
               </tr>
             </thead>
@@ -497,11 +506,20 @@ const ProductionWorkflow = () => {
                   className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="py-2 px-3">{p.ID}</td>
                   <td className="py-2 px-3">{p.ArtikelName}</td>
-                  <td className="py-2 px-3">{p.Status}</td>
+
                   <td className="py-2 px-3">
                     {p.StandardStueckzahl} / {p.GeaenderteStueckzahl}
                   </td>
                   <td className="py-2 px-3">{p.Zusatzinfos || "-"}</td>
+                  <td className="py-2 px-3">
+                    {" "}
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        statusColorMap[p.Status] || "text-gray-600 bg-gray-100"
+                      }`}>
+                      {p.Status}
+                    </span>
+                  </td>
                   <td className="p-2 flex gap-2 flex-wrap">
                     <select
                       onChange={(e) => {
@@ -599,7 +617,13 @@ const ProductionWorkflow = () => {
               </div>
               <div>
                 <span className="font-semibold">Status:</span>{" "}
-                {selectedProductionID.Status || "—"}
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    statusColorMap[selectedProductionID.Status] ||
+                    "text-gray-600 bg-gray-100"
+                  }`}>
+                  {selectedProductionID.Status || "—"}
+                </span>
               </div>
               <div>
                 <span className="font-semibold">Geänderte Stückzahl:</span>{" "}
