@@ -71,9 +71,9 @@ function Brand() {
       setFiltered(
         brands.filter(
           (b) =>
-            b.Brandname.toLowerCase().includes(q) ||
-            b.Firmenname.toLowerCase().includes(q) ||
-            b.ID.toLowerCase().includes(q)
+            b?.Brandname.toLowerCase().includes(q) ||
+            b?.KundeFirma.toLowerCase().includes(q) ||
+            b?.ID.toLowerCase().includes(q)
         )
       );
     } else {
@@ -303,8 +303,8 @@ function Brand() {
               <tr>
                 <th className="py-2 px-3">ID</th>
                 <th className="py-2 px-3">Brandname</th>
-                <th className="py-2 px-3">Firma</th>
-                <th className="py-2 px-3">Kunde</th>
+                <th className="py-2 px-3">Kunde-ID</th>
+                <th className="py-2 px-3">Kunde Firma</th>
                 <th className="py-2 px-3">Kontingent</th>
                 <th className="py-2 px-3">Gebuchte </th>
                 <th className="py-2 px-3">Aktionen</th>
@@ -317,7 +317,7 @@ function Brand() {
                   className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="py-2 px-3">{brand.ID}</td>
                   <td className="py-2 px-3">{brand.Brandname}</td>
-                  <td className="py-2 px-3">{brand.Firmenname || "—"}</td>
+                  <td className="py-2 px-3">{brand.KundeID || "—"}</td>
                   <td className="py-2 px-3">{brand.KundeFirma || "—"}</td>
                   <td className="py-2 px-3">{brand.BuchungsKontingent}</td>
                   <td className="py-2 px-3">{brand.Belegt || 0}</td>
