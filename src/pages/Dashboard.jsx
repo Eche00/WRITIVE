@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import UserLoader from "../component/UserLoader";
 
-const BASE_URL = "https://40fe56c82e49.ngrok-free.app";
+const BASE_URL = "https://cb49a05985a8.ngrok-free.app";
 
 const Dashboard = () => {
   const [currentUser, setCurrentUser] = useState(null);

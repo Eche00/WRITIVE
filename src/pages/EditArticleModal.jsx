@@ -1,59 +1,29 @@
 import React, { useState, useEffect } from "react";
 
-const BASE_URL = "https://6902-102-89-68-78.ngrok-free.app";
+const BASE_URL = "https://cb49a05985a8.ngrok-free.app";
 
 const EditArticleModal = ({ showModal, setShowModal, artikel, onUpdated }) => {
   const [formData, setFormData] = useState({
     BrandID: "",
-    KundeID: "",
+    KampagneID: "",
     Artikelname: "",
     Text: "",
-    Variablen: "",
-    MusterkarteDesign: "",
-    Versandart: "",
-    Frankierung: "",
-    Stift: "",
-    Schrift: "",
-    Format: "",
-    ZusatzInfos: "",
     StueckzahlProMonat: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Pre-fill form when modal opens
   useEffect(() => {
     if (artikel) {
-      const {
-        BrandID,
-        KundeID,
-        Artikelname,
-        Text,
-        Variablen,
-        MusterkarteDesign,
-        Versandart,
-        Frankierung,
-        Stift,
-        Schrift,
-        Format,
-        ZusatzInfos,
-        StueckzahlProMonat,
-      } = artikel;
+      const { BrandID, KampagneID, Artikelname, Text, StueckzahlProMonat } =
+        artikel;
 
       setFormData({
         BrandID: BrandID || "",
-        KundeID: KundeID || "",
+        KampagneID: KampagneID || "-",
         Artikelname: Artikelname || "",
         Text: Text || "",
-        Variablen: Variablen || "",
-        MusterkarteDesign: MusterkarteDesign || "",
-        Versandart: Versandart || "",
-        Frankierung: Frankierung || "",
-        Stift: Stift || "",
-        Schrift: Schrift || "",
-        Format: Format || "",
-        ZusatzInfos: ZusatzInfos || "",
         StueckzahlProMonat: StueckzahlProMonat?.toString() || "",
       });
     }
@@ -76,9 +46,8 @@ const EditArticleModal = ({ showModal, setShowModal, artikel, onUpdated }) => {
       return;
     }
 
-    // Check for empty required fields
     for (let key in formData) {
-      if (formData[key] === "") {
+      if (!formData[key]) {
         setMessage(`Field "${key}" cannot be empty.`);
         setLoading(false);
         return;
@@ -104,16 +73,16 @@ const EditArticleModal = ({ showModal, setShowModal, artikel, onUpdated }) => {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage(data.message || "Article updated successfully.");
+        setMessage(data.message || "Artikel erfolgreich aktualisiert.");
         onUpdated?.(data.artikel);
         setTimeout(() => setShowModal(false), 1500);
       } else {
         console.error("Error response:", res.status, data);
-        setMessage(data.message || "Error while updating article.");
+        setMessage(data.message || "Fehler beim Aktualisieren des Artikels.");
       }
     } catch (err) {
       console.error("Network error:", err);
-      setMessage("Server error. Please try again.");
+      setMessage("Serverfehler. Bitte erneut versuchen.");
     } finally {
       setLoading(false);
     }
@@ -128,18 +97,27 @@ const EditArticleModal = ({ showModal, setShowModal, artikel, onUpdated }) => {
           Edit Article
         </h2>
 
-        <div className="grid grid-cols-2 gap-4 text-sm text-black">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-black">
           {Object.entries(formData).map(([key, value]) => (
             <div key={key} className="flex flex-col">
               <label className="mb-1 font-medium">{key}</label>
-              <input
-                name={key}
-                value={value}
-                onChange={handleChange}
-                type={key === "StueckzahlProMonat" ? "number" : "text"}
-                className="border rounded px-2 py-1"
-                placeholder={key}
-              />
+              {key === "BrandID" || key === "KampagneID" ? (
+                <input
+                  name={key}
+                  value={value}
+                  disabled
+                  className="border rounded px-2 py-1 bg-gray-100 cursor-not-allowed"
+                />
+              ) : (
+                <input
+                  name={key}
+                  value={value}
+                  onChange={handleChange}
+                  type={key === "StueckzahlProMonat" ? "number" : "text"}
+                  className="border rounded px-2 py-1"
+                  placeholder={key}
+                />
+              )}
             </div>
           ))}
         </div>
@@ -164,6 +142,17 @@ const EditArticleModal = ({ showModal, setShowModal, artikel, onUpdated }) => {
           </button>
         </div>
       </div>
+      {/* 
+      5. Upload a file
+   POST /products/upload
+   /products/upload
+
+Response:
+{
+"filename": "writive-COLORS+FONTS.pdf",
+"message": "Datei erfolgreich hochgeladen."
+}
+ */}
     </div>
   );
 };

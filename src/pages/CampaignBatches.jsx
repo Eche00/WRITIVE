@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import UserLoader from "../component/UserLoader";
 import { Search } from "@mui/icons-material";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BASE_URL = "https://cb49a05985a8.ngrok-free.app";
 
 const CampaignBatches = () => {
   const [batches, setBatches] = useState([]);

@@ -11,7 +11,7 @@ import {
 import UserLoader from "../component/UserLoader";
 import CampaignBatches from "./CampaignBatches";
 
-const BASE_URL = "https://40fe56c82e49.ngrok-free.app";
+const BASE_URL = "https://cb49a05985a8.ngrok-free.app";
 
 const Campaign = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -481,39 +481,7 @@ const Campaign = () => {
                           Bearbeiten
                         </span>
                       </button>
-                      {/* <select
-                        value={c.status || "draft"}
-                        onChange={(e) =>
-                          handleStatusUpdate(c.id, e.target.value)
-                        }
-                        className="border border-gray-200 rounded p-1 text-xs cursor-pointer">
-                        {["draft", "active", "paused", "completed"].map(
-                          (status) => (
-                            <option key={status} value={status}>
-                              {status}
-                            </option>
-                          )
-                        )}
-                      </select> */}
-                      {/* <button
-                        onClick={() => fetchCampaignTimeline(c.id)}
-                        className="relative group cursor-pointer">
-                        <Timeline fontSize="small" />
-                        <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded bg-gray-400 text-white text-[12px] group-hover:block hidden">
-                          Línea de tiempo
-                        </span>
-                      </button> */}
-                      {/* <button
-                        className="relative group cursor-pointer"
-                        onClick={() => {
-                          setBatchCampaignID(c.id);
-                          setShowAddBatchModal(true);
-                        }}>
-                        <NoteAdd fontSize="small" />
-                        <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded bg-gray-400 text-white text-[12px] group-hover:block hidden">
-                          Agregar lote
-                        </span>
-                      </button> */}
+
                       <button
                         onClick={() => fetchCampaignLogs(c.id)}
                         className="relative group cursor-pointer">

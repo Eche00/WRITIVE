@@ -4,7 +4,7 @@ import UserLoader from "../component/UserLoader";
 import UpdateCustomerModal from "./UpdateCustomerModal";
 import CreateCustomerModal from "./CreateCustomerModal";
 
-const BASE_URL = "https://40fe56c82e49.ngrok-free.app";
+const BASE_URL = "https://cb49a05985a8.ngrok-free.app";
 
 const Users = () => {
   const [customers, setCustomers] = useState([]);

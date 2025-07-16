@@ -63,7 +63,7 @@ function Signup() {
 
     try {
       const response = await fetch(
-        "https://40fe56c82e49.ngrok-free.app/auth/registrieren",
+        "https://cb49a05985a8.ngrok-free.app/auth/registrieren",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
