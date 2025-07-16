@@ -8,11 +8,14 @@ import {
   Visibility,
   LocationOn,
 } from "@mui/icons-material";
+import { motion } from "framer-motion";
+import UserLoader from "../component/UserLoader";
 
 const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
 const ProductionWorkflow = () => {
   const [productions, setProductions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filtered, setFiltered] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [brands, setBrands] = useState([]);
@@ -38,7 +41,7 @@ const ProductionWorkflow = () => {
     "In Progress": "CleanDataPcs",
     "Quality Check Started": "CleanPcs",
   };
-
+  const [openLogExportProduction, setOpenLogExportProduction] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newProduction, setNewProduction] = useState({
     KundeID: "",
@@ -48,8 +51,10 @@ const ProductionWorkflow = () => {
     GeaenderteStueckzahl: "",
     StandardStueckzahl: "",
   });
+  const [logExportProductionOpen, setLogExportProductionOpen] = useState(false);
 
   const fetchProductions = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`${BASE_URL}/production/?search=${search}`, {
@@ -63,6 +68,8 @@ const ProductionWorkflow = () => {
       setProductions(data?.productions || []);
     } catch (err) {
       console.error("Fetch production failed:", err);
+    } finally {
+      setLoading(false);
     }
   };
   const fetchCustomers = async (query = "") => {
@@ -404,136 +411,155 @@ const ProductionWorkflow = () => {
     );
   };
 
+  const handleExportProduction = (format) => {
+    window.open(`${BASE_URL}/production/export/${format}`, "_blank");
+    setOpenLogExportProduction(false);
+  };
+
+  const handleExport = (format, id = null) => {
+    handleExportProductionLogs(format, id); // assumes this function handles both cases
+    setLogExportProductionOpen(false);
+  };
   return (
     <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold mb-4 text-[#412666]">
-          Produktionsübersicht
-        </h1>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="mb-4 bg-[#412666] text-white px-[24px] py-2 rounded-full hover:bg-[#341f4f] transition cursor-pointer">
-          <Add /> Neue Produktion
-        </button>
-      </div>
+      <h1 className="text-2xl font-bold mb-4 text-[#412666]">
+        Produktionsübersicht
+      </h1>
 
-      <div className="flex gap-3 mb-4 ">
-        <div className="flex flex-1 gap-3 items-center">
-          <input
-            type="text"
-            placeholder="Suche nach ID, Artikelname oder Status..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border px-4 py-2 rounded w-1/3 "
-          />
-        </div>
-
-        <div className="flex gap-2">
-          {["csv", "xlsx", "pdf"].map((fmt) => (
+      {loading ? (
+        <section>
+          <UserLoader />
+        </section>
+      ) : (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+          className="bg-white p-4 rounded-xl shadow border border-gray-100 w-fit xl:w-full">
+          <div className="flex items-center justify-between">
+            Produktionsübersicht
             <button
-              key={fmt}
-              onClick={() =>
-                window.open(`${BASE_URL}/production/export/${fmt}`, "_blank")
-              }
-              className="px-3 py-1 border border-[#412666] rounded hover:bg-[#412666] hover:text-white transition-all">
-              {fmt.toUpperCase()}
+              onClick={() => setShowCreateModal(true)}
+              className="mb-4 bg-[#412666] text-white px-[24px] py-2 rounded-full hover:bg-[#341f4f] transition cursor-pointer">
+              <Add /> Neue Produktion
             </button>
-          ))}
-        </div>
-      </div>
+          </div>
+          <div className="flex gap-3 mb-4 ">
+            <div className="flex flex-1 gap-3 items-center">
+              <input
+                type="text"
+                placeholder="Suche nach ID, Artikelname oder Status..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="border px-4 py-2 rounded w-1/3 "
+              />
+            </div>
 
-      <table className="w-full text-sm text-left">
-        <thead className="text-[#412666] border-b border-gray-200">
-          <tr>
-            <th className="py-2 px-3">ID</th>
-            <th className="py-2 px-3">Artikelname</th>
-            <th className="py-2 px-3">Status</th>
-            <th className="py-2 px-3">Stückzahl (Standard / Geändert)</th>
-            <th className="py-2 px-3">Zusatzinfos</th>
-            <th className="py-2 px-3">Aktionen</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map((p) => (
-            <tr
-              key={p.ID}
-              className="border-b border-gray-200 hover:bg-gray-50">
-              <td className="py-2 px-3">{p.ID}</td>
-              <td className="py-2 px-3">{p.ArtikelName}</td>
-              <td className="py-2 px-3">{p.Status}</td>
-              <td className="py-2 px-3">
-                {p.StandardStueckzahl} / {p.GeaenderteStueckzahl}
-              </td>
-              <td className="py-2 px-3">{p.Zusatzinfos || "-"}</td>
-              <td className="p-2 flex gap-2 flex-wrap">
-                <button
-                  onClick={() => fetchSingleProduct(p.ID)}
-                  className="relative group cursor-pointer  text-[#4A90E2]">
-                  <Visibility />{" "}
-                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                    Anzeigen
-                  </span>
-                </button>
+            <div className="relative inline-block text-left">
+              <button
+                onClick={() =>
+                  setOpenLogExportProduction(!openLogExportProduction)
+                }
+                className="border border-[#412666] px-4 py-2 rounded-lg text-sm text-[#412666] hover:bg-[#412666] hover:text-white transition-all duration-300">
+                Produktion exportieren ▾
+              </button>
 
-                <button
-                  onClick={() => {
-                    setEditingProductionId(p.ID);
-                    setEditingProduction({
-                      Produktionsnummer: p.Produktionsnummer,
-                      Status: p.Status,
-                      KundeID: p.KundeID,
-                      BrandID: p.BrandID,
-                      ArtikelID: p.ArtikelID,
-                      GeaenderteStueckzahl: p.GeaenderteStueckzahl,
-                      StandardStueckzahl: p.StandardStueckzahl,
-                    });
-                  }}
-                  className="relative group cursor-pointer ">
-                  <Edit fontSize="small" />
-                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                    Bearbeiten
-                  </span>
-                </button>
+              {openLogExportProduction && (
+                <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow z-50 p-2">
+                  {["csv", "xlsx", "pdf"].map((format) => (
+                    <button
+                      key={format}
+                      onClick={() => handleExportProduction(format)}
+                      className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                      {format.toUpperCase()} Exportieren
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
 
-                <button
-                  onClick={() => fetchProductionStatus(p.ID)}
-                  className="relative group cursor-pointer ">
-                  <LocationOn fontSize="small" />
-                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                    Status prüfen
-                  </span>
-                </button>
-                <button
-                  onClick={() => openProgressModal(p.ID, p.requires_input)}
-                  className="relative group cursor-pointer ">
-                  <PlayArrow fontSize="small" />
-                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                    Status fortschreiten
-                  </span>
-                </button>
-                <button
-                  onClick={() => fetchProductionLogs(p.ID)}
-                  title="Status-Historie anzeigen"
-                  className="relative group cursor-pointer ">
-                  <BarChart />
-                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                    Protokolle
-                  </span>
-                </button>
-                <button
-                  onClick={() => handleDeleteProduction(p.ID)}
-                  title="Status-Historie anzeigen"
-                  className="relative group cursor-pointer ">
-                  <Delete fontSize="small" />
-                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                    Löschen
-                  </span>
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          <table className="w-full text-sm text-left">
+            <thead className="text-[#412666] border-b border-gray-200">
+              <tr>
+                <th className="py-2 px-3">ID</th>
+                <th className="py-2 px-3">Artikelname</th>
+                <th className="py-2 px-3">Status</th>
+                <th className="py-2 px-3">Stückzahl (Standard / Geändert)</th>
+                <th className="py-2 px-3">Zusatzinfos</th>
+                <th className="py-2 px-3">Aktionen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((p) => (
+                <tr
+                  key={p.ID}
+                  className="border-b border-gray-200 hover:bg-gray-50">
+                  <td className="py-2 px-3">{p.ID}</td>
+                  <td className="py-2 px-3">{p.ArtikelName}</td>
+                  <td className="py-2 px-3">{p.Status}</td>
+                  <td className="py-2 px-3">
+                    {p.StandardStueckzahl} / {p.GeaenderteStueckzahl}
+                  </td>
+                  <td className="py-2 px-3">{p.Zusatzinfos || "-"}</td>
+                  <td className="p-2 flex gap-2 flex-wrap">
+                    <select
+                      onChange={(e) => {
+                        const action = e.target.value;
+                        if (!action) return;
+
+                        switch (action) {
+                          case "view":
+                            fetchSingleProduct(p.ID);
+                            break;
+                          case "edit":
+                            setEditingProductionId(p.ID);
+                            setEditingProduction({
+                              Produktionsnummer: p.Produktionsnummer,
+                              Status: p.Status,
+                              KundeID: p.KundeID,
+                              BrandID: p.BrandID,
+                              ArtikelID: p.ArtikelID,
+                              GeaenderteStueckzahl: p.GeaenderteStueckzahl,
+                              StandardStueckzahl: p.StandardStueckzahl,
+                            });
+                            break;
+                          case "checkStatus":
+                            fetchProductionStatus(p.ID);
+                            break;
+                          case "advanceStatus":
+                            openProgressModal(p.ID, p.requires_input);
+                            break;
+                          case "logs":
+                            fetchProductionLogs(p.ID);
+                            break;
+                          case "delete":
+                            handleDeleteProduction(p.ID);
+                            break;
+                          default:
+                            break;
+                        }
+
+                        e.target.selectedIndex = 0; // Reset dropdown
+                      }}
+                      className="border border-gray-300 rounded px-2 py-1 text-sm text-[#412666] bg-white cursor-pointer">
+                      <option value="">Aktion wählen</option>
+                      <option value="view">Anzeigen</option>
+                      <option value="edit">Bearbeiten</option>
+                      <option value="checkStatus">Status prüfen</option>
+                      <option value="advanceStatus">
+                        Status fortschreiten
+                      </option>
+                      <option value="logs">Protokolle</option>
+                      <option value="delete">Löschen</option>
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </motion.div>
+      )}
       {showProductioneModal && selectedProductionID && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-3xl w-full relative max-h-[95vh] overflow-y-auto">
@@ -1143,30 +1169,39 @@ const ProductionWorkflow = () => {
                 ))
               )}
               {productionLogs.length >= 1 && (
-                <div className="space-x-2 flex items-center justify-between">
+                <div className="relative inline-block text-left">
                   <button
-                    onClick={() => handleExportProductionLogs("csv")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
-                    Exportiere CSV
+                    onClick={() =>
+                      setLogExportProductionOpen(!logExportProductionOpen)
+                    }
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm text-[#412666] hover:bg-[#412666] hover:text-white transition-all duration-300">
+                    Produktions-Logs exportieren ▾
                   </button>
 
-                  <button
-                    onClick={() => handleExportProductionLogs("xlsx")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
-                    Exportiere XLSX
-                  </button>
-
-                  <button
-                    onClick={() => handleExportProductionLogs("pdf")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
-                    Exportiere PDF
-                  </button>
-
-                  <button
-                    onClick={() => handleExportProductionLogs("csv", "ID33")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
-                    Exportiere CSV (ID33)
-                  </button>
+                  {logExportProductionOpen && (
+                    <div className="absolute left-0 mt-2 top-[-180px] w-64 bg-white border border-gray-200 rounded-lg shadow z-50 p-2">
+                      <button
+                        onClick={() => handleExport("csv")}
+                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white rounded-[10px] my-1 text-center transition-all">
+                        Exportiere CSV
+                      </button>
+                      <button
+                        onClick={() => handleExport("xlsx")}
+                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white rounded-[10px] my-1 text-center transition-all">
+                        Exportiere XLSX
+                      </button>
+                      <button
+                        onClick={() => handleExport("pdf")}
+                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white rounded-[10px] my-1 text-center transition-all">
+                        Exportiere PDF
+                      </button>
+                      <button
+                        onClick={() => handleExport("csv", "ID33")}
+                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white rounded-[10px] my-1 text-center transition-all">
+                        Exportiere CSV
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
