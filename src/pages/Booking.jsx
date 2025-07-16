@@ -7,6 +7,8 @@ import {
   Search,
   Visibility,
 } from "@mui/icons-material";
+import { motion } from "framer-motion";
+import UserLoader from "../component/UserLoader";
 
 const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
@@ -25,7 +27,8 @@ const Booking = () => {
   const [showBuchungLogDetailModal, setShowBuchungLogDetailModal] =
     useState(false);
   const [buchungLogDetail, setBuchungLogDetail] = useState(null);
-
+  const [logExportBuchungshistorieOpen, setLogExportBuchungshistorieOpen] =
+    useState(false);
   const [newBooking, setNewBooking] = useState({
     Buchungstyp: "",
     Kategorie: "",
@@ -44,6 +47,7 @@ const Booking = () => {
     Bezeichnung: "",
     Buchungswert: "",
   });
+  const [openLogExportDropdown, setOpenLogExportDropdown] = useState(false);
 
   const [showBookingForm, setShowBookingForm] = useState(false);
 
@@ -306,6 +310,14 @@ const Booking = () => {
     fetchCustomers();
     fetchArticles();
   }, []);
+
+  const handleExport = (format) => {
+    window.open(
+      `${BASE_URL}/buchungshistorie/export?format=${format}`,
+      "_blank"
+    );
+    setLogExportBuchungshistorieOpen(false);
+  };
   const handleExportBuchungshistorieLogs = (format) => {
     const query = new URLSearchParams({ format });
 
@@ -321,131 +333,146 @@ const Booking = () => {
         <h2 className="text-xl font-semibold text-[#412666]">
           Buchungshistorie
         </h2>
-        <div className="flex gap-2">
-          {["csv", "xlsx", "pdf"].map((format) => (
-            <button
-              key={format}
-              onClick={() =>
-                window.open(
-                  `${BASE_URL}/buchungshistorie/export?format=${format}`,
-                  "_blank"
-                )
-              }
-              className="px-3 py-1 border border-[#412666] rounded hover:bg-[#412666] hover:text-white transition-all">
-              {format.toUpperCase()}
-            </button>
-          ))}
-        </div>
       </div>
+      {loading ? (
+        <section>
+          <UserLoader />
+        </section>
+      ) : (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+          className="bg-white p-4 rounded-xl shadow border border-gray-100 w-fit xl:w-full flex flex-col gap-3">
+          <div className="relative inline-block text-left">
+            <button
+              onClick={() =>
+                setLogExportBuchungshistorieOpen(!logExportBuchungshistorieOpen)
+              }
+              className="border border-[#412666] px-4 py-2 rounded-lg text-sm text-[#412666] hover:bg-[#412666] hover:text-white transition-all duration-300">
+              Buchungshistorie exportieren ▾
+            </button>
 
-      <section className="flex items-center justify-between">
-        <div className="border border-[#412666] rounded-lg px-4 w-1/3 flex items-center gap-2 mb-4">
-          <Search />
-          <input
-            type="text"
-            placeholder="Suche Firmenname oder KundeID..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 border-none py-2 focus:outline-none"
-          />
-        </div>
-        <button
-          onClick={() => setShowBookingForm(true)}
-          className="bg-[#412666] text-white px-[24px] py-2 rounded-full hover:bg-[#341f4f] cursor-pointer">
-          <Add /> Neue Buchung
-        </button>
-      </section>
+            {logExportBuchungshistorieOpen && (
+              <div className="absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow z-50 p-2">
+                {["csv", "xlsx", "pdf"].map((format) => (
+                  <button
+                    key={format}
+                    onClick={() => handleExport(format)}
+                    className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white rounded-[10px] my-1 text-center transition-all">
+                    {format.toUpperCase()} Exportieren
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <section className="flex items-center justify-between">
+            <div className="border border-[#412666] rounded-lg px-4 w-1/3 flex items-center gap-2 mb-4">
+              <Search />
+              <input
+                type="text"
+                placeholder="Suche Firmenname oder KundeID..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="flex-1 border-none py-2 focus:outline-none"
+              />
+            </div>
+            <button
+              onClick={() => setShowBookingForm(true)}
+              className="bg-[#412666] text-white px-[24px] py-2 rounded-full hover:bg-[#341f4f] cursor-pointer">
+              <Add /> Neue Buchung
+            </button>
+          </section>
 
-      <table className="w-full text-sm text-left text-nowrap">
-        <thead className="text-[#412666] border-b border-gray-200">
-          <tr>
-            <th className="py-2 px-3">ID</th>
-            <th className="py-2 px-3">Kunde-ID</th>
-            <th className="py-2 px-3">Artikel-ID</th>
-            <th className="py-2 px-3">Kategorie</th>
-            <th className="py-2 px-3">Buchungstyp</th>
-            <th className="py-2 px-3">Buchungswert (€)</th>
-            <th className="py-2 px-3">Produktions-ID</th>
-            <th className="py-2 px-3">Zeitstempel</th>
-            <th className="py-2 px-3">Aktionen</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {bookings
-            .filter(
-              (b) =>
-                (b.KundeID?.toLowerCase() || "").includes(
-                  search.toLowerCase()
-                ) ||
-                (b.ArtikelID?.toLowerCase() || "").includes(
-                  search.toLowerCase()
-                ) ||
-                (b.Buchungstyp?.toLowerCase() || "").includes(
-                  search.toLowerCase()
-                )
-            )
-            .map((b) => (
-              <tr
-                key={b.ID}
-                className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="py-2 px-3">{b.ID}</td>
-                <td className="py-2 px-3">{b.KundeID || "—"}</td>
-                <td className="py-2 px-3">{b.ArtikelID || "—"}</td>
-                <td className="py-2 px-3">{b.Kategorie || "—"}</td>
-                <td className="py-2 px-3">{b.Buchungstyp || "—"}</td>
-                <td className="py-2 px-3">€ {b.Buchungswert}</td>
-                <td className="py-2 px-3">{b.ProduktionsID || "—"}</td>
-                <td className="py-2 px-3">
-                  {b.Zeitstempel
-                    ? new Date(b.Zeitstempel).toLocaleString("de-DE")
-                    : "—"}
-                </td>
-                <td className="p-2 space-x-2">
-                  <button
-                    onClick={() => handleViewBooking(b.ID)}
-                    className="relative group cursor-pointer">
-                    <Visibility />
-                    <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                      Anzeigen
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedBooking(b);
-                      setUpdatedBooking({
-                        Bezeichnung: b.Bezeichnung,
-                        Buchungswert: b.Buchungswert,
-                      });
-                      setShowUpdateModal(true);
-                    }}
-                    className="relative group cursor-pointer">
-                    <Edit fontSize="small" />
-                    <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                      Bearbeiten
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => fetchBuchungshistorieLogs(b.ID)}
-                    className="relative group cursor-pointer">
-                    <BarChart />
-                    <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                      Protokolle
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => deleteBooking(b.ID)}
-                    className="relative group cursor-pointer">
-                    <Delete fontSize="small" />
-                    <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                      Löschen
-                    </span>
-                  </button>
-                </td>
+          <table className="w-full text-sm text-left text-nowrap">
+            <thead className="text-[#412666] border-b border-gray-200">
+              <tr>
+                <th className="py-2 px-3">ID</th>
+                <th className="py-2 px-3">Kunde-ID</th>
+                <th className="py-2 px-3">Artikel-ID</th>
+                <th className="py-2 px-3">Kategorie</th>
+                <th className="py-2 px-3">Buchungstyp</th>
+                <th className="py-2 px-3">Buchungswert (€)</th>
+                <th className="py-2 px-3">Produktions-ID</th>
+                <th className="py-2 px-3">Zeitstempel</th>
+                <th className="py-2 px-3">Aktionen</th>
               </tr>
-            ))}
-        </tbody>
-      </table>
+            </thead>
+
+            <tbody>
+              {bookings
+                .filter(
+                  (b) =>
+                    (b.KundeID?.toLowerCase() || "").includes(
+                      search.toLowerCase()
+                    ) ||
+                    (b.ArtikelID?.toLowerCase() || "").includes(
+                      search.toLowerCase()
+                    ) ||
+                    (b.Buchungstyp?.toLowerCase() || "").includes(
+                      search.toLowerCase()
+                    )
+                )
+                .map((b) => (
+                  <tr
+                    key={b.ID}
+                    className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="py-2 px-3">{b.ID}</td>
+                    <td className="py-2 px-3">{b.KundeID || "—"}</td>
+                    <td className="py-2 px-3">{b.ArtikelID || "—"}</td>
+                    <td className="py-2 px-3">{b.Kategorie || "—"}</td>
+                    <td className="py-2 px-3">{b.Buchungstyp || "—"}</td>
+                    <td className="py-2 px-3">€ {b.Buchungswert}</td>
+                    <td className="py-2 px-3">{b.ProduktionsID || "—"}</td>
+                    <td className="py-2 px-3">
+                      {b.Zeitstempel
+                        ? new Date(b.Zeitstempel).toLocaleString("de-DE")
+                        : "—"}
+                    </td>
+                    <td className="p-2 space-x-2">
+                      <select
+                        onChange={(e) => {
+                          const action = e.target.value;
+                          if (!action) return;
+
+                          switch (action) {
+                            case "view":
+                              handleViewBooking(b.ID);
+                              break;
+                            case "edit":
+                              setSelectedBooking(b);
+                              setUpdatedBooking({
+                                Bezeichnung: b.Bezeichnung,
+                                Buchungswert: b.Buchungswert,
+                              });
+                              setShowUpdateModal(true);
+                              break;
+                            case "logs":
+                              fetchBuchungshistorieLogs(b.ID);
+                              break;
+                            case "delete":
+                              deleteBooking(b.ID);
+                              break;
+                            default:
+                              break;
+                          }
+
+                          e.target.selectedIndex = 0; // Reset selection
+                        }}
+                        className="border border-gray-300 rounded px-2 py-1 text-sm text-[#412666] bg-white cursor-pointer">
+                        <option value="">Aktion wählen</option>
+                        <option value="view">Anzeigen</option>
+                        <option value="edit">Bearbeiten</option>
+                        <option value="logs">Protokolle</option>
+                        <option value="delete">Löschen</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </motion.div>
+      )}
       {showBookingModal && bookingDetails && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full relative">
@@ -777,22 +804,30 @@ const Booking = () => {
                 ))
               )}
               {buchungLogs.length >= 1 && (
-                <div className="space-x-2 flex items-center justify-between">
+                <div className="relative inline-block text-left">
                   <button
-                    onClick={() => handleExportBuchungshistorieLogs("csv")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
-                    Exportiere CSV
+                    onClick={() =>
+                      setOpenLogExportDropdown(!openLogExportDropdown)
+                    }
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm text-[#412666] hover:bg-[#412666] hover:text-white transition-all duration-300">
+                    Exportiere Logs ▾
                   </button>
-                  <button
-                    onClick={() => handleExportBuchungshistorieLogs("xlsx")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
-                    Exportiere XLSX
-                  </button>
-                  <button
-                    onClick={() => handleExportBuchungshistorieLogs("pdf")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
-                    Exportiere PDF
-                  </button>
+
+                  {openLogExportDropdown && (
+                    <div className="absolute left-0 top-[-150px] mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow z-50 p-2">
+                      {["csv", "xlsx", "pdf"].map((format) => (
+                        <button
+                          key={format}
+                          onClick={() => {
+                            handleExportBuchungshistorieLogs(format);
+                            setOpenLogExportDropdown(false); // Close dropdown
+                          }}
+                          className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                          Exportiere {format.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
