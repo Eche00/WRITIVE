@@ -1,15 +1,7 @@
 // Campaign.jsx
 import React, { useEffect, useState } from "react";
-import {
-  Visibility,
-  Delete,
-  Edit,
-  Search,
-  BarChart,
-  Add,
-} from "@mui/icons-material";
+import { Search, Add } from "@mui/icons-material";
 import UserLoader from "../component/UserLoader";
-import CampaignBatches from "./CampaignBatches";
 import { motion } from "framer-motion";
 
 const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
