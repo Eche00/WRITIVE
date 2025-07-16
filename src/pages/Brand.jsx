@@ -470,15 +470,7 @@ function Brand() {
                 <span className="font-semibold">Kontingent:</span>
                 <span>{singleBrand.BuchungsKontingent}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Status:</span>
-                <span
-                  className={`font-medium ${
-                    singleBrand.is_active ? "text-green-600" : "text-red-600"
-                  }`}>
-                  {singleBrand.is_active ? "Aktiv" : "Inaktiv"}
-                </span>
-              </div>
+
               <div className="flex justify-between">
                 <span className="font-semibold">Archiviert:</span>
                 <span>{singleBrand.Archiviert ? "Ja" : "Nein"}</span>
