@@ -13,9 +13,10 @@ function UserLoader() {
         {/* Donut Loader */}
         <div className="flex justify-center items-center py-16 flex-col gap-4">
           <div
-            className="w-32 h-32 border-[12px] border-[#412666]/30 border-t-[#412666] border-b-[#412666] rounded-full animate-spin flex items-center justify-center shadow-[0_0_12px_#41266650] transition-all duration-300 ease-in-out"
+            className="w-32 h-32 border-[12px] border-[#412666]/30 border-t-[#412666] border-b-[#412666] rounded-full animate-spin flex flex-col items-center justify-center shadow-[0_0_12px_#41266650] transition-all duration-300 ease-in-out "
             style={{ borderTopStyle: "dotted", borderBottomStyle: "dotted" }}>
-            <Circle style={{ fontSize: 46, color: "#412666" }} />
+            <Circle style={{ fontSize: 20, color: "#412666" }} />
+            <Circle style={{ fontSize: 20, color: "#412666" }} />
           </div>
           <p className="text-[#412666] text-[32px] font-bold tracking-wide">
             Wird geladen...
