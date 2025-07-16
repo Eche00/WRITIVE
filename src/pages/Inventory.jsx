@@ -46,7 +46,7 @@ const Inventory = () => {
           initial={{ scale: 0.8, opacity: 0 }}
           whileInView={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.5, delay: 0.3 }}
-          className="bg-white p-4 rounded-xl shadow border border-gray-100 w-fit xl:w-full max-h-[700px] overflow-scroll">
+          className="bg-white p-4 rounded-xl shadow border border-gray-100 w-fit xl:w-full">
           <div className="flex items-center justify-between mb-6">
             Inventar
             <div className="flex items-center mb-4 border border-[#412666] rounded-lg px-4 py-2 w-1/3 gap-2">
@@ -61,7 +61,7 @@ const Inventory = () => {
             </div>
           </div>
 
-          <table className="w-full text-sm text-left">
+          <table className="w-full text-sm text-left max-h-[200px] overflow-hidden">
             <thead className="text-[#412666] border-b border-gray-200">
               <tr>
                 <th className="py-2 px-3">Bezeichnung</th>
