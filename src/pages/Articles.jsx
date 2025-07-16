@@ -26,12 +26,13 @@ const Articles = ({ setViewarticles }) => {
   const [selectedLog, setSelectedLog] = useState(null);
   const [showSingleLogModal, setShowSingleLogModal] = useState(false);
   const [logExportOpenProducts, setLogExportOpenProducts] = useState(false);
+  const [filtered, setFiltered] = useState([]);
 
-  const fetchArticles = async () => {
+  const fetchArticles = async (query = "") => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${BASE_URL}/products/?search=${search}`, {
+      const res = await fetch(`${BASE_URL}/products/?search=${query}`, {
         method: "GET",
         headers: {
           Authorization: "Bearer " + token,
@@ -43,6 +44,7 @@ const Articles = ({ setViewarticles }) => {
 
       // ✅ Correctly extract the articles array
       setArticles(data.articles);
+      setFiltered(data.articles || []);
       console.log("Fetched articles:", data.articles || []);
     } catch (err) {
       console.error("Error fetching articles:", err);
@@ -53,6 +55,23 @@ const Articles = ({ setViewarticles }) => {
 
   useEffect(() => {
     fetchArticles();
+  }, []);
+
+  useEffect(() => {
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      setFiltered(
+        articles.filter(
+          (c) =>
+            (c.Artikelname && c.Artikelname.toLowerCase().includes(q)) ||
+            (c.Brandname && c.Brandname.toLowerCase().includes(q)) ||
+            (c.ID && c.ID.toLowerCase().includes(q)) ||
+            (c.KundeFirmenname && c.KundeFirmenname.toLowerCase().includes(q))
+        )
+      );
+    } else {
+      setFiltered(articles);
+    }
   }, [search]);
 
   const fetchSingleArticle = async (id) => {
@@ -206,7 +225,7 @@ const Articles = ({ setViewarticles }) => {
               </tr>
             </thead>
             <tbody>
-              {articles.map((a, index) => (
+              {filtered.map((a, index) => (
                 <tr
                   key={a.ID || index}
                   className="border-b border-gray-200 hover:bg-gray-50">
