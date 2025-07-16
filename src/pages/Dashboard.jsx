@@ -14,6 +14,7 @@ import { Avatar } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import UserLoader from "../component/UserLoader";
+import { motion } from "framer-motion";
 
 const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
@@ -275,11 +276,18 @@ const Dashboard = () => {
 
   return (
     <div className="p-4 sm:w-[80%] w-full mx-auto text-black flex flex-col  overflow-hidden">
-      <h1 className="text-2xl font-bold mb-4 capitalize">
+      <motion.h1
+        initial={{ y: -30, opacity: 0 }}
+        whileInView={{ y: 0, opacity: 1 }}
+        transition={{ duration: 1.5, delay: 0.3 }}
+        className="text-2xl font-bold mb-4 capitalize">
         Administrationsübersicht
-      </h1>
+      </motion.h1>
       <section className=" flex flex-col gap-[24px] mb-[24px]">
-        <div>
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}>
           <h2 className=" text-[#412666] sm:text-[24px] text-[16px] font-[700] first-letter:uppercase flex items-center gap-[10px]">
             <Avatar fontSize="" /> {currentUser?.EmailAdresse}
           </h2>
@@ -290,9 +298,13 @@ const Dashboard = () => {
             Repudiandae nihil quas delectus tenetur sunt quis velit, doloribus
             asperiores earum labore.
           </p>
-        </div>
+        </motion.div>
         {/* Info */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Total Users */}
           <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm flex justify-between items-start hover:shadow-2xl hover:scale-[105%] transition-all duration-300 cursor-pointer">
             <div>
@@ -444,15 +456,15 @@ const Dashboard = () => {
               </span>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {loading ? (
-        <section>
-          <UserLoader />
-        </section>
-      ) : (
-        <div className="bg-white p-4 rounded-xl shadow border border-gray-100 hover:shadow-2xl hover:scale-[101%] transition-all duration-300  md:flex hidden flex-col">
+      {!loading && (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+          className="bg-white p-4 rounded-xl shadow border border-gray-100 hover:shadow-2xl hover:scale-[101%] transition-all duration-300  md:flex hidden flex-col lg:w-[90%] mx-auto">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-[#412666] ">Nutzer</h2>
             <div className="border border-[#412666] rounded-lg px-4  w-1/3 focus:outline-none flex items-center gap-[10px] overflow-hidden">
@@ -505,7 +517,7 @@ const Dashboard = () => {
               ))}
             </tbody>
           </table>
-        </div>
+        </motion.div>
       )}
     </div>
   );
