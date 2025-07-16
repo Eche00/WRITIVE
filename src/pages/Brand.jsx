@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  Add,
   Article,
   BarChart,
   BrandingWatermark,
@@ -235,7 +236,16 @@ function Brand() {
 
       <>
         <div className="flex flex-col justify-between  mb-4 gap-4">
-          <h2 className="text-xl font-semibold text-[#412666] mb-4">Marken</h2>
+          <div className="flex items-center justify-between ">
+            <h2 className="text-xl font-semibold text-[#412666] mb-4">
+              Marken
+            </h2>
+            <button
+              onClick={() => setCreateModal(true)}
+              className=" py-[6px] px-[16px] bg-[#412666] rounded-full cursor-pointer hover:scale-[102%] transition-all duration-300 text-white">
+              <Add /> Marke erstellen
+            </button>
+          </div>
 
           <section className="flex items-center justify-between">
             <div className="border border-[#412666] rounded-lg px-4 w-1/3 flex items-center gap-2">
@@ -276,7 +286,6 @@ function Brand() {
                 <th className="py-2 px-3">Kunde</th>
                 <th className="py-2 px-3">Kontingent</th>
                 <th className="py-2 px-3">Gebuchte </th>
-                <th className="py-2 px-3">Status</th>
                 <th className="py-2 px-3">Aktionen</th>
               </tr>
             </thead>
@@ -291,17 +300,7 @@ function Brand() {
                   <td className="py-2 px-3">{brand.KundeFirma || "—"}</td>
                   <td className="py-2 px-3">{brand.BuchungsKontingent}</td>
                   <td className="py-2 px-3">{brand.Belegt || 0}</td>
-                  <td className="py-2 px-3">
-                    <span
-                      className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${
-                        brand.is_active
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}>
-                      <span className="w-2 h-2 bg-current rounded-full"></span>
-                      {brand.is_active ? "Aktiv" : "Inaktiv"}
-                    </span>
-                  </td>
+
                   <td className="py-2 px-3 space-x-2">
                     <button
                       onClick={() => fetchSingleBrand(brand.ID)}
