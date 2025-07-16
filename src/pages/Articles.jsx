@@ -8,6 +8,8 @@ import {
 } from "@mui/icons-material";
 import CreateArticleModal from "./CreateArticleModal";
 import EditArticleModal from "./EditArticleModal";
+import UserLoader from "../component/UserLoader";
+import { motion } from "framer-motion";
 
 const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
@@ -23,6 +25,7 @@ const Articles = ({ setViewarticles }) => {
   const [showArticleLogsModal, setShowArticleLogsModal] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
   const [showSingleLogModal, setShowSingleLogModal] = useState(false);
+  const [logExportOpenProducts, setLogExportOpenProducts] = useState(false);
 
   const fetchArticles = async () => {
     setLoading(true);
@@ -129,120 +132,134 @@ const Articles = ({ setViewarticles }) => {
     }
   };
 
+  const handleExportClick = (format) => {
+    window.open(`${BASE_URL}/products/export?format=${format}`, "_blank");
+    setLogExportOpenProducts(false);
+  };
   return (
     <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
-      <div className="flex flex-col  mb-4">
-        <section className="flex items-center justify-between">
-          Artikelverwaltung
-          <div className="flex items-center gap-[10px] text-white text-[12px]">
-            <button
-              onClick={() => setViewarticles(false)}
-              className=" py-[6px] px-[16px] border border-[#412666] text-[#412666] rounded-full cursor-pointer hover:scale-[102%] transition-all duration-300">
-              Marken
-            </button>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className=" py-[6px] px-[16px] bg-[#412666] rounded-full cursor-pointer hover:scale-[102%] transition-all duration-300">
-              + Neuer Artikel
-            </button>
-          </div>
+      <h1 className="text-2xl font-bold mb-4 capitalize"> Artikelverwaltung</h1>
+      {loading ? (
+        <section>
+          <UserLoader />
         </section>
-        <section className="flex items-center justify-between">
-          <div className="border border-[#412666] rounded-lg px-4 w-1/3 flex items-center gap-2">
-            <Search />
-            <input
-              type="text"
-              placeholder="Suche Artikel ID, Name oder Brand..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 border-none py-2 focus:outline-none"
-            />
-          </div>
-          <div className="flex gap-2">
-            {["csv", "xlsx", "pdf", "json"].map((format) => (
+      ) : (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+          className="flex flex-col  mb-4">
+          <section className="flex items-center justify-between">
+            Artikelverwaltung
+            <div className="flex items-center gap-[10px] text-white text-[12px]">
               <button
-                key={format}
-                onClick={() =>
-                  window.open(
-                    `${BASE_URL}/products/export?format=${format}`,
-                    "_blank"
-                  )
-                }
-                className="border border-[#412666] px-4 py-2 rounded text-sm hover:bg-[#412666] hover:text-white transition-all">
-                {format.toUpperCase()}
+                onClick={() => setShowCreateModal(true)}
+                className=" py-[6px] px-[16px] bg-[#412666] rounded-full cursor-pointer hover:scale-[102%] transition-all duration-300">
+                + Neuer Artikel
               </button>
-            ))}
-          </div>
-        </section>
-      </div>
+            </div>
+          </section>
+          <section className="flex items-center justify-between">
+            <div className="border border-[#412666] rounded-lg px-4 w-1/3 flex items-center gap-2">
+              <Search />
+              <input
+                type="text"
+                placeholder="Suche Artikel ID, Name oder Brand..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="flex-1 border-none py-2 focus:outline-none"
+              />
+            </div>
+            <div className="relative inline-block text-left">
+              <button
+                onClick={() => setLogExportOpenProducts(!logExportOpenProducts)}
+                className="border border-[#412666] px-4 py-2 rounded-lg text-sm text-[#412666] hover:bg-[#412666] hover:text-white transition-all duration-300">
+                Exportiere Produkte ▾
+              </button>
 
-      <table className="w-full text-sm text-left">
-        <thead className="text-[#412666] border-b border-gray-200">
-          <tr>
-            <th className="py-2 px-3">Artikel ID</th>
-            <th className="py-2 px-3">Artikelname</th>
-            <th className="py-2 px-3">Marken</th>
-            <th className="py-2 px-3">Kunde</th>
-            <th className="py-2 px-3">Stück/Monat</th>
-            <th className="py-2 px-3">Format</th>
-            <th className="py-2 px-3">Versand</th>
-            <th className="py-2 px-3">Aktionen</th>
-          </tr>
-        </thead>
-        <tbody>
-          {articles.map((a, index) => (
-            <tr
-              key={a.ID || index}
-              className="border-b border-gray-200 hover:bg-gray-50">
-              <td className="py-2 px-3">{a.ID || "—"}</td>
-              <td className="py-2 px-3">{a.Artikelname || "—"}</td>
-              <td className="py-2 px-3">{a.Brandname || "—"}</td>
-              <td className="py-2 px-3">{(a.KundeFirmenname || "—").trim()}</td>
-              <td className="py-2 px-3">{a.StueckzahlProMonat || "—"}</td>
-              <td className="py-2 px-3">{a.Format || "—"}</td>
-              <td className="py-2 px-3">{a.Versandart || "—"}</td>
-              <td className="p-2 space-x-2">
-                <button
-                  onClick={() => fetchSingleArticle(a.ID)}
-                  className="relative group cursor-pointer  text-[#4A90E2]">
-                  <Visibility />{" "}
-                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                    Anzeigen
-                  </span>
-                </button>
+              {logExportOpenProducts && (
+                <div className="absolute right-0 -bottom-52 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow z-50 p-2">
+                  {["csv", "xlsx", "pdf", "json"].map((format) => (
+                    <button
+                      key={format}
+                      onClick={() => handleExportClick(format)}
+                      className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                      {format.toUpperCase()} Export
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
 
-                <button
-                  onClick={() => {
-                    setSelectedArticle(a); // `article` is the current item in your list
-                    setEditModalOpen(true);
-                  }}
-                  className="relative group cursor-pointer text-blue-700">
-                  <Edit fontSize="small" />
-                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                    Bearbeiten
-                  </span>
-                </button>
-                <button
-                  onClick={() => fetchArticleLogs(a.ID)}
-                  className="relative group cursor-pointer  text-[#F5A623]">
-                  <BarChart />
-                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                    Protokolle anzeigen
-                  </span>
-                </button>
-                <button
-                  onClick={() => handleDeleteArticle(a.ID || a.id, a)}
-                  className="relative group cursor-pointer text-red-500">
-                  <Delete fontSize="small" />
-                  <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
-                    Löschen
-                  </span>
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          <table className="w-full text-sm text-left mt-2">
+            <thead className="text-[#412666] border-b border-gray-200">
+              <tr>
+                <th className="py-2 px-3">Artikel ID</th>
+                <th className="py-2 px-3">Artikelname</th>
+                <th className="py-2 px-3">Marken</th>
+                <th className="py-2 px-3">Kunde</th>
+                <th className="py-2 px-3">Stück/Monat</th>
+                <th className="py-2 px-3">Format</th>
+                <th className="py-2 px-3">Versand</th>
+                <th className="py-2 px-3">Aktionen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {articles.map((a, index) => (
+                <tr
+                  key={a.ID || index}
+                  className="border-b border-gray-200 hover:bg-gray-50">
+                  <td className="py-2 px-3">{a.ID || "—"}</td>
+                  <td className="py-2 px-3">{a.Artikelname || "—"}</td>
+                  <td className="py-2 px-3">{a.Brandname || "—"}</td>
+                  <td className="py-2 px-3">
+                    {(a.KundeFirmenname || "—").trim()}
+                  </td>
+                  <td className="py-2 px-3">{a.StueckzahlProMonat || "—"}</td>
+                  <td className="py-2 px-3">{a.Format || "—"}</td>
+                  <td className="py-2 px-3">{a.Versandart || "—"}</td>
+                  <td className="p-2 space-x-2">
+                    <select
+                      onChange={(e) => {
+                        const action = e.target.value;
+                        if (!action) return;
+
+                        switch (action) {
+                          case "view":
+                            fetchSingleArticle(a.ID);
+                            break;
+                          case "edit":
+                            setSelectedArticle(a);
+                            setEditModalOpen(true);
+                            break;
+                          case "audit":
+                            fetchArticleLogs(a.ID);
+                            break;
+                          case "delete":
+                            handleDeleteArticle(a.ID || a.id, a);
+                            break;
+                          default:
+                            break;
+                        }
+
+                        e.target.selectedIndex = 0; // Reset selection
+                      }}
+                      className="border border-gray-300 rounded px-2 py-1 text-sm text-[#412666] bg-white cursor-pointer">
+                      <option value="">Aktion wählen</option>
+                      <option value="view">Anzeigen</option>
+                      <option value="edit">Bearbeiten</option>
+                      <option value="audit">Protokolle anzeigen</option>
+                      <option value="delete">Löschen</option>
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </motion.div>
+      )}
+
       {
         <CreateArticleModal
           showModal={showCreateModal}
