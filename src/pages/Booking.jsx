@@ -17,6 +17,7 @@ const Booking = () => {
   const [productions, setProductions] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [articles, setArticles] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [bookingDetails, setBookingDetails] = useState(null);
@@ -38,7 +39,58 @@ const Booking = () => {
     Buchungswert: "",
     KundeID: "",
   });
-
+  // Category-to-Bezeichnung mapping
+  const bezeichnungOptions = {
+    Briefmarken: [
+      "0,70€",
+      "0,85€",
+      "1,10€",
+      "1,00€",
+      "0,95€",
+      "1,60€",
+      "ohne Frankierung",
+      "1,80€",
+    ],
+    "Elektronik & Gadgets": [],
+    Format: [
+      "DIN-A6",
+      "DIN-Lang",
+      "Maxipostkarte",
+      "Sonderformat",
+      "DIN-A6 Postkarte",
+      "DIN-Lang Postkarte",
+      "DIN-A4",
+    ],
+    Karte: [
+      "DIN-A6",
+      "DIN-Lang",
+      "Maxipostkarte",
+      "Sonderformat",
+      "US-DIN-Lang",
+      "Umschlag C6",
+      "Umschlag C5",
+      "Umschlag C4",
+      "A4-Briefpapier",
+    ],
+    Schrift: [
+      "Coppenhagen",
+      "Patricia/Amsterdam",
+      "Anni/Paris",
+      "Henrieta/Coppenhagen",
+      "Vera/Koyoto",
+      "Barbara/Berlin",
+      "Dusan/Casablanca",
+    ],
+    Stift: [
+      "Kugelschreiber blau",
+      "Kugelschreiber schwarz",
+      "Tintenroller blau",
+      "Tintenroller schwarz",
+      "Edding Gold",
+      "Edding Weiß",
+    ],
+    Versandart: ["Paket Versand zum Kunden", "Dialogpost", "Briefkasten"],
+  };
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [updatedBooking, setUpdatedBooking] = useState({
@@ -123,6 +175,22 @@ const Booking = () => {
       console.log("Fetched articles:", data.articles || []);
     } catch (err) {
       console.error("Error fetching articles:", err);
+    }
+  };
+  const fetchCategories = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${BASE_URL}/categories/?search=${search}`, {
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+      const data = await res.json();
+      setCategories(data.categories || []);
+    } catch (err) {
+      console.error("Fetch failed:", err);
     }
   };
   const handleCreateBooking = async () => {
@@ -309,6 +377,7 @@ const Booking = () => {
     fetchProductions();
     fetchCustomers();
     fetchArticles();
+    fetchCategories();
   }, []);
 
   const handleExport = (format) => {
@@ -387,8 +456,6 @@ const Booking = () => {
           <table className="w-full text-sm text-left text-nowrap">
             <thead className="text-[#412666] border-b border-gray-200">
               <tr>
-                <th className="py-2 px-3">ID</th>
-                <th className="py-2 px-3">Kunde-ID</th>
                 <th className="py-2 px-3">Artikel-ID</th>
                 <th className="py-2 px-3">Kategorie</th>
                 <th className="py-2 px-3">Buchungstyp</th>
@@ -417,8 +484,6 @@ const Booking = () => {
                   <tr
                     key={b.ID}
                     className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="py-2 px-3">{b.ID}</td>
-                    <td className="py-2 px-3">{b.KundeID || "—"}</td>
                     <td className="py-2 px-3">{b.ArtikelID || "—"}</td>
                     <td className="py-2 px-3">{b.Kategorie || "—"}</td>
                     <td className="py-2 px-3">{b.Buchungstyp || "—"}</td>
@@ -561,48 +626,6 @@ const Booking = () => {
                 ))}
               </select>
 
-              {/* Buchungstyp */}
-              <input
-                type="text"
-                placeholder="Buchungstyp"
-                value={newBooking.Buchungstyp}
-                onChange={(e) =>
-                  setNewBooking((prev) => ({
-                    ...prev,
-                    Buchungstyp: e.target.value,
-                  }))
-                }
-                className="w-full border px-4 py-2 rounded"
-              />
-
-              {/* Kategorie */}
-              <input
-                type="text"
-                placeholder="Kategorie"
-                value={newBooking.Kategorie}
-                onChange={(e) =>
-                  setNewBooking((prev) => ({
-                    ...prev,
-                    Kategorie: e.target.value,
-                  }))
-                }
-                className="w-full border px-4 py-2 rounded"
-              />
-
-              {/* Bezeichnung */}
-              <input
-                type="text"
-                placeholder="Bezeichnung"
-                value={newBooking.Bezeichnung}
-                onChange={(e) =>
-                  setNewBooking((prev) => ({
-                    ...prev,
-                    Bezeichnung: e.target.value,
-                  }))
-                }
-                className="w-full border px-4 py-2 rounded"
-              />
-
               {/* ArtikelID Dropdown */}
               <select
                 className="w-full border px-4 py-2 rounded"
@@ -637,6 +660,60 @@ const Booking = () => {
                     {p.ID} - {p.Produktionsnummer}
                   </option>
                 ))}
+              </select>
+              {/* Buchungstyp */}
+              <select
+                value={newBooking.Buchungstyp}
+                onChange={(e) =>
+                  setNewBooking((prev) => ({
+                    ...prev,
+                    Buchungstyp: e.target.value,
+                  }))
+                }
+                className="w-full border px-4 py-2 rounded text-sm text-[#412666] bg-white cursor-pointer">
+                <option value="">Buchungstyp wählen</option>
+                <option value="Eintrag">Eintrag</option>
+                <option value="Austrag">Austrag</option>
+              </select>
+
+              {/* Kategorie Dropdown */}
+              <select
+                value={newBooking.Kategorie}
+                onChange={(e) => {
+                  const selectedKategorie = e.target.value;
+                  setNewBooking((prev) => ({
+                    ...prev,
+                    Kategorie: selectedKategorie,
+                    Bezeichnung: "", // Reset Bezeichnung when category changes
+                  }));
+                }}
+                className="w-full border px-4 py-2 rounded text-sm text-[#412666] bg-white cursor-pointer">
+                <option value="">Kategorie wählen</option>
+                {Object.keys(bezeichnungOptions).map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+
+              {/* Bezeichnung */}
+              <select
+                value={newBooking.Bezeichnung}
+                onChange={(e) =>
+                  setNewBooking((prev) => ({
+                    ...prev,
+                    Bezeichnung: e.target.value,
+                  }))
+                }
+                className="w-full border px-4 py-2 rounded text-sm text-[#412666] bg-white cursor-pointer">
+                <option value="">Bezeichnung wählen</option>
+                {(bezeichnungOptions[newBooking.Kategorie] || []).map(
+                  (option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  )
+                )}
               </select>
 
               {/* Buchungswert */}
