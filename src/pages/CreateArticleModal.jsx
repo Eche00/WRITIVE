@@ -134,7 +134,7 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
                   <option value="">Select brand</option>
                   {brands.map((brand) => (
                     <option key={brand.ID} value={brand.ID}>
-                      {brand.ID}
+                      {brand.ID} - {brand.Brandname}
                     </option>
                   ))}
                 </select>
@@ -147,7 +147,7 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
                   <option value="">Select campaign</option>
                   {campaigns.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.id}
+                      {c.id} - {c.name}
                     </option>
                   ))}
                 </select>

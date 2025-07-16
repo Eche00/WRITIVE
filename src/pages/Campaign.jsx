@@ -528,7 +528,7 @@ const Campaign = () => {
                   <option value="">-- Brand ID --</option>
                   {brands.map((brand) => (
                     <option key={brand.ID} value={brand.ID}>
-                      {brand.ID}
+                      {brand.ID} - {brand.Brandname}
                     </option>
                   ))}
                 </select>

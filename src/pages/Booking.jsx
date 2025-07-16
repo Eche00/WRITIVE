@@ -529,7 +529,7 @@ const Booking = () => {
                 <option value="">— Kunde wählen —</option>
                 {customers.map((c) => (
                   <option key={c.ID} value={c.ID}>
-                    {c.ID} - {c.Firmenname}
+                    {c.ID} - {c.KontaktName}
                   </option>
                 ))}
               </select>

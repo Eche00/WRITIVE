@@ -887,7 +887,7 @@ const ProductionWorkflow = () => {
                   <option value="">— Bitte wählen —</option>
                   {customers.map((c) => (
                     <option key={c.ID} value={c.ID}>
-                      {c.ID}
+                      {c.ID} - {c.KontaktName}
                     </option>
                   ))}
                 </select>
@@ -908,7 +908,7 @@ const ProductionWorkflow = () => {
                   <option value="">— Bitte wählen —</option>
                   {brands.map((b) => (
                     <option key={b.ID} value={b.ID}>
-                      {b.ID}
+                      {b.ID} - {b.Brandname}
                     </option>
                   ))}
                 </select>
@@ -929,7 +929,7 @@ const ProductionWorkflow = () => {
                   <option value="">— Bitte wählen —</option>
                   {campaigns.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.id}
+                      {c.id} - {c.name}
                     </option>
                   ))}
                 </select>
