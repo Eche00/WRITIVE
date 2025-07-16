@@ -20,7 +20,7 @@ const OtpResetModal = ({
 
     try {
       const res = await fetch(
-        "https://cb49a05985a8.ngrok-free.app/auth/reset-password",
+        "https://65e435ef7c7e.ngrok-free.app/auth/reset-password",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

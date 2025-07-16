@@ -14,7 +14,7 @@ import UserLoader from "../component/UserLoader";
 import CreateBrandModal from "./CreateBrandModal";
 import UpdateBrandModal from "./UpdateBrandModal";
 
-const BRAND_BASE_URL = "https://cb49a05985a8.ngrok-free.app";
+const BRAND_BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
 function Brand() {
   const [brands, setBrands] = useState([]);

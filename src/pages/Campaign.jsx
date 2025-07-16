@@ -11,7 +11,7 @@ import {
 import UserLoader from "../component/UserLoader";
 import CampaignBatches from "./CampaignBatches";
 
-const BASE_URL = "https://cb49a05985a8.ngrok-free.app";
+const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
 const Campaign = () => {
   const [campaigns, setCampaigns] = useState([]);

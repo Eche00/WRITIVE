@@ -14,7 +14,7 @@ const VerifyOtpModal = ({ email, show, setShow }) => {
 
     try {
       const res = await fetch(
-        "https://cb49a05985a8.ngrok-free.app/auth/verify-registration",
+        "https://65e435ef7c7e.ngrok-free.app/auth/verify-registration",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

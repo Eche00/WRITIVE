@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const BASE_URL = "https://cb49a05985a8.ngrok-free.app";
+const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
 const EditArticleModal = ({ showModal, setShowModal, artikel, onUpdated }) => {
   const [formData, setFormData] = useState({

@@ -2,7 +2,7 @@ import { Delete, Edit, Email } from "@mui/icons-material";
 import { Avatar } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
 const Settings = () => {
   // STATE DEFINITIONS

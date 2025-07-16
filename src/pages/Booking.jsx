@@ -8,7 +8,7 @@ import {
   Visibility,
 } from "@mui/icons-material";
 
-const BASE_URL = "https://cb49a05985a8.ngrok-free.app";
+const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
 const Booking = () => {
   const [bookings, setBookings] = useState([]);
