@@ -8,13 +8,24 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
     KampagneID: "",
     Artikelname: "",
     Text: "",
+    Variablen: "",
+    Versandart: "",
+    Frankierung: "",
+    Stift: "",
+    Schrift: "",
+    Format: "",
+    ZusatzInfos: "",
+    Sonstige_Infos: "",
     StueckzahlProMonat: "",
+    MusterkarteDesign: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [brands, setBrands] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState("");
 
   const fetchBrands = async () => {
     try {
@@ -100,6 +111,24 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
       if (res.ok) {
         setMessage(data.message || "Artikel erfolgreich erstellt.");
         onCreated?.(data.artikel);
+        setFormData({
+          BrandID: "",
+          KampagneID: "",
+          Artikelname: "",
+          Text: "",
+          Variablen: "",
+          Versandart: "",
+          Frankierung: "",
+          Stift: "",
+          Schrift: "",
+          Format: "",
+          ZusatzInfos: "",
+          Sonstige_Infos: "",
+          StueckzahlProMonat: "",
+          MusterkarteDesign: "",
+        }); // ✅ Reset form here
+        setUploading(false);
+        setUploadMessage("");
         setTimeout(() => setShowModal(false), 1500);
       } else {
         setMessage(data.message || "Fehler beim Erstellen des Artikels.");
@@ -113,6 +142,91 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
   };
 
   if (!showModal) return null;
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const token = localStorage.getItem("token");
+    const formDataUpload = new FormData();
+    formDataUpload.append("file", file);
+
+    setUploading(true);
+    setUploadMessage("");
+
+    try {
+      const res = await fetch(`${BASE_URL}/products/upload`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+        body: formDataUpload,
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setFormData((prev) => ({
+          ...prev,
+          MusterkarteDesign: data.filename,
+        }));
+        setUploadMessage(data.message || "Upload erfolgreich.");
+      } else {
+        setUploadMessage(data.message || "Fehler beim Hochladen.");
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      setUploadMessage("Fehler beim Upload.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const FORMAT_OPTIONS = [
+    "DIN-A6",
+    "DIN-Lang",
+    "Maxipostkarte",
+    "Sonderformat",
+    "DIN-A6 Postkarte",
+    "DIN-Lang Postkarte",
+    "DIN-A4",
+  ];
+
+  const VERSANDART_OPTIONS = [
+    "Paket Versand zum Kunden",
+    "Dialogpost",
+    "Briefkasten",
+  ];
+
+  const STIFT_OPTIONS = [
+    "Kugelschreiber blau",
+    "Kugelschreiber schwarz",
+    "Tintenroller blau",
+    "Tintenroller schwarz",
+    "Edding Gold",
+    "Edding Weiß",
+  ];
+
+  const SCHRIFT_OPTIONS = [
+    "Coppenhagen",
+    "Patricia/Amsterdam",
+    "Anni/Paris",
+    "Henrieta/Coppenhagen",
+    "Vera/Koyoto",
+    "Barbara/Berlin",
+    "Dusan/Casablanca",
+  ];
+
+  const FRANKIERUNG_OPTIONS = [
+    "0,70€",
+    "0,85€",
+    "1,10€",
+    "1,00€",
+    "0,95€",
+    "1,60€",
+    "ohne Frankierung",
+    "1,80€",
+  ];
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
@@ -122,47 +236,215 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-black">
-          {Object.entries(formData).map(([key, value]) => (
-            <div key={key} className="flex flex-col">
-              <label className="mb-1 font-medium">{key}</label>
-              {key === "BrandID" ? (
-                <select
-                  name={key}
-                  value={value}
-                  onChange={handleChange}
-                  className="border rounded px-2 py-1">
-                  <option value="">Select brand</option>
-                  {brands.map((brand) => (
-                    <option key={brand.ID} value={brand.ID}>
-                      {brand.ID} - {brand.Brandname}
-                    </option>
-                  ))}
-                </select>
-              ) : key === "KampagneID" ? (
-                <select
-                  name={key}
-                  value={value}
-                  onChange={handleChange}
-                  className="border rounded px-2 py-1">
-                  <option value="">Select campaign</option>
-                  {campaigns.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.id} - {c.name}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  name={key}
-                  value={value}
-                  onChange={handleChange}
-                  type={key === "StueckzahlProMonat" ? "number" : "text"}
-                  className="border rounded px-2 py-1"
-                  placeholder={key}
-                />
-              )}
-            </div>
-          ))}
+          {/* Brand */}
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">BrandID</label>
+            <select
+              name="BrandID"
+              value={formData.BrandID}
+              onChange={handleChange}
+              className="border rounded px-2 py-1">
+              <option value="">Select brand</option>
+              {brands.map((b) => (
+                <option key={b.ID} value={b.ID}>
+                  {b.ID} - {b.Brandname}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Campaign */}
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">KampagneID</label>
+            <select
+              name="KampagneID"
+              value={formData.KampagneID}
+              onChange={handleChange}
+              className="border rounded px-2 py-1">
+              <option value="">Select campaign</option>
+              {campaigns.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.id} - {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Artikelname */}
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">Artikelname</label>
+            <input
+              name="Artikelname"
+              value={formData.Artikelname}
+              onChange={handleChange}
+              className="border rounded px-2 py-1"
+            />
+          </div>
+
+          {/* Text */}
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">Text</label>
+            <input
+              name="Text"
+              value={formData.Text}
+              onChange={handleChange}
+              className="border rounded px-2 py-1"
+            />
+          </div>
+
+          {/* Variablen */}
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">Variablen</label>
+            <input
+              name="Variablen"
+              value={formData.Variablen}
+              onChange={handleChange}
+              className="border rounded px-2 py-1"
+            />
+          </div>
+
+          {/* Versandart */}
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">Versandart</label>
+            <select
+              name="Versandart"
+              value={formData.Versandart}
+              onChange={handleChange}
+              className="border rounded px-2 py-1">
+              <option value="">Select Versandart</option>
+              {VERSANDART_OPTIONS.map((v) => (
+                <option key={v} value={v}>
+                  {v}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Frankierung */}
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">Frankierung</label>
+            <select
+              name="Frankierung"
+              value={formData.Frankierung}
+              onChange={handleChange}
+              className="border rounded px-2 py-1">
+              <option value="">Select Frankierung</option>
+              {FRANKIERUNG_OPTIONS.map((f) => (
+                <option key={f} value={f}>
+                  {f}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Stift */}
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">Stift</label>
+            <select
+              name="Stift"
+              value={formData.Stift}
+              onChange={handleChange}
+              className="border rounded px-2 py-1">
+              <option value="">Select Stift</option>
+              {STIFT_OPTIONS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Schrift */}
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">Schrift</label>
+            <select
+              name="Schrift"
+              value={formData.Schrift}
+              onChange={handleChange}
+              className="border rounded px-2 py-1">
+              <option value="">Select Schrift</option>
+              {SCHRIFT_OPTIONS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Format */}
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">Format</label>
+            <select
+              name="Format"
+              value={formData.Format}
+              onChange={handleChange}
+              className="border rounded px-2 py-1">
+              <option value="">Select Format</option>
+              {FORMAT_OPTIONS.map((f) => (
+                <option key={f} value={f}>
+                  {f}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* ZusatzInfos */}
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">ZusatzInfos</label>
+            <input
+              name="ZusatzInfos"
+              value={formData.ZusatzInfos}
+              onChange={handleChange}
+              className="border rounded px-2 py-1"
+            />
+          </div>
+
+          {/* Sonstige_Infos */}
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">Sonstige_Infos</label>
+            <input
+              name="Sonstige_Infos"
+              value={formData.Sonstige_Infos}
+              onChange={handleChange}
+              className="border rounded px-2 py-1"
+            />
+          </div>
+
+          {/* Stückzahl */}
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">StueckzahlProMonat</label>
+            <input
+              name="StueckzahlProMonat"
+              value={formData.StueckzahlProMonat}
+              onChange={handleChange}
+              type="number"
+              className="border rounded px-2 py-1"
+            />
+          </div>
+
+          {/* MusterkarteDesign */}
+          <div className="flex flex-col">
+            <label className="mb-1 font-medium">
+              MusterkarteDesign (PDF upload)
+            </label>
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={handleFileUpload}
+              className="border rounded px-2 py-1"
+            />
+            {uploading && (
+              <p className="text-xs text-gray-500 mt-1">Hochladen...</p>
+            )}
+            {uploadMessage && (
+              <p className="text-xs text-green-600 mt-1">{uploadMessage}</p>
+            )}
+            {formData.MusterkarteDesign && (
+              <p className="text-xs text-gray-700 mt-1">
+                Gespeichert als: <strong>{formData.MusterkarteDesign}</strong>
+              </p>
+            )}
+          </div>
         </div>
 
         {message && (
