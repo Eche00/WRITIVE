@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import UserLoader from "../component/UserLoader";
 import UpdateCustomerModal from "./UpdateCustomerModal";
 import CreateCustomerModal from "./CreateCustomerModal";
+import { motion } from "framer-motion";
 
 const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
@@ -235,7 +236,11 @@ const Users = () => {
           <UserLoader />
         </section>
       ) : (
-        <div className="bg-white p-4 rounded-xl shadow border border-gray-100 w-fit xl:w-full">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+          className="bg-white p-4 rounded-xl shadow border border-gray-100 w-fit xl:w-full">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-[#412666] mb-4">
               Nutzer
@@ -386,7 +391,7 @@ const Users = () => {
               ))}
             </tbody>
           </table>
-        </div>
+        </motion.div>
       )}
       {/* USER DETAIL MODAL  */}
       {showModal && selectedCustomer && (
