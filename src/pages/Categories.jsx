@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Delete, Edit, Search, Save, Add, BarChart } from "@mui/icons-material";
+import UserLoader from "../component/UserLoader";
+import { motion } from "framer-motion";
 
 const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [editingId, setEditingId] = useState(null);
@@ -17,6 +20,7 @@ const Categories = () => {
   const [categoryLogDetail, setCategoryLogDetail] = useState(null);
 
   const fetchCategories = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`${BASE_URL}/categories/?search=${search}`, {
@@ -30,6 +34,8 @@ const Categories = () => {
       setCategories(data.categories || []);
     } catch (err) {
       console.error("Fetch failed:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -274,149 +280,161 @@ const Categories = () => {
     <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
       <h1 className="text-2xl font-bold mb-4 text-[#412666]">Kategorien</h1>
 
-      <div className="flex gap-2 items-center mb-4">
-        <div className="flex border border-[#412666] rounded px-3 items-center w-1/3">
-          <Search />
-          <input
-            type="text"
-            placeholder="Suche nach Kategorien..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 py-2 px-2 focus:outline-none"
-          />
-        </div>
-        <div className="relative inline-block text-left">
-          <button
-            onClick={() => setOpenFormats(!openFormats)}
-            className="border border-[#412666] px-4 py-2 rounded-lg text-sm text-[#412666] hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
-            Exportieren ▾
-          </button>
-
-          {openFormats && (
-            <div className="absolute mt-2 w-48 right-0 bg-white border border-gray-200 rounded-lg shadow z-50 p-2 ">
-              {formats.map((format) => (
-                <button
-                  key={format}
-                  onClick={() => {
-                    handleExport(format);
-                    setOpenFormats(false); // close dropdown
-                  }}
-                  className="w-full  px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
-                  {format.toUpperCase()} Exportieren
-                </button>
-              ))}
+      {loading ? (
+        <section>
+          <UserLoader />
+        </section>
+      ) : (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+          className="bg-white p-4 rounded-xl shadow border border-gray-100 w-fit xl:w-full  flex flex-col gap-4">
+          <div className="flex gap-2 items-center mb-4">
+            <div className="flex border border-[#412666] rounded px-3 items-center w-1/3">
+              <Search />
+              <input
+                type="text"
+                placeholder="Suche nach Kategorien..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="flex-1 py-2 px-2 focus:outline-none"
+              />
             </div>
-          )}
-        </div>
-        <button
-          onClick={fetchGroupedEntries}
-          className="bg-[#412666] text-white px-6 py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
-          Gruppierte Einträge anzeigen
-        </button>
-      </div>
+            <div className="relative inline-block text-left">
+              <button
+                onClick={() => setOpenFormats(!openFormats)}
+                className="border border-[#412666] px-4 py-2 rounded-lg text-sm text-[#412666] hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
+                Exportieren ▾
+              </button>
 
-      <div className="flex gap-2 mb-4">
-        <input
-          type="text"
-          placeholder="Neue Kategorie hinzufügen"
-          value={newCategory}
-          onChange={(e) => setNewCategory(e.target.value)}
-          className="border px-4 py-2 rounded w-full"
-        />
-        <button
-          onClick={handleAddCategory}
-          className="bg-[#412666] text-white px-4 py-2 rounded-full hover:bg-[#341f4f] flex items-center gap-1  cursor-pointer">
-          <Add fontSize="small" /> Hinzufügen
-        </button>
-      </div>
+              {openFormats && (
+                <div className="absolute mt-2 w-48 right-0 bg-white border border-gray-200 rounded-lg shadow z-50 p-2 ">
+                  {formats.map((format) => (
+                    <button
+                      key={format}
+                      onClick={() => {
+                        handleExport(format);
+                        setOpenFormats(false); // close dropdown
+                      }}
+                      className="w-full  px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                      {format.toUpperCase()} Exportieren
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={fetchGroupedEntries}
+              className="bg-[#412666] text-white px-6 py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Gruppierte Einträge anzeigen
+            </button>
+          </div>
 
-      <table className="w-full text-sm text-left">
-        <thead className="text-[#412666] border-b border-gray-200">
-          <tr>
-            <th className="py-2 px-3">Kategorie ID</th>
-            <th className="py-2 px-3">Name</th>
-            <th className="py-2 px-3">Artikelanzahl</th>
-            <th className="py-2 px-3">Aktionen</th>
-          </tr>
-        </thead>
-        <tbody>
-          {categories.map((cat) => (
-            <tr
-              key={cat.ID}
-              className="border-b border-gray-200 hover:bg-gray-50">
-              <td className="py-2 px-3">{cat.ID}</td>
-              <td className="py-2 px-3">
-                {editingId === cat.ID ? (
-                  <input
-                    value={editingName}
-                    onChange={(e) => setEditingName(e.target.value)}
-                    className="border px-2 py-1 rounded w-full"
-                  />
-                ) : (
-                  cat.Name
-                )}
-              </td>
-              <td className="py-2 px-3">{cat.AnzahlArtikel}</td>
-              <td className="py-2 px-3 text-center flex items-center gap-2">
-                {editingId === cat.ID && (
-                  <p
-                    className="text-[#412666] font-bold cursor-pointer"
-                    onClick={() => handleUpdateCategory(cat.ID)}>
-                    {" "}
-                    Speichern
-                  </p>
-                )}
-                <select
-                  onChange={(e) => {
-                    const action = e.target.value;
-                    if (!action) return;
+          <div className="flex gap-2 mb-4">
+            <input
+              type="text"
+              placeholder="Neue Kategorie hinzufügen"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              className="border px-4 py-2 rounded w-full"
+            />
+            <button
+              onClick={handleAddCategory}
+              className="bg-[#412666] text-white px-4 py-2 rounded-full hover:bg-[#341f4f] flex items-center gap-1  cursor-pointer">
+              <Add fontSize="small" /> Hinzufügen
+            </button>
+          </div>
 
-                    switch (action) {
-                      case "edit":
-                        setEditingId(cat.ID);
-                        setEditingName(cat.Name);
-                        break;
-                      case "save":
-                        handleUpdateCategory(cat.ID);
-                        break;
-                      case "logs":
-                        fetchCategoryLogs(cat.ID);
-                        break;
-                      case "addEntry":
-                        addCategoryEntry(cat.ID);
-                        break;
-                      case "viewEntries":
-                        fetchCategoryEntries(cat.ID);
-                        break;
-                      case "delete":
-                        handleDeleteCategory(cat.ID);
-                        break;
-                      default:
-                        break;
-                    }
+          <table className="w-full text-sm text-left">
+            <thead className="text-[#412666] border-b border-gray-200">
+              <tr>
+                <th className="py-2 px-3">Kategorie ID</th>
+                <th className="py-2 px-3">Name</th>
+                <th className="py-2 px-3">Artikelanzahl</th>
+                <th className="py-2 px-3">Aktionen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories.map((cat) => (
+                <tr
+                  key={cat.ID}
+                  className="border-b border-gray-200 hover:bg-gray-50">
+                  <td className="py-2 px-3">{cat.ID}</td>
+                  <td className="py-2 px-3">
+                    {editingId === cat.ID ? (
+                      <input
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        className="border px-2 py-1 rounded w-full"
+                      />
+                    ) : (
+                      cat.Name
+                    )}
+                  </td>
+                  <td className="py-2 px-3">{cat.AnzahlArtikel}</td>
+                  <td className="py-2 px-3 text-center flex items-center gap-2">
+                    {editingId === cat.ID && (
+                      <p
+                        className="text-[#412666] font-bold cursor-pointer"
+                        onClick={() => handleUpdateCategory(cat.ID)}>
+                        {" "}
+                        Speichern
+                      </p>
+                    )}
+                    <select
+                      onChange={(e) => {
+                        const action = e.target.value;
+                        if (!action) return;
 
-                    e.target.selectedIndex = 0;
-                  }}
-                  className="border border-gray-300 rounded px-2 py-1 text-sm text-[#412666] bg-white cursor-pointer">
-                  <option value="" hidden>
-                    Aktion wählen
-                  </option>
-                  {editingId === cat.ID ? (
-                    <option value="save">Speichern</option>
-                  ) : (
-                    <option value="edit">Bearbeiten</option>
-                  )}
-                  <option value="logs">Protokolle</option>
-                  <option value="addEntry">Eintrag hinzufügen</option>
-                  <option value="viewEntries">Einträge anzeigen</option>
+                        switch (action) {
+                          case "edit":
+                            setEditingId(cat.ID);
+                            setEditingName(cat.Name);
+                            break;
+                          case "save":
+                            handleUpdateCategory(cat.ID);
+                            break;
+                          case "logs":
+                            fetchCategoryLogs(cat.ID);
+                            break;
+                          case "addEntry":
+                            addCategoryEntry(cat.ID);
+                            break;
+                          case "viewEntries":
+                            fetchCategoryEntries(cat.ID);
+                            break;
+                          case "delete":
+                            handleDeleteCategory(cat.ID);
+                            break;
+                          default:
+                            break;
+                        }
 
-                  <option value="delete">Löschen</option>
-                </select>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                        e.target.selectedIndex = 0;
+                      }}
+                      className="border border-gray-300 rounded px-2 py-1 text-sm text-[#412666] bg-white cursor-pointer">
+                      <option value="" hidden>
+                        Aktion wählen
+                      </option>
+                      {editingId === cat.ID ? (
+                        <option value="save">Speichern</option>
+                      ) : (
+                        <option value="edit">Bearbeiten</option>
+                      )}
+                      <option value="logs">Protokolle</option>
+                      <option value="addEntry">Eintrag hinzufügen</option>
+                      <option value="viewEntries">Einträge anzeigen</option>
+
+                      <option value="delete">Löschen</option>
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </motion.div>
+      )}
       {showCategoryEntriesModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-xl w-full relative">
