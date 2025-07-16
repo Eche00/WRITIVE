@@ -8,10 +8,13 @@ import {
   Visibility,
 } from "@mui/icons-material";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BASE_URL = "https://cb49a05985a8.ngrok-free.app";
 
 const Booking = () => {
   const [bookings, setBookings] = useState([]);
+  const [productions, setProductions] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [bookingDetails, setBookingDetails] = useState(null);
@@ -24,14 +27,21 @@ const Booking = () => {
   const [buchungLogDetail, setBuchungLogDetail] = useState(null);
 
   const [newBooking, setNewBooking] = useState({
-    KundeID: "",
-    Firmenname: "",
+    Buchungstyp: "",
+    Kategorie: "",
+    Bezeichnung: "",
+    ArtikelID: "",
+    ProduktionsID: "",
     Buchungswert: "",
+    KundeID: "",
   });
+
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [updatedBooking, setUpdatedBooking] = useState({
-    Firmenname: "",
+    Buchungstyp: "",
+    Kategorie: "",
+    Bezeichnung: "",
     Buchungswert: "",
   });
 
@@ -57,6 +67,60 @@ const Booking = () => {
       setLoading(false);
     }
   };
+  const fetchProductions = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${BASE_URL}/production/?search=${search}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+      const data = await res.json();
+      setProductions(data?.productions || []);
+    } catch (err) {
+      console.error("Fetch production failed:", err);
+    }
+  };
+  const fetchCustomers = async (query = "") => {
+    try {
+      const token = localStorage.getItem("token"); // or however you store the token
+      const res = await fetch(`${BASE_URL}/customers/`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true", // <-- this fixes it
+        },
+      });
+      const data = await res.json();
+      setCustomers(data.customers || []);
+    } catch (err) {
+      console.error("Error fetching customers:", err);
+    }
+  };
+
+  const fetchArticles = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${BASE_URL}/products/?search=${search}`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+      const data = await res.json();
+
+      // ✅ Correctly extract the articles array
+      setArticles(data.articles);
+      console.log("Fetched articles:", data.articles || []);
+    } catch (err) {
+      console.error("Error fetching articles:", err);
+    }
+  };
   const handleCreateBooking = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -69,23 +133,37 @@ const Booking = () => {
           "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify({
-          KundeID: newBooking.KundeID,
-          Firmenname: newBooking.Firmenname,
+          Buchungstyp: newBooking.Buchungstyp,
+          Kategorie: newBooking.Kategorie,
+          Bezeichnung: newBooking.Bezeichnung,
+          ArtikelID: newBooking.ArtikelID,
+          ProduktionsID: newBooking.ProduktionsID || null, // optional
           Buchungswert: parseFloat(newBooking.Buchungswert),
+          KundeID: newBooking.KundeID,
         }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
+        console.log(data.message || "Buchung erfolgreich erstellt.");
         setShowBookingForm(false);
-        setNewBooking({ KundeID: "", Firmenname: "", Buchungswert: "" });
+        setNewBooking({
+          Buchungstyp: "",
+          Kategorie: "",
+          Bezeichnung: "",
+          ArtikelID: "",
+          ProduktionsID: "",
+          Buchungswert: "",
+          KundeID: "",
+        });
         fetchBookings(); // Refresh table
       } else {
-        console.error("Booking creation error:", data);
+        console.error("Buchung fehlgeschlagen:", data);
+        error("Fehler beim Erstellen der Buchung.");
       }
     } catch (err) {
-      console.error("Booking creation failed:", err.message);
+      console.error("Buchungserstellung fehlgeschlagen:", err.message);
     }
   };
 
@@ -128,7 +206,9 @@ const Booking = () => {
           "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify({
-          Firmenname: updatedBooking.Firmenname,
+          Buchungstyp: updatedBooking.Buchungstyp,
+          Kategorie: updatedBooking.Kategorie,
+          Bezeichnung: updatedBooking.Bezeichnung,
           Buchungswert: parseFloat(updatedBooking.Buchungswert),
         }),
       });
@@ -146,6 +226,7 @@ const Booking = () => {
       console.error("Update error:", err.message);
     }
   };
+
   const fetchBuchungshistorieLogs = async (buchungID) => {
     const token = localStorage.getItem("token");
 
@@ -221,6 +302,9 @@ const Booking = () => {
 
   useEffect(() => {
     fetchBookings();
+    fetchProductions();
+    fetchCustomers();
+    fetchArticles();
   }, []);
   const handleExportBuchungshistorieLogs = (format) => {
     const query = new URLSearchParams({ format });
@@ -272,17 +356,21 @@ const Booking = () => {
         </button>
       </section>
 
-      <table className="w-full text-sm text-left">
+      <table className="w-full text-sm text-left text-nowrap">
         <thead className="text-[#412666] border-b border-gray-200">
           <tr>
             <th className="py-2 px-3">ID</th>
-            <th className="py-2 px-3">KundeID</th>
-            <th className="py-2 px-3">Firmenname</th>
+            <th className="py-2 px-3">Kunde-ID</th>
+            <th className="py-2 px-3">Artikel-ID</th>
+            <th className="py-2 px-3">Kategorie</th>
+            <th className="py-2 px-3">Buchungstyp</th>
             <th className="py-2 px-3">Buchungswert (€)</th>
+            <th className="py-2 px-3">Produktions-ID</th>
             <th className="py-2 px-3">Zeitstempel</th>
             <th className="py-2 px-3">Aktionen</th>
           </tr>
         </thead>
+
         <tbody>
           {bookings
             .filter(
@@ -290,7 +378,10 @@ const Booking = () => {
                 (b.KundeID?.toLowerCase() || "").includes(
                   search.toLowerCase()
                 ) ||
-                (b.Firmenname?.toLowerCase() || "").includes(
+                (b.ArtikelID?.toLowerCase() || "").includes(
+                  search.toLowerCase()
+                ) ||
+                (b.Buchungstyp?.toLowerCase() || "").includes(
                   search.toLowerCase()
                 )
             )
@@ -299,49 +390,54 @@ const Booking = () => {
                 key={b.ID}
                 className="border-b border-gray-200 hover:bg-gray-50">
                 <td className="py-2 px-3">{b.ID}</td>
-                <td className="py-2 px-3">{b.KundeID}</td>
-                <td className="py-2 px-3">{b.Firmenname}</td>
+                <td className="py-2 px-3">{b.KundeID || "—"}</td>
+                <td className="py-2 px-3">{b.ArtikelID || "—"}</td>
+                <td className="py-2 px-3">{b.Kategorie || "—"}</td>
+                <td className="py-2 px-3">{b.Buchungstyp || "—"}</td>
                 <td className="py-2 px-3">€ {b.Buchungswert}</td>
+                <td className="py-2 px-3">{b.ProduktionsID || "—"}</td>
                 <td className="py-2 px-3">
-                  {new Date(b.Zeitstempel).toLocaleString("de-DE")}
+                  {b.Zeitstempel
+                    ? new Date(b.Zeitstempel).toLocaleString("de-DE")
+                    : "—"}
                 </td>
                 <td className="p-2 space-x-2">
                   <button
                     onClick={() => handleViewBooking(b.ID)}
-                    className="relative group cursor-pointer ">
-                    <Visibility />{" "}
-                    <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                    className="relative group cursor-pointer">
+                    <Visibility />
+                    <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                       Anzeigen
                     </span>
                   </button>
                   <button
                     onClick={() => {
-                      setSelectedBooking(b); // b is the booking row
+                      setSelectedBooking(b);
                       setUpdatedBooking({
-                        Firmenname: b.Firmenname,
+                        Bezeichnung: b.Bezeichnung,
                         Buchungswert: b.Buchungswert,
                       });
                       setShowUpdateModal(true);
                     }}
-                    className="relative group cursor-pointer ">
+                    className="relative group cursor-pointer">
                     <Edit fontSize="small" />
-                    <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                    <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                       Bearbeiten
                     </span>
                   </button>
                   <button
                     onClick={() => fetchBuchungshistorieLogs(b.ID)}
-                    className="relative group cursor-pointer ">
+                    className="relative group cursor-pointer">
                     <BarChart />
-                    <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                    <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                       Protokolle
                     </span>
                   </button>
                   <button
                     onClick={() => deleteBooking(b.ID)}
-                    className="relative group cursor-pointer ">
+                    className="relative group cursor-pointer">
                     <Delete fontSize="small" />
-                    <span className=" absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
+                    <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] bg-gray-400 text-white text-[12px] text-nowrap group-hover:block hidden">
                       Löschen
                     </span>
                   </button>
@@ -364,15 +460,34 @@ const Booking = () => {
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold">Kunde ID:</span>
-                <span>{bookingDetails.KundeID}</span>
+                <span>{bookingDetails.KundeID || "—"}</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-semibold">Firmenname:</span>
-                <span>{bookingDetails.Firmenname}</span>
+                <span className="font-semibold">Artikel ID:</span>
+                <span>{bookingDetails.ArtikelID || "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Bezeichnung:</span>
+                <span>{bookingDetails.Bezeichnung || "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Kategorie:</span>
+                <span>{bookingDetails.Kategorie || "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Buchungstyp:</span>
+                <span>{bookingDetails.Buchungstyp || "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Produktions-ID:</span>
+                <span>{bookingDetails.ProduktionsID || "—"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold">Buchungswert:</span>
-                <span>{bookingDetails.Buchungswert}</span>
+                <span>
+                  €{" "}
+                  {Number(bookingDetails.Buchungswert).toLocaleString("de-DE")}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold">Zeitstempel:</span>
@@ -400,31 +515,104 @@ const Booking = () => {
               Neue Buchung
             </h2>
 
-            <div className="space-y-4 text-sm">
-              <input
-                type="text"
-                placeholder="KundeID"
+            <div className="space-y-4 text-sm text-gray-700">
+              {/* KundeID Dropdown */}
+              <select
+                className="w-full border px-4 py-2 rounded"
                 value={newBooking.KundeID}
                 onChange={(e) =>
                   setNewBooking((prev) => ({
                     ...prev,
                     KundeID: e.target.value,
                   }))
-                }
-                className="w-full border px-4 py-2 rounded"
-              />
+                }>
+                <option value="">— Kunde wählen —</option>
+                {customers.map((c) => (
+                  <option key={c.ID} value={c.ID}>
+                    {c.ID} - {c.Firmenname}
+                  </option>
+                ))}
+              </select>
+
+              {/* Buchungstyp */}
               <input
                 type="text"
-                placeholder="Firmenname"
-                value={newBooking.Firmenname}
+                placeholder="Buchungstyp"
+                value={newBooking.Buchungstyp}
                 onChange={(e) =>
                   setNewBooking((prev) => ({
                     ...prev,
-                    Firmenname: e.target.value,
+                    Buchungstyp: e.target.value,
                   }))
                 }
                 className="w-full border px-4 py-2 rounded"
               />
+
+              {/* Kategorie */}
+              <input
+                type="text"
+                placeholder="Kategorie"
+                value={newBooking.Kategorie}
+                onChange={(e) =>
+                  setNewBooking((prev) => ({
+                    ...prev,
+                    Kategorie: e.target.value,
+                  }))
+                }
+                className="w-full border px-4 py-2 rounded"
+              />
+
+              {/* Bezeichnung */}
+              <input
+                type="text"
+                placeholder="Bezeichnung"
+                value={newBooking.Bezeichnung}
+                onChange={(e) =>
+                  setNewBooking((prev) => ({
+                    ...prev,
+                    Bezeichnung: e.target.value,
+                  }))
+                }
+                className="w-full border px-4 py-2 rounded"
+              />
+
+              {/* ArtikelID Dropdown */}
+              <select
+                className="w-full border px-4 py-2 rounded"
+                value={newBooking.ArtikelID}
+                onChange={(e) =>
+                  setNewBooking((prev) => ({
+                    ...prev,
+                    ArtikelID: e.target.value,
+                  }))
+                }>
+                <option value="">— Artikel wählen —</option>
+                {articles.map((a) => (
+                  <option key={a.ID} value={a.ID}>
+                    {a.ID} - {a.Artikelname}
+                  </option>
+                ))}
+              </select>
+
+              {/* ProduktionsID Dropdown */}
+              <select
+                className="w-full border px-4 py-2 rounded"
+                value={newBooking.ProduktionsID}
+                onChange={(e) =>
+                  setNewBooking((prev) => ({
+                    ...prev,
+                    ProduktionsID: e.target.value,
+                  }))
+                }>
+                <option value="">— Produktion wählen —</option>
+                {productions.map((p) => (
+                  <option key={p.ID} value={p.ID}>
+                    {p.ID} - {p.Produktionsnummer}
+                  </option>
+                ))}
+              </select>
+
+              {/* Buchungswert */}
               <input
                 type="number"
                 placeholder="Buchungswert"
@@ -432,7 +620,7 @@ const Booking = () => {
                 onChange={(e) =>
                   setNewBooking((prev) => ({
                     ...prev,
-                    Buchungswert: e.target.value,
+                    Buchungswert: Number(e.target.value),
                   }))
                 }
                 className="w-full border px-4 py-2 rounded"
@@ -448,7 +636,7 @@ const Booking = () => {
               <button
                 onClick={handleCreateBooking}
                 className="w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
-                Aktualisieren
+                Erstellen
               </button>
             </div>
           </div>
@@ -463,19 +651,50 @@ const Booking = () => {
 
             <div className="space-y-4 text-sm text-gray-700">
               <div>
-                <label className="block font-medium">Firmenname:</label>
+                <label className="block font-medium">Buchungstyp:</label>
                 <input
                   type="text"
                   className="w-full border px-2 py-1 rounded"
-                  value={updatedBooking.Firmenname}
+                  value={updatedBooking.Buchungstyp}
                   onChange={(e) =>
                     setUpdatedBooking((prev) => ({
                       ...prev,
-                      Firmenname: e.target.value,
+                      Buchungstyp: e.target.value,
                     }))
                   }
                 />
               </div>
+
+              <div>
+                <label className="block font-medium">Kategorie:</label>
+                <input
+                  type="text"
+                  className="w-full border px-2 py-1 rounded"
+                  value={updatedBooking.Kategorie}
+                  onChange={(e) =>
+                    setUpdatedBooking((prev) => ({
+                      ...prev,
+                      Kategorie: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <div>
+                <label className="block font-medium">Bezeichnung:</label>
+                <input
+                  type="text"
+                  className="w-full border px-2 py-1 rounded"
+                  value={updatedBooking.Bezeichnung}
+                  onChange={(e) =>
+                    setUpdatedBooking((prev) => ({
+                      ...prev,
+                      Bezeichnung: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
               <div>
                 <label className="block font-medium">Buchungswert (€):</label>
                 <input
@@ -500,13 +719,14 @@ const Booking = () => {
               </button>
               <button
                 onClick={() => handleUpdateBooking(selectedBooking.ID)}
-                className="w-full bg-[#412666] text-white py-2 rounded-lg  transition cursor-pointer">
+                className="w-full bg-[#412666] text-white py-2 rounded-lg transition cursor-pointer">
                 Aktualisieren
               </button>
             </div>
           </div>
         </div>
       )}
+
       {showBuchungLogsModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
@@ -539,16 +759,16 @@ const Booking = () => {
                     </div>
                     <div>
                       <strong>Zeitstempel:</strong>{" "}
-                      {new Date(log.timestamp).toLocaleString()}
+                      {new Date(log.timestamp).toLocaleString("de-DE")}
                     </div>
                     <div>
-                      <strong>IP-Adresse:</strong> {log.ip_address}
+                      <strong>IP-Adresse:</strong> {log.ip_address || "—"}
                     </div>
                     <div>
                       <strong>Kunde-ID:</strong> {log.kunde_id ?? "—"}
                     </div>
                     <div>
-                      <strong>User-Agent:</strong> {log.user_agent}
+                      <strong>User-Agent:</strong> {log.user_agent || "—"}
                     </div>
                     <div>
                       <strong>User ID:</strong> {log.user_id}
@@ -563,13 +783,11 @@ const Booking = () => {
                     className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
                     Exportiere CSV
                   </button>
-
                   <button
                     onClick={() => handleExportBuchungshistorieLogs("xlsx")}
                     className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
                     Exportiere XLSX
                   </button>
-
                   <button
                     onClick={() => handleExportBuchungshistorieLogs("pdf")}
                     className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
