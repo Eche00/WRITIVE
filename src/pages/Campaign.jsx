@@ -10,6 +10,7 @@ import {
 } from "@mui/icons-material";
 import UserLoader from "../component/UserLoader";
 import CampaignBatches from "./CampaignBatches";
+import { motion } from "framer-motion";
 
 const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
@@ -38,6 +39,8 @@ const Campaign = () => {
     useState(false);
   const [campaignLogDetail, setCampaignLogDetail] = useState(null);
   const [showCreateCampaignModal, setShowCreateCampaignModal] = useState(false);
+  const [openExportDropdown, setOpenExportDropdown] = useState(false);
+  const [logExportOpenCampaign, setLogExportOpenCampaign] = useState(false);
   const [newCampaign, setNewCampaign] = useState({
     BrandID: "",
     Name: "",
@@ -206,32 +209,6 @@ const Campaign = () => {
       console.error("Update failed:", error);
     }
   };
-
-  const fetchCampaignTimeline = async (campaignID) => {
-    const token = localStorage.getItem("token");
-    try {
-      const res = await fetch(`${BASE_URL}/campaigns/${campaignID}/timeline`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        setTimelineCampaignID(data.campaign_id);
-        setTimelineData(data.timeline);
-        setShowTimelineModal(true);
-      } else {
-        console.error("Timeline fetch error:", data);
-        // alert("Fehler beim Laden des Zeitplans.");
-      }
-    } catch (err) {
-      console.error("Timeline fetch failed:", err);
-      // alert("Netzwerkfehler beim Laden des Kampagnen-Zeitplans.");
-    }
-  };
   const handleAddBatch = async () => {
     const token = localStorage.getItem("token");
     try {
@@ -378,31 +355,25 @@ const Campaign = () => {
   return (
     <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
       <div className=" flex items-center justify-between gap-[10px]">
-        <h1 className="text-2xl font-bold mb-4 text-[#412666]">
-          {" "}
-          {batches ? "Alle Batches" : "Kampagnen"}
-        </h1>
+        <h1 className="text-2xl font-bold mb-4 text-[#412666]"> Kampagnen</h1>
 
         <div className="flex items-center gap-[10px] text-white text-[12px]">
           <button
-            onClick={() => setBatches(!batches)}
-            className=" py-[6px] px-[16px] border border-[#412666]  text-[#412666] rounded-full cursor-pointer hover:scale-[102%] transition-all duration-300 ">
-            {!batches ? "Batches" : "Kampagnen"}
+            onClick={() => setShowCreateCampaignModal(true)}
+            className=" py-[6px] px-[16px] bg-[#412666] rounded-full cursor-pointer hover:scale-[102%] transition-all duration-300">
+            <Add /> Neue Kampagne
           </button>
-
-          {!batches && (
-            <button
-              onClick={() => setShowCreateCampaignModal(true)}
-              className=" py-[6px] px-[16px] bg-[#412666] rounded-full cursor-pointer hover:scale-[102%] transition-all duration-300">
-              <Add /> Neue Kampagne
-            </button>
-          )}
         </div>
       </div>
-      {batches ? (
-        <CampaignBatches />
+      {loading ? (
+        <section>
+          <UserLoader />
+        </section>
       ) : (
-        <>
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}>
           <div className="flex justify-between mb-4 gap-4">
             <div className="flex border border-[#412666] rounded-lg px-4 w-1/3 items-center gap-2">
               <Search />
@@ -415,15 +386,28 @@ const Campaign = () => {
               />
             </div>
 
-            <div className="flex gap-2">
-              {["csv", "xlsx", "pdf"].map((format) => (
-                <button
-                  key={format}
-                  onClick={() => handleExport(format)}
-                  className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all duration-300">
-                  {format.toUpperCase()} Export
-                </button>
-              ))}
+            <div className="relative inline-block text-left">
+              <button
+                onClick={() => setOpenExportDropdown(!openExportDropdown)}
+                className="border border-[#412666] px-4 py-2 rounded-lg text-sm text-[#412666] hover:bg-[#412666] hover:text-white transition-all duration-300 cursor-pointer">
+                Exportieren ▾
+              </button>
+
+              {openExportDropdown && (
+                <div className="absolute mt-2 w-48 right-0 bg-white border border-gray-200 rounded-lg shadow z-50 p-2">
+                  {["csv", "xlsx", "pdf"].map((format) => (
+                    <button
+                      key={format}
+                      onClick={() => {
+                        handleExport(format);
+                        setOpenExportDropdown(false); // Close dropdown after action
+                      }}
+                      className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 text-center cursor-pointer">
+                      {format.toUpperCase()} Exportieren
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -436,7 +420,6 @@ const Campaign = () => {
                   <th className="py-2 px-3">ID</th>
                   <th className="py-2 px-3">Name</th>
                   <th className="py-2 px-3">Start</th>
-                  {/* <th className="py-2 px-3">Ende</th> */}
                   <th className="py-2 px-3">QR-code</th>
                   <th className="py-2 px-3">Aktionen</th>
                 </tr>
@@ -453,58 +436,50 @@ const Campaign = () => {
                         ? new Date(c.created_at).toLocaleDateString()
                         : new Date(c.created_at).toLocaleDateString()}
                     </td>
-                    {/* <td className="py-2 px-3">
-                      {c.end_date
-                        ? new Date(c.end_date).toLocaleDateString()
-                        : new Date(c.updated_at).toLocaleDateString()}
-                    </td> */}
+
                     <td className="py-2 px-3 capitalize  text-blue-500 underline cursor-pointer">
                       <a href={c.qr_code}>{c.qr_code}</a>
                     </td>
                     <td className="py-2 px-3 space-x-2">
-                      <button
-                        onClick={() => fetchSingleCampaign(c.id)}
-                        className="relative group cursor-pointer">
-                        <Visibility />
-                        <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded bg-gray-400 text-white text-[12px] group-hover:block hidden">
-                          Anzeigen
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedCampaign(c);
-                          setShowUpdateCampaignModal(true);
-                        }}
-                        className="relative group cursor-pointer">
-                        <Edit fontSize="small" />
-                        <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded bg-gray-400 text-white text-[12px] group-hover:block hidden">
-                          Bearbeiten
-                        </span>
-                      </button>
+                      <select
+                        onChange={(e) => {
+                          const action = e.target.value;
+                          if (!action) return;
 
-                      <button
-                        onClick={() => fetchCampaignLogs(c.id)}
-                        className="relative group cursor-pointer">
-                        <BarChart />
-                        <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded bg-gray-400 text-white text-[12px] group-hover:block hidden">
-                          Protokolle
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(c.id)}
-                        className="relative group cursor-pointer">
-                        <Delete fontSize="small" />
-                        <span className="absolute top-[-30px] right-[15px] px-[15px] py-[6px] rounded bg-gray-400 text-white text-[12px] group-hover:block hidden">
-                          Löschen
-                        </span>
-                      </button>
+                          switch (action) {
+                            case "view":
+                              fetchSingleCampaign(c.id);
+                              break;
+                            case "edit":
+                              setSelectedCampaign(c);
+                              setShowUpdateCampaignModal(true);
+                              break;
+                            case "logs":
+                              fetchCampaignLogs(c.id);
+                              break;
+                            case "delete":
+                              handleDelete(c.id);
+                              break;
+                            default:
+                              break;
+                          }
+
+                          e.target.selectedIndex = 0; // Reset selection
+                        }}
+                        className="border border-gray-300 rounded px-2 py-1 text-sm text-[#412666] bg-white cursor-pointer">
+                        <option value="">Aktion wählen</option>
+                        <option value="view">Anzeigen</option>
+                        <option value="edit">Bearbeiten</option>
+                        <option value="logs">Protokolle</option>
+                        <option value="delete">Löschen</option>
+                      </select>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
-        </>
+        </motion.div>
       )}
       {showCreateCampaignModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
@@ -831,24 +806,34 @@ const Campaign = () => {
                 ))
               )}
               {campaignLogs.length >= 1 && (
-                <div className="space-x-2 flex items-center justify-between">
+                <div className="relative inline-block text-left">
                   <button
-                    onClick={() => handleExportCampaignLogs("csv")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
-                    Exportiere CSV
+                    onClick={() =>
+                      setLogExportOpenCampaign(!logExportOpenCampaign)
+                    }
+                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm text-[#412666] hover:bg-[#412666] hover:text-white transition-all duration-300">
+                    Exportiere Logs ▾
                   </button>
 
-                  <button
-                    onClick={() => handleExportCampaignLogs("xlsx")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
-                    Exportiere XLSX
-                  </button>
-
-                  <button
-                    onClick={() => handleExportCampaignLogs("pdf")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
-                    Exportiere PDF
-                  </button>
+                  {logExportOpenCampaign && (
+                    <div className="absolute left-0 -top-42 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow z-50 p-2">
+                      <button
+                        onClick={() => handleExportCampaignLogs("csv")}
+                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                        Exportiere CSV
+                      </button>
+                      <button
+                        onClick={() => handleExportCampaignLogs("xlsx")}
+                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                        Exportiere XLSX
+                      </button>
+                      <button
+                        onClick={() => handleExportCampaignLogs("pdf")}
+                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
+                        Exportiere PDF
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
