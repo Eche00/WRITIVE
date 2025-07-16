@@ -124,7 +124,7 @@ function Header() {
               Inventarsystem
             </NavLink>
 
-            <NavLink
+            {/* <NavLink
               to="/admin/amazonreviews"
               className={({ isActive }) =>
                 isActive
@@ -132,7 +132,7 @@ function Header() {
                   : "  font-bold text-gray-600"
               }>
               Amazon-Bewertungen
-            </NavLink>
+            </NavLink> */}
             <NavLink
               to="/admin/categories"
               className={({ isActive }) =>
@@ -255,7 +255,7 @@ function Header() {
                 Inventarsystem
               </NavLink>
 
-              <NavLink
+              {/* <NavLink
                 to="/admin/amazonreviews"
                 className={({ isActive }) =>
                   isActive
@@ -263,7 +263,7 @@ function Header() {
                     : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
                 }>
                 Amazon-Bewertungen
-              </NavLink>
+              </NavLink> */}
               <NavLink
                 to="/admin/categories"
                 className={({ isActive }) =>

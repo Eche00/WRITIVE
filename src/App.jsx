@@ -12,7 +12,7 @@ import Booking from "./pages/Booking";
 import Inventory from "./pages/Inventory";
 import Settings from "./pages/Settings";
 import Campaign from "./pages/Campaign";
-import AmazonReviews from "./pages/AmazonReviews";
+// import AmazonReviews from "./pages/AmazonReviews";
 import QRCodeProcessing from "./pages/QRCodeProcessing";
 import CustomerContainer from "./component/CustomerContainer";
 import CustomerBooking from "./customer/CustomerBooking";
@@ -52,7 +52,7 @@ function App() {
           <Route path="/admin/inventory" element={<Inventory />} />
 
           {/* Reviews & QR Code */}
-          <Route path="/admin/amazonreviews" element={<AmazonReviews />} />
+          {/* <Route path="/admin/amazonreviews" element={<AmazonReviews />} /> */}
           <Route path="/admin/qrcode" element={<QRCodeProcessing />} />
 
           {/* Settings */}
