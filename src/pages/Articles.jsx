@@ -179,6 +179,7 @@ const Articles = ({ setViewarticles }) => {
       <table className="w-full text-sm text-left">
         <thead className="text-[#412666] border-b border-gray-200">
           <tr>
+            <th className="py-2 px-3">Artikel ID</th>
             <th className="py-2 px-3">Artikelname</th>
             <th className="py-2 px-3">Marken</th>
             <th className="py-2 px-3">Kunde</th>
@@ -193,6 +194,7 @@ const Articles = ({ setViewarticles }) => {
             <tr
               key={a.ID || index}
               className="border-b border-gray-200 hover:bg-gray-50">
+              <td className="py-2 px-3">{a.ID || "—"}</td>
               <td className="py-2 px-3">{a.Artikelname || "—"}</td>
               <td className="py-2 px-3">{a.Brandname || "—"}</td>
               <td className="py-2 px-3">{(a.KundeFirmenname || "—").trim()}</td>
@@ -281,6 +283,10 @@ const Articles = ({ setViewarticles }) => {
               <div>
                 <span className="font-semibold">Kunde:</span>{" "}
                 {selectedArticle.KundeFirmenname?.trim() || "—"}
+              </div>
+              <div>
+                <span className="font-semibold">Kampaign ID:</span>{" "}
+                {selectedArticle.KampaignID?.trim() || "—"}
               </div>
               <div>
                 <span className="font-semibold">Stück/Monat:</span>{" "}

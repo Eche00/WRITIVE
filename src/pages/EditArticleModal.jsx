@@ -5,7 +5,7 @@ const BASE_URL = "https://cb49a05985a8.ngrok-free.app";
 const EditArticleModal = ({ showModal, setShowModal, artikel, onUpdated }) => {
   const [formData, setFormData] = useState({
     BrandID: "",
-    KampagneID: "",
+    KampaignID: "",
     Artikelname: "",
     Text: "",
     StueckzahlProMonat: "",
@@ -15,13 +15,15 @@ const EditArticleModal = ({ showModal, setShowModal, artikel, onUpdated }) => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    console.log("Artikel data:", artikel);
+
     if (artikel) {
-      const { BrandID, KampagneID, Artikelname, Text, StueckzahlProMonat } =
+      const { BrandID, KampaignID, Artikelname, Text, StueckzahlProMonat } =
         artikel;
 
       setFormData({
         BrandID: BrandID || "",
-        KampagneID: KampagneID || "-",
+        KampaignID: KampaignID || "-",
         Artikelname: Artikelname || "",
         Text: Text || "",
         StueckzahlProMonat: StueckzahlProMonat?.toString() || "",
@@ -101,7 +103,7 @@ const EditArticleModal = ({ showModal, setShowModal, artikel, onUpdated }) => {
           {Object.entries(formData).map(([key, value]) => (
             <div key={key} className="flex flex-col">
               <label className="mb-1 font-medium">{key}</label>
-              {key === "BrandID" || key === "KampagneID" ? (
+              {key === "BrandID" || key === "KampaignID" ? (
                 <input
                   name={key}
                   value={value}
