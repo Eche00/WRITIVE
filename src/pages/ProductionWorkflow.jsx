@@ -920,8 +920,12 @@ const ProductionWorkflow = () => {
 
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 rounded-xl shadow-lg max-w-[600px] w-full relative">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700 ">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-[700px] w-full relative overflow-y-auto max-h-[90vh]">
+            <h2 className="text-xl font-semibold text-[#412666] mb-4 text-center">
+              Neue Produktion anlegen
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
               {/* KundeID Dropdown */}
               <div>
                 <label className="block font-medium">Kunde-ID:</label>
@@ -1016,7 +1020,7 @@ const ProductionWorkflow = () => {
                   onChange={(e) =>
                     setNewProduction({
                       ...newProduction,
-                      StandardStueckzahl: e.target.value,
+                      StandardStueckzahl: Number(e.target.value),
                     })
                   }
                 />
@@ -1034,13 +1038,50 @@ const ProductionWorkflow = () => {
                   onChange={(e) =>
                     setNewProduction({
                       ...newProduction,
-                      GeaenderteStueckzahl: e.target.value,
+                      GeaenderteStueckzahl: Number(e.target.value),
+                    })
+                  }
+                />
+              </div>
+
+              {/* Geplante Produktionsstartzeit */}
+              <div>
+                <label className="block font-medium">
+                  Geplanter Produktionsstart:
+                </label>
+                <input
+                  type="datetime-local"
+                  className="w-full border px-2 py-1 rounded"
+                  value={newProduction.gep_Produktionsstart || ""}
+                  onChange={(e) =>
+                    setNewProduction({
+                      ...newProduction,
+                      gep_Produktionsstart: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              {/* Geplantes Sendout-Datum */}
+              <div>
+                <label className="block font-medium">
+                  Geplantes Sendout-Datum:
+                </label>
+                <input
+                  type="datetime-local"
+                  className="w-full border px-2 py-1 rounded"
+                  value={newProduction.gep_SendoutDatum || ""}
+                  onChange={(e) =>
+                    setNewProduction({
+                      ...newProduction,
+                      gep_SendoutDatum: e.target.value,
                     })
                   }
                 />
               </div>
             </div>
-            <div className="flex gap-4 mt-6 w-full ">
+
+            <div className="flex gap-4 mt-6 w-full">
               <button
                 onClick={() => setShowCreateModal(false)}
                 className="w-full border border-[#412666] text-[#412666] py-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
