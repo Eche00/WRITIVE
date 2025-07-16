@@ -51,7 +51,6 @@ const Booking = () => {
       "ohne Frankierung",
       "1,80€",
     ],
-    "Elektronik & Gadgets": [],
     Format: [
       "DIN-A6",
       "DIN-Lang",
