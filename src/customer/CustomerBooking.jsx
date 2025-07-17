@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Search } from "@mui/icons-material";
+import UserLoader from "../component/UserLoader";
+import { motion } from "framer-motion";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
 const CustomerBooking = () => {
   const [bookings, setBookings] = useState([]);
@@ -34,82 +36,54 @@ const CustomerBooking = () => {
   }, []);
 
   return (
-    <div className="p-4 md:w-[80%] w-full mx-auto text-black flex flex-col h-fit">
+    <div className="p-4 md:w-[80%] w-full mx-auto text-black flex flex-col h-fit overflow-scroll">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-[#412666]">
-          Buchungshistorie
+        <h2 className="text-[42px] font-bold font-mono text-[#412666]">
+          BUCHUNGEN
         </h2>
-        <div className="flex gap-2">
-          {["csv", "xlsx", "pdf"].map((format) => (
-            <button
-              key={format}
-              onClick={() =>
-                window.open(
-                  `${BASE_URL}/buchungshistorie/export?format=${format}`,
-                  "_blank"
-                )
-              }
-              className="px-3 py-1 border border-[#412666] rounded hover:bg-[#412666] hover:text-white transition-all">
-              {format.toUpperCase()}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="border border-[#412666] rounded-lg px-4 w-full md:w-1/3 flex items-center gap-2 mb-4">
-        <Search />
-        <input
-          type="text"
-          placeholder="Suche Firmenname oder KundeID..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 border-none py-2 focus:outline-none bg-transparent"
-        />
       </div>
 
       {loading ? (
-        <p className="text-gray-500">Lädt Buchungen...</p>
-      ) : bookings.length === 0 ? (
-        <p className="text-gray-500">Keine Buchungen gefunden.</p>
+        <UserLoader />
       ) : (
-        <div className="overflow-x-auto">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+          className="bg-white p-4 rounded-xl shadow border border-gray-100 w-fit xl:w-full">
           <table className="w-full text-sm text-left">
             <thead className="text-[#412666] border-b border-gray-200">
               <tr>
-                <th className="py-2 px-3">ID</th>
-                <th className="py-2 px-3">KundeID</th>
-                <th className="py-2 px-3">Firmenname</th>
-                <th className="py-2 px-3">Buchungswert (€)</th>
-                <th className="py-2 px-3">Zeitstempel</th>
+                <th className="py-4 px-3">ID</th>
+                <th className="py-4 px-3">KundeID</th>
+                <th className="py-4 px-3">ArtikelID</th>
+                <th className="py-4 px-3">Bezeichnung</th>
+                <th className="py-4 px-3">Buchungstyp</th>
+                <th className="py-4 px-3">Kategorie</th>
+                <th className="py-4 px-3">Buchungswert (€)</th>
+                <th className="py-4 px-3">Zeitstempel</th>
               </tr>
             </thead>
             <tbody>
-              {bookings
-                .filter(
-                  (b) =>
-                    (b.KundeID?.toLowerCase() || "").includes(
-                      search.toLowerCase()
-                    ) ||
-                    (b.Firmenname?.toLowerCase() || "").includes(
-                      search.toLowerCase()
-                    )
-                )
-                .map((b) => (
-                  <tr
-                    key={b.ID}
-                    className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="py-2 px-3">{b.ID}</td>
-                    <td className="py-2 px-3">{b.KundeID}</td>
-                    <td className="py-2 px-3">{b.Firmenname}</td>
-                    <td className="py-2 px-3">€ {b.Buchungswert}</td>
-                    <td className="py-2 px-3">
-                      {new Date(b.Zeitstempel).toLocaleString("de-DE")}
-                    </td>
-                  </tr>
-                ))}
+              {bookings.map((b) => (
+                <tr
+                  key={b.ID}
+                  className="border-b border-gray-200 hover:bg-gray-50">
+                  <td className="py-6 px-3">{b.ID}</td>
+                  <td className="py-6 px-3">{b.KundeID}</td>
+                  <td className="py-6 px-3">{b.ArtikelID}</td>
+                  <td className="py-6 px-3">{b.Bezeichnung}</td>
+                  <td className="py-6 px-3">{b.Buchungstyp}</td>
+                  <td className="py-6 px-3">{b.Kategorie}</td>
+                  <td className="py-6 px-3">€ {b.Buchungswert}</td>
+                  <td className="py-6 px-3">
+                    {new Date(b.Zeitstempel).toLocaleString("de-DE")}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
-        </div>
+        </motion.div>
       )}
     </div>
   );
