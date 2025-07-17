@@ -17,11 +17,11 @@ import QRCodeProcessing from "./pages/QRCodeProcessing";
 import CustomerContainer from "./component/CustomerContainer";
 import CustomerBooking from "./customer/CustomerBooking";
 import CustomerCampaigns from "./customer/CustomerCampaigns";
-import CustomerQRScans from "./customer/CustomerQRScans";
 import CustomerAmazonReviews from "./customer/CustomerAmazonReviews";
 import CustomerProfile from "./pages/CustomerProfile";
 import Categories from "./pages/Categories";
 import Articles from "./pages/Articles";
+import CustomerProduction from "./customer/CustomerProduction";
 
 function App() {
   return (
@@ -63,7 +63,7 @@ function App() {
           <Route path="/customer/home" element={<CustomerProfile />} />
           <Route path="/customer/booking" element={<CustomerBooking />} />
           <Route path="/customer/campaign" element={<CustomerCampaigns />} />
-          <Route path="/customer/qrcode" element={<CustomerQRScans />} />
+          <Route path="/customer/production" element={<CustomerProduction />} />
           <Route
             path="/customer/amazonreviews"
             element={<CustomerAmazonReviews />}
