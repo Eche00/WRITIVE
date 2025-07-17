@@ -46,7 +46,11 @@ const ProductionWorkflow = () => {
     "Data Preparation": "text-orange-600 bg-orange-100",
     "Quality Check Started": "text-yellow-600 bg-yellow-100",
     "In Progress": "text-blue-600 bg-blue-100",
+    "Production Started": "text-cyan-600 bg-cyan-100",
+    "Quality Check Completed": "text-sky-600 bg-sky-100",
     "Production Completed": "text-emerald-600 bg-emerald-100",
+    "Ready for Shipment": "text-lime-600 bg-lime-100",
+    Shipped: "text-teal-600 bg-teal-100",
     "Order Completed": "text-green-600 bg-green-100",
   };
 
