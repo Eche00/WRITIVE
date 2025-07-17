@@ -2,7 +2,7 @@ import { Close, DragHandle } from "@mui/icons-material";
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
 function Header() {
   const [mobileNav, setMobileNav] = useState(false);

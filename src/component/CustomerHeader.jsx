@@ -2,7 +2,7 @@ import { Close, DragHandle } from "@mui/icons-material";
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
 
 function CustomerHeader() {
   const [mobileNav, setMobileNav] = useState(false);
@@ -78,23 +78,15 @@ function CustomerHeader() {
               }>
               Kampagne
             </NavLink>
+
             <NavLink
-              to="/customer/amazonreviews"
+              to="/customer/production"
               className={({ isActive }) =>
                 isActive
                   ? "text-[14px] font-bold text-[#412666]"
                   : " text-[14px] font-bold text-gray-600"
               }>
-              Amazon-Bewertungen
-            </NavLink>
-            <NavLink
-              to="/customer/qrcode"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-[14px] font-bold text-[#412666]"
-                  : " text-[14px] font-bold text-gray-600"
-              }>
-              QR-Code-Verarbeitung
+              Produktionsübersicht
             </NavLink>
           </nav>
         )}
@@ -145,23 +137,15 @@ function CustomerHeader() {
                 }>
                 Kampagne
               </NavLink>
+
               <NavLink
-                to="/customer/amazonreviews"
+                to="/customer/production"
                 className={({ isActive }) =>
                   isActive
                     ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
                     : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
                 }>
-                Amazon-Bewertungen
-              </NavLink>
-              <NavLink
-                to="/customer/qrcode"
-                className={({ isActive }) =>
-                  isActive
-                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
-                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
-                }>
-                QR-Code-Verarbeitung
+                Produktionsübersicht
               </NavLink>
             </nav>
           </div>
