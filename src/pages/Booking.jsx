@@ -9,8 +9,7 @@ import {
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import UserLoader from "../component/UserLoader";
-
-const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
+import { BASE_URL } from "../lib/baseurl";
 
 const Booking = () => {
   const [bookings, setBookings] = useState([]);

@@ -10,8 +10,7 @@ import CreateArticleModal from "./CreateArticleModal";
 import EditArticleModal from "./EditArticleModal";
 import UserLoader from "../component/UserLoader";
 import { motion } from "framer-motion";
-
-const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
+import { BASE_URL } from "../lib/baseurl";
 
 const Articles = ({ setViewarticles }) => {
   const [articles, setArticles] = useState([]);

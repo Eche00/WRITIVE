@@ -5,6 +5,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VerifyOtpModal from "./VerifyOtpModal";
+import { BASE_URL } from "../lib/baseurl";
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -62,14 +63,11 @@ function Signup() {
     };
 
     try {
-      const response = await fetch(
-        "https://65e435ef7c7e.ngrok-free.app/auth/registrieren",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/auth/registrieren`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       const result = await response.json();
       localStorage.setItem("userEmail", formData.email);

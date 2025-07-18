@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import EmailIcon from "@mui/icons-material/Email";
 import OtpResetModal from "./OtpResetModal";
+import { BASE_URL } from "../lib/baseurl";
 
 function ForgotPassword() {
   const [formData, setFormData] = useState({
@@ -47,14 +48,11 @@ function ForgotPassword() {
     }
 
     try {
-      const response = await fetch(
-        "https://65e435ef7c7e.ngrok-free.app/auth/forgot-password",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: formData.email }),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email }),
+      });
 
       const data = await response.json();
 

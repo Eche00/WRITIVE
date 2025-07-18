@@ -14,8 +14,7 @@ import UserLoader from "../component/UserLoader";
 import CreateBrandModal from "./CreateBrandModal";
 import UpdateBrandModal from "./UpdateBrandModal";
 import { motion } from "framer-motion";
-
-const BRAND_BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
+import { BASE_URL } from "../lib/baseurl";
 
 function Brand() {
   const [brands, setBrands] = useState([]);
@@ -40,7 +39,7 @@ function Brand() {
   const [brandLogDetail, setBrandLogDetail] = useState(null);
   const [openFormats, setOpenFormats] = useState(false);
   const [openBrandExport, setOpenBrandExport] = useState(false);
-
+  const BRAND_BASE_URL = BASE_URL;
   const fetchBrands = async () => {
     try {
       setLoading(true);

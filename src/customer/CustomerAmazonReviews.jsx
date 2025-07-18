@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Search } from "@mui/icons-material";
-
-const BASE_URL = "https://716f-102-89-69-162.ngrok-free.app";
+import { BASE_URL } from "../lib/baseurl";
 
 const CustomerAmazonReviews = () => {
   const [reviews, setReviews] = useState([]);

@@ -1,6 +1,7 @@
 // components/VerifyOtpModal.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
+import { BASE_URL } from "../lib/baseurl";
 
 const VerifyOtpModal = ({ email, show, setShow }) => {
   const [otp, setOtp] = useState("");
@@ -13,14 +14,11 @@ const VerifyOtpModal = ({ email, show, setShow }) => {
     setFeedback("");
 
     try {
-      const res = await fetch(
-        "https://65e435ef7c7e.ngrok-free.app/auth/verify-registration",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, otp }),
-        }
-      );
+      const res = await fetch(`${BASE_URL}/auth/verify-registration`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+      });
 
       const data = await res.json();
 

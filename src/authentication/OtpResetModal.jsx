@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
+import { BASE_URL } from "../lib/baseurl";
 
 const OtpResetModal = ({
   show,
@@ -19,18 +20,15 @@ const OtpResetModal = ({
     setSuccessMsg("");
 
     try {
-      const res = await fetch(
-        "https://65e435ef7c7e.ngrok-free.app/auth/reset-password",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email,
-            code: otpForm.code,
-            new_password: otpForm.new_password,
-          }),
-        }
-      );
+      const res = await fetch(`${BASE_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          code: otpForm.code,
+          new_password: otpForm.new_password,
+        }),
+      });
 
       const data = await res.json();
       if (res.ok) {
