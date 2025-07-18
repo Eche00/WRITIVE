@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Search, Sync, Add, SyncAlt } from "@mui/icons-material";
-
-const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
+import { BASE_URL } from "../lib/baseurl";
 
 const QRCodeProcessing = () => {
   const [qrScans, setQrScans] = useState([]);

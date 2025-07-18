@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Search } from "@mui/icons-material";
 import UserLoader from "../component/UserLoader";
 import { motion } from "framer-motion";
-
-const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
+import { BASE_URL } from "../lib/baseurl";
 
 const Inventory = () => {
   const [items, setItems] = useState([]);

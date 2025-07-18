@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-
-const BASE_URL = "https://65e435ef7c7e.ngrok-free.app";
+import { BASE_URL } from "../lib/baseurl";
 
 const CreateBrandModal = ({ createModal, setCreateModal, fetchBrands }) => {
   const [customers, setCustomers] = useState([]);
