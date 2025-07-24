@@ -963,11 +963,13 @@ const ProductionWorkflow = () => {
                     })
                   }>
                   <option value="">— Bitte wählen —</option>
-                  {brands.map((b) => (
-                    <option key={b.ID} value={b.ID}>
-                      {b.ID} - {b.Brandname}
-                    </option>
-                  ))}
+                  {brands
+                    .filter((b) => b.ID?.startsWith(newProduction.KundeID))
+                    .map((b) => (
+                      <option key={b.ID} value={b.ID}>
+                        {b.ID} - {b.Brandname}
+                      </option>
+                    ))}
                 </select>
               </div>
 
@@ -984,11 +986,13 @@ const ProductionWorkflow = () => {
                     })
                   }>
                   <option value="">— Bitte wählen —</option>
-                  {campaigns.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.id} - {c.name}
-                    </option>
-                  ))}
+                  {campaigns
+                    .filter((c) => c.id?.startsWith(newProduction.KundeID))
+                    .map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.id} - {c.name}
+                      </option>
+                    ))}
                 </select>
               </div>
 
@@ -1005,11 +1009,13 @@ const ProductionWorkflow = () => {
                     })
                   }>
                   <option value="">— Bitte wählen —</option>
-                  {articles.map((a) => (
-                    <option key={a.ID} value={a.ID}>
-                      {a.ID} - {a.Artikelname}
-                    </option>
-                  ))}
+                  {articles
+                    .filter((a) => a.BrandID?.startsWith(newProduction.KundeID))
+                    .map((a) => (
+                      <option key={a.ID} value={a.ID}>
+                        {a.ID} - {a.Artikelname}
+                      </option>
+                    ))}
                 </select>
               </div>
 
