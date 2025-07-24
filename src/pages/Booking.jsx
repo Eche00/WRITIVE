@@ -635,11 +635,13 @@ const Booking = () => {
                   }))
                 }>
                 <option value="">— Artikel wählen —</option>
-                {articles.map((a) => (
-                  <option key={a.ID} value={a.ID}>
-                    {a.ID} - {a.Artikelname}
-                  </option>
-                ))}
+                {articles
+                  .filter((a) => a.BrandID?.startsWith(newBooking.KundeID))
+                  .map((a) => (
+                    <option key={a.ID} value={a.ID}>
+                      {a.ID} - {a.Artikelname}
+                    </option>
+                  ))}
               </select>
 
               {/* ProduktionsID Dropdown */}
@@ -653,11 +655,13 @@ const Booking = () => {
                   }))
                 }>
                 <option value="">— Produktion wählen —</option>
-                {productions.map((p) => (
-                  <option key={p.ID} value={p.ID}>
-                    {p.ID} - {p.Produktionsnummer}
-                  </option>
-                ))}
+                {productions
+                  .filter((p) => p.KundeID === newBooking.KundeID)
+                  .map((p) => (
+                    <option key={p.ID} value={p.ID}>
+                      {p.ID} - {p.Produktionsnummer}
+                    </option>
+                  ))}
               </select>
               {/* Buchungstyp */}
               <select
