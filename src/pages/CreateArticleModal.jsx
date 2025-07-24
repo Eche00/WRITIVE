@@ -261,11 +261,13 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
               onChange={handleChange}
               className="border rounded px-2 py-1">
               <option value="">Select campaign</option>
-              {campaigns.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.id} - {c.name}
-                </option>
-              ))}
+              {campaigns
+                .filter((c) => c.id.startsWith(formData.BrandID))
+                .map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.id} - {c.name}
+                  </option>
+                ))}
             </select>
           </div>
 
