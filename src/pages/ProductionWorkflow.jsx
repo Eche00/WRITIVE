@@ -987,7 +987,7 @@ const ProductionWorkflow = () => {
                   }>
                   <option value="">— Bitte wählen —</option>
                   {campaigns
-                    .filter((c) => c.id?.startsWith(newProduction.KundeID))
+                    .filter((c) => c.id?.startsWith(newProduction.BrandID))
                     .map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.id} - {c.name}
@@ -1010,7 +1010,7 @@ const ProductionWorkflow = () => {
                   }>
                   <option value="">— Bitte wählen —</option>
                   {articles
-                    .filter((a) => a.BrandID?.startsWith(newProduction.KundeID))
+                    .filter((a) => a.BrandID?.startsWith(newProduction.BrandID))
                     .map((a) => (
                       <option key={a.ID} value={a.ID}>
                         {a.ID} - {a.Artikelname}
