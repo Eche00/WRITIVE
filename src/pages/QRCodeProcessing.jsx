@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Search, Sync, Add, SyncAlt } from "@mui/icons-material";
 import { BASE_URL } from "../lib/baseurl";
+import UserLoader from "../component/UserLoader";
+import { motion } from "framer-motion";
 
 const QRCodeProcessing = () => {
   const [qrScans, setQrScans] = useState([]);
@@ -146,7 +148,7 @@ const QRCodeProcessing = () => {
       setShowCustomerQRStatsModal(true);
     } catch (err) {
       console.error(err);
-      toast.error("Kampagnen-Statistiken konnten nicht geladen werden");
+      console.error("Kampagnen-Statistiken konnten nicht geladen werden");
     }
   };
 
@@ -164,96 +166,108 @@ const QRCodeProcessing = () => {
           </button>
         </div>
       </div>
-      <>
-        <section className="mb-6">
-          <div className="flex justify-between items-center">
-            <div className="border border-[#412666] rounded-lg px-4 w-1/3 flex items-center gap-2">
-              <Search />
-              <input
-                type="text"
-                placeholder="Suche nach QR-ID / Titel..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="flex-1 border-none py-2 focus:outline-none"
-              />
-            </div>
-            <button
-              className=" bg-[#412666] text-white px-4 py-2 rounded-full hover:bg-[#341f4f] transition cursor-pointer"
-              onClick={fetchCustomerQRStatistics}>
-              Kunden-QR-Statistiken
-            </button>
-          </div>
+      {loading ? (
+        <section>
+          <UserLoader />
         </section>
+      ) : (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}>
+          <section className="mb-6">
+            <div className="flex justify-between items-center">
+              <div className="border border-[#412666] rounded-lg px-4 w-1/3 flex items-center gap-2">
+                <Search />
+                <input
+                  type="text"
+                  placeholder="Suche nach QR-ID / Titel..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="flex-1 border-none py-2 focus:outline-none"
+                />
+              </div>
+              <button
+                className=" bg-[#412666] text-white px-4 py-2 rounded-full hover:bg-[#341f4f] transition cursor-pointer"
+                onClick={fetchCustomerQRStatistics}>
+                Kunden-QR-Statistiken
+              </button>
+            </div>
+          </section>
 
-        <table className="w-full text-sm text-left text-nowrap">
-          <thead className="text-[#412666] border-b border-gray-200">
-            <tr>
-              <th className="py-2 px-3">QR-ID</th>
-              <th className="py-2 px-3">Titel</th>
-              <th className="py-2 px-3">Scans</th>
-              <th className="py-2 px-3">Unique Besucher</th>
-              <th className="py-2 px-3">URL</th>
-              <th className="py-2 px-3">Erstellt am</th>
-              <th className="py-2 px-3">Aktionen</th>
-            </tr>
-          </thead>
-          <tbody>
-            {qrScans
-              .filter(
-                (q) =>
-                  q.id.toLowerCase().includes(search.toLowerCase()) ||
-                  q.title?.toLowerCase().includes(search.toLowerCase())
-              )
-              .map((qr) => (
-                <tr
-                  key={qr.id}
-                  className="border-b border-gray-200 hover:bg-gray-50">
-                  <td className="py-2 px-3 font-mono">{qr.id}</td>
-                  <td className="py-2 px-3">{qr.title || "-"}</td>
-                  <td className="py-2 px-3">{qr.scans}</td>
-                  <td className="py-2 px-3">{qr.uniquevisitors}</td>
-                  <td className="py-2 px-3 text-blue-600 underline break-all">
-                    <a href={qr.url} target="_blank" rel="noopener noreferrer">
-                      {qr.url}
-                    </a>
-                  </td>
-                  <td className="py-2 px-3">
-                    {new Date(qr.creationdate).toLocaleString()}
-                  </td>
-                  <td className="p-2">
-                    <td className="p-2 flex gap-2 flex-wrap">
-                      <select
-                        onChange={(e) => {
-                          const action = e.target.value;
-                          if (!action) return;
-
-                          switch (action) {
-                            case "statistics":
-                              fetchQrStatistics(qr.id);
-                              break;
-                            case "scanLocations":
-                              fetchQrScanLocations(qr.id);
-                              break;
-                            default:
-                              break;
-                          }
-
-                          e.target.selectedIndex = 0; // Reset dropdown
-                        }}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm text-[#412666] bg-white cursor-pointer">
-                        <option value="">Aktion wählen</option>
-                        <option value="statistics">Statistik anzeigen</option>
-                        <option value="scanLocations">
-                          Scan Locations anzeigen
-                        </option>
-                      </select>
+          <table className="w-full text-sm text-left text-nowrap">
+            <thead className="text-[#412666] border-b border-gray-200">
+              <tr>
+                <th className="py-2 px-3">QR-ID</th>
+                <th className="py-2 px-3">Titel</th>
+                <th className="py-2 px-3">Scans</th>
+                <th className="py-2 px-3">Unique Besucher</th>
+                <th className="py-2 px-3">URL</th>
+                <th className="py-2 px-3">Erstellt am</th>
+                <th className="py-2 px-3">Aktionen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {qrScans
+                .filter(
+                  (q) =>
+                    q.id.toLowerCase().includes(search.toLowerCase()) ||
+                    q.title?.toLowerCase().includes(search.toLowerCase())
+                )
+                .map((qr) => (
+                  <tr
+                    key={qr.id}
+                    className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="py-2 px-3 font-mono">{qr.id}</td>
+                    <td className="py-2 px-3">{qr.title || "-"}</td>
+                    <td className="py-2 px-3">{qr.scans}</td>
+                    <td className="py-2 px-3">{qr.uniquevisitors}</td>
+                    <td className="py-2 px-3 text-blue-600 underline break-all">
+                      <a
+                        href={qr.url}
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        {qr.url}
+                      </a>
                     </td>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </>
+                    <td className="py-2 px-3">
+                      {new Date(qr.creationdate).toLocaleString()}
+                    </td>
+                    <td className="p-2">
+                      <td className="p-2 flex gap-2 flex-wrap">
+                        <select
+                          onChange={(e) => {
+                            const action = e.target.value;
+                            if (!action) return;
+
+                            switch (action) {
+                              case "statistics":
+                                fetchQrStatistics(qr.id);
+                                break;
+                              case "scanLocations":
+                                fetchQrScanLocations(qr.id);
+                                break;
+                              default:
+                                break;
+                            }
+
+                            e.target.selectedIndex = 0; // Reset dropdown
+                          }}
+                          className="border border-gray-300 rounded px-2 py-1 text-sm text-[#412666] bg-white cursor-pointer">
+                          <option value="">Aktion wählen</option>
+                          <option value="statistics">Statistik anzeigen</option>
+                          <option value="scanLocations">
+                            Scan Locations anzeigen
+                          </option>
+                        </select>
+                      </td>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </motion.div>
+      )}
       {showStatisticsModal && selectedQRCode && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
           <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -527,7 +541,7 @@ const QRCodeProcessing = () => {
 
             <button
               onClick={() => setShowCustomerQRStatsModal(false)}
-              className="mt-6 w-full bg-[#412666] text-white py-2 rounded hover:bg-[#341f4f] transition">
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded hover:bg-[#341f4f] transition cursor-pointer">
               Schließen
             </button>
           </div>
