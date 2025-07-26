@@ -48,7 +48,7 @@ const CustomerBooking = () => {
             initial={{ scale: 0.8, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1.5, delay: 0.3 }}
-            className="bg-white p-4 w-fit h-[600px] overflow-scroll border-b border-gray-200 rounded-xl  ">
+            className="bg-white p-4 rounded-xl shadow border border-gray-100 w-fit xl:w-full">
             <div className="border border-[#412666] rounded-lg px-4 w-full md:w-1/2 flex items-center gap-2 mb-4">
               <Search />
               <input
@@ -60,7 +60,7 @@ const CustomerBooking = () => {
               />
             </div>
             <table className="w-full text-sm text-left">
-              <thead className="text-[#412666] border-b-[3px] border-[#412666] ">
+              <thead className="text-[#412666] border-b border-gray-200">
                 <tr>
                   <th className="py-2 px-3">ID</th>
                   <th className="py-2 px-3">Artikel</th>
