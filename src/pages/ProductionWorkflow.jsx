@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Delete,
-  Edit,
-  PlayArrow,
-  Add,
-  BarChart,
-  Visibility,
-  LocationOn,
-} from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import UserLoader from "../component/UserLoader";
 import { BASE_URL } from "../lib/baseurl";
