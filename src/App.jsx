@@ -22,6 +22,7 @@ import CustomerProfile from "./pages/CustomerProfile";
 import Categories from "./pages/Categories";
 import Articles from "./pages/Articles";
 import CustomerProduction from "./customer/CustomerProduction";
+import CustomerQr from "./customer/CustomerQr";
 
 function App() {
   return (
@@ -68,6 +69,7 @@ function App() {
             path="/customer/amazonreviews"
             element={<CustomerAmazonReviews />}
           />
+          <Route path="/customer/qr" element={<CustomerQr />} />
         </Route>
       </Routes>
     </div>
