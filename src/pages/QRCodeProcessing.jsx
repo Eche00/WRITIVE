@@ -4,26 +4,17 @@ import { BASE_URL } from "../lib/baseurl";
 
 const QRCodeProcessing = () => {
   const [qrScans, setQrScans] = useState([]);
-  const [syncData, setSyncData] = useState([]);
-  const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [syncSearch, setSyncSearch] = useState("");
-  const [syncedSearch, setSyncedSearch] = useState("");
-  const [showStatsModal, setShowStatsModal] = useState(false);
-  const [qrStats, setQrStats] = useState(null);
-  const [showQRScanLogsModal, setShowQRScanLogsModal] = useState(false);
-  const [qrScanLogs, setQRScanLogs] = useState([]);
-  const [showQRScanLogDetailModal, setShowQRScanLogDetailModal] =
+  const [selectedQRCode, setSelectedQRCode] = useState(null);
+  const [showStatisticsModal, setShowStatisticsModal] = useState(false);
+  const [geoTags, setGeoTags] = useState(null);
+  const [showGeoTagsModal, setShowGeoTagsModal] = useState(false);
+  const [qrScanLocations, setQrScanLocations] = useState([]);
+  const [showScanLocationsModal, setShowScanLocationsModal] = useState(false);
+  const [customerQRStats, setCustomerQRStats] = useState([]);
+  const [showCustomerQRStatsModal, setShowCustomerQRStatsModal] =
     useState(false);
-  const [qrScanLogDetail, setQRScanLogDetail] = useState(null);
-
-  const [newScan, setNewScan] = useState({
-    CampaignID: "",
-    DeviceID: "",
-    Location: "",
-    qr_code: "",
-  });
 
   const fetchQRScans = async () => {
     const token = localStorage.getItem("token");
@@ -31,7 +22,7 @@ const QRCodeProcessing = () => {
     try {
       setLoading(true);
 
-      const res = await fetch(`${BASE_URL}/qr-scans/`, {
+      const res = await fetch(`${BASE_URL}/qrplanet/all`, {
         method: "GET",
         headers: {
           Authorization: "Bearer " + token,
@@ -46,262 +37,117 @@ const QRCodeProcessing = () => {
       }
 
       const data = await res.json();
-      setQrScans(data);
-      console.log(data);
+      setQrScans(data?.result?.qrcodes || []);
+      console.log("✅ QR Codes loaded:", data?.result?.qrcodes);
     } catch (err) {
-      console.error("Fehler beim Abrufen der QR-Scans:", err);
+      console.error("Error loading QR scans:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchSyncData = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${BASE_URL}/qr-scans/sync`, {
-        headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-      const data = await res.json();
-      setSyncData(data.data);
-    } catch (err) {
-      console.error("Fehler beim Abrufen der Sync-Daten:", err);
-    }
-  };
-  const [syncedScans, setSyncedScans] = useState([]);
-
-  const fetchSyncedScans = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${BASE_URL}/qr-scans/sync_panel`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error("Fehler beim Abrufen synchronisierter Scans.");
-      }
-
-      const data = await res.json();
-      setSyncedScans(data);
-    } catch (err) {
-      console.error(err);
-      // alert("Fehler beim Laden der synchronisierten Scans.");
-    }
-  };
-
-  // const fetchStats = async () => {
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const res = await fetch(`${BASE_URL}/qr-scans/stats`, {
-  //       headers: {
-  //         Authorization: "Bearer " + token,
-  //         "Content-Type": "application/json",
-  //         "ngrok-skip-browser-warning": "true",
-  //       },
-  //     });
-  //     const data = await res.json();
-  //     setStats(data);
-  //   } catch (err) {
-  //     console.error("Fehler beim Abrufen der Statistiken:", err);
-  //   }
-  // };
-
   useEffect(() => {
     fetchQRScans();
-    fetchSyncData();
-    fetchStats();
-    fetchSyncedScans();
   }, []);
 
-  const simulateScan = async () => {
-    const { CampaignID, DeviceID, Location, qr_code } = newScan;
-
-    // Validate required fields
-    if (!CampaignID || !DeviceID || !Location || !qr_code) {
-      console.log("Bitte fülle alle Felder aus.");
-      return;
-    }
-
+  const fetchQrStatistics = async (qrId) => {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(`${BASE_URL}/qr-scans/`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify({
-          CampaignID: CampaignID.trim(),
-          DeviceID: DeviceID.trim(),
-          Location: Location.trim(),
-          qr_code: qr_code.trim(), // Make sure it's a string
-        }),
-      });
-
-      const result = await res.json();
-
-      if (result.status === "success") {
-        console.log(result.message); // "QR-Scan verarbeitet"
-        fetchQRScans(); // Refresh list
-        setNewScan({
-          CampaignID: "",
-          DeviceID: "",
-          Location: "",
-          qr_code: "",
-        });
-      } else if (result.message === "Scan bereits registriert") {
-        console.log("⚠️ Dieser Scan wurde bereits registriert.");
-      } else if (result.message === "Ungültiger QR-Code") {
-        console.log(" Ungültiger QR-Code.");
-      } else {
-        console.log("Fehler: " + result.message);
-      }
-    } catch (err) {
-      console.error("Fehler beim Simulieren des Scans:", err);
-      console.log(
-        "Netzwerkfehler oder Serverproblem beim Senden des QR-Scans."
-      );
-    }
-  };
-
-  const syncByCampaign = async (campaignID) => {
-    try {
-      const token = localStorage.getItem("token");
-
-      console.log("Trying to sync for campaignID:", campaignID);
-
-      const idsToSync = qrScans
-        .filter(
-          (scan) =>
-            (scan.CampaignID || "").trim().toLowerCase() ===
-              (campaignID || "").trim().toLowerCase() &&
-            (scan.Synced === false || scan.Synced === "false")
-        )
-        .map((scan) => scan.ID);
-
-      console.log("Matching unsynced scans:", idsToSync);
-
-      // if (idsToSync.length === 0) {
-      //   return alert("Keine QR-Codes für diese Kampagne zum Synchronisieren.");
-      // }
-
-      const res = await fetch(`${BASE_URL}/qr-scans/sync_bulk`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify({ sync_ids: idsToSync }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        console.log(data.message);
-        fetchQRScans();
-        fetchSyncData();
-      } else {
-        console.log(data.message || "Fehler beim Synchronisieren.");
-      }
-    } catch (err) {
-      console.error("Synchronisierungsfehler:", err);
-      console.log("Fehler beim Synchronisieren.");
-    }
-  };
-
-  const fetchStats = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${BASE_URL}/qr-scans/stats`, {
-        headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-      const data = await res.json();
-      setStats(data); // Already done
-      setQrStats(data); // Save full stats response
-    } catch (err) {
-      console.error("Fehler beim Abrufen der Statistiken:", err);
-    }
-  };
-
-  const fetchQRScanLogs = async () => {
-    const token = localStorage.getItem("token");
-
-    try {
-      const res = await fetch(`${BASE_URL}/qr-scans/logs`, {
+      const res = await fetch(`${BASE_URL}/qrplanet/statistics/${qrId}`, {
         method: "GET",
         headers: {
           Authorization: "Bearer " + token,
           "Content-Type": "application/json",
           "ngrok-skip-browser-warning": "true",
         },
+        credentials: "include",
       });
 
-      const data = await res.json();
-      if (!Array.isArray(data)) {
-        console.log("Fehler beim Abrufen der QR-Scan Logs.");
-        return;
-      }
+      if (!res.ok)
+        throw new Error("Fehler beim Abrufen der QR-Code-Statistiken");
 
-      setQRScanLogs(data);
-      setShowQRScanLogsModal(true);
+      const data = await res.json();
+      setSelectedQRCode(data.result);
+      setShowStatisticsModal(true);
     } catch (err) {
       console.error(err);
-      // alert("Netzwerkfehler beim Laden der QR-Scan Logs.");
+      toast.error("Statistik konnte nicht geladen werden");
     }
   };
-  const fetchQRScanLogByID = async (logID) => {
+  const fetchGeoTags = async () => {
     const token = localStorage.getItem("token");
+    console.log("hello");
 
     try {
-      const res = await fetch(`${BASE_URL}/qr-scans/logs/${logID}`, {
+      const res = await fetch(`${BASE_URL}/qrplanet/geotags`, {
         method: "GET",
         headers: {
           Authorization: "Bearer " + token,
           "Content-Type": "application/json",
           "ngrok-skip-browser-warning": "true",
         },
+        credentials: "include",
       });
 
+      if (!res.ok) throw new Error("Fehler beim Abrufen der Geotags");
+
       const data = await res.json();
-
-      //  Invalid or missing log
-      if (data?.message === "404 Not Found") {
-        console.log("QR-Scan-Log-Eintrag wurde nicht gefunden.");
-        return;
-      }
-
-      if (data?.entity !== "QRScan") {
-        console.log("Ungültige Entität – kein QR-Scan-Log.");
-        return;
-      }
-
-      // ✅ Valid
-      setQRScanLogDetail(data);
-      setShowQRScanLogDetailModal(true);
+      setGeoTags(data.result);
+      console.log("DATA" + Object.keys(data.result));
+      setShowGeoTagsModal(true);
     } catch (err) {
       console.error(err);
-      // alert("Fehler beim Abrufen des QR-Scan Logs.");
+      console.error("Geotags konnten nicht geladen werden");
     }
   };
-  const handleExportQRScanLogs = (format) => {
-    const query = new URLSearchParams({ format });
+  const fetchQrScanLocations = async (qrId) => {
+    try {
+      const token = localStorage.getItem("token"); // Adjust based on your auth flow
 
-    window.open(`${BASE_URL}/qr-scans/logs/export/${format}`, "_blank");
+      const res = await fetch(`${BASE_URL}/qrplanet/${qrId}/scans/locations`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error("Fehler beim Abrufen der Scan-Locations");
+
+      const data = await res.json();
+      setQrScanLocations(data.result.geotags);
+      setShowScanLocationsModal(true);
+    } catch (err) {
+      console.error(err);
+      toast.error("Scan-Locations konnten nicht geladen werden");
+    }
+  };
+  const fetchCustomerQRStatistics = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/qrplanet/customer/qr-statistics`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error("Fehler beim Abrufen der QR-Statistiken");
+
+      const data = await res.json();
+      setCustomerQRStats(data.campaigns || []);
+      setShowCustomerQRStatsModal(true);
+    } catch (err) {
+      console.error(err);
+      toast.error("Kampagnen-Statistiken konnten nicht geladen werden");
+    }
   };
 
   return (
@@ -309,427 +155,379 @@ const QRCodeProcessing = () => {
       <div className="mt-10">
         <div className="flex items-center justify-between gap-2 mb-4">
           <h3 className="text-xl font-semibold mb-2 text-[#412666]">
-            Synchronisierungsstatistik
+            QR-Code-Verarbeitung
           </h3>
           <button
-            onClick={() => setShowStatsModal(true)}
-            className="mt-4 bg-[#412666] text-white px-4 py-2 rounded-full hover:bg-[#341f4f] transition cursor-pointer">
-            Detaillierte QR-Statistiken anzeigen
+            className=" bg-[#412666] text-white px-4 py-2 rounded-full hover:bg-[#341f4f] transition cursor-pointer"
+            onClick={fetchGeoTags}>
+            Alle Geo-Tags
           </button>
         </div>
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm flex justify-between items-start hover:shadow-2xl hover:scale-[105%] transition-all duration-300 cursor-pointer">
-            <p className="text-sm">Gesamte Scans</p>
-            <h4 className="text-xl font-bold">{stats.total}</h4>
-          </div>
-          <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm flex justify-between items-start hover:shadow-2xl hover:scale-[105%] transition-all duration-300 cursor-pointer">
-            <p className="text-sm">Synchronisiert</p>
-            <h4 className="text-xl font-bold text-green-600">{stats.synced}</h4>
-          </div>
-          <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm flex justify-between items-start hover:shadow-2xl hover:scale-[105%] transition-all duration-300 cursor-pointer">
-            <p className="text-sm">Ausstehend</p>
-            <h4 className="text-xl font-bold text-red-500">{stats.pending}</h4>
-          </div>
-        </div>
-      </div>
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4  mb-6 space-y-2">
-        <h3 className="text-lg font-semibold text-[#412666]">
-          QR-Code simulieren
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 ">
-          <input
-            type="text"
-            placeholder="Kampagnen-ID"
-            className="border border-gray-200 p-2 rounded"
-            value={newScan.CampaignID}
-            onChange={(e) =>
-              setNewScan({ ...newScan, CampaignID: e.target.value })
-            }
-          />
-          <input
-            type="text"
-            placeholder="Geräte-ID"
-            className="border border-gray-200 p-2 rounded"
-            value={newScan.DeviceID}
-            onChange={(e) =>
-              setNewScan({ ...newScan, DeviceID: e.target.value })
-            }
-          />
-          <input
-            type="text"
-            placeholder="Standort"
-            className="border border-gray-200 p-2 rounded"
-            value={newScan.Location}
-            onChange={(e) =>
-              setNewScan({ ...newScan, Location: e.target.value })
-            }
-          />
-          <input
-            type="text"
-            placeholder="QR-Code"
-            className="border border-gray-200 p-2 rounded"
-            value={newScan.qr_code}
-            onChange={(e) =>
-              setNewScan({ ...newScan, qr_code: e.target.value })
-            }
-          />
-        </div>
-        <button
-          onClick={simulateScan}
-          className="bg-[#412666] text-white px-4 py-2 rounded-full hover:scale-[102%] transition-all cursor-pointer">
-          <Add className="mr-1" /> Scan simulieren
-        </button>
       </div>
       <>
         <section className="mb-6">
-          <h2 className="text-lg font-bold text-[#412666] mb-2">
-            QR Code Verarbeitung
-          </h2>
           <div className="flex justify-between items-center">
             <div className="border border-[#412666] rounded-lg px-4 w-1/3 flex items-center gap-2">
               <Search />
               <input
                 type="text"
-                placeholder="Suche nach Gerät oder Standort..."
+                placeholder="Suche nach QR-ID / Titel..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="flex-1 border-none py-2 focus:outline-none"
               />
             </div>
-
             <button
-              onClick={fetchQRScanLogs}
-              className="bg-[#412666] text-white px-4 py-2 rounded-full hover:scale-[102%] transition-all cursor-pointer">
-              <Sync className="mr-1" /> QR-Scan-Protokolle anzeigen
+              className=" bg-[#412666] text-white px-4 py-2 rounded-full hover:bg-[#341f4f] transition cursor-pointer"
+              onClick={fetchCustomerQRStatistics}>
+              Kunden-QR-Statistiken
             </button>
           </div>
         </section>
 
-        <table className="w-full text-sm text-left">
+        <table className="w-full text-sm text-left text-nowrap">
           <thead className="text-[#412666] border-b border-gray-200">
             <tr>
-              <th className="py-2 px-3">Kampagne-ID</th>
-              <th className="py-2 px-3">Kampagne</th>
-              <th className="py-2 px-3">Gerät</th>
-              <th className="py-2 px-3">Standort</th>
-              <th className="py-2 px-3">Gescannt am</th>
-              <th className="py-2 px-3">Synchronisiert</th>
+              <th className="py-2 px-3">QR-ID</th>
+              <th className="py-2 px-3">Titel</th>
+              <th className="py-2 px-3">Scans</th>
+              <th className="py-2 px-3">Unique Besucher</th>
+              <th className="py-2 px-3">URL</th>
+              <th className="py-2 px-3">Erstellt am</th>
+              <th className="py-2 px-3">Aktionen</th>
             </tr>
           </thead>
           <tbody>
             {qrScans
               .filter(
-                (s) =>
-                  s.DeviceID.toLowerCase().includes(search.toLowerCase()) ||
-                  s.Location.toLowerCase().includes(search.toLowerCase())
+                (q) =>
+                  q.id.toLowerCase().includes(search.toLowerCase()) ||
+                  q.title?.toLowerCase().includes(search.toLowerCase())
               )
-              .map((scan) => (
+              .map((qr) => (
                 <tr
-                  key={scan.ID}
+                  key={qr.id}
                   className="border-b border-gray-200 hover:bg-gray-50">
-                  <td className="py-2 px-3">{scan.CampaignID}</td>
-                  <td className="py-2 px-3">{scan.Campaign}</td>
-                  <td className="py-2 px-3">{scan.DeviceID}</td>
-                  <td className="py-2 px-3">{scan.Location}</td>
-                  <td className="py-2 px-3">
-                    {new Date(scan.ScannedAt).toLocaleString()}
+                  <td className="py-2 px-3 font-mono">{qr.id}</td>
+                  <td className="py-2 px-3">{qr.title || "-"}</td>
+                  <td className="py-2 px-3">{qr.scans}</td>
+                  <td className="py-2 px-3">{qr.uniquevisitors}</td>
+                  <td className="py-2 px-3 text-blue-600 underline break-all">
+                    <a href={qr.url} target="_blank" rel="noopener noreferrer">
+                      {qr.url}
+                    </a>
                   </td>
                   <td className="py-2 px-3">
-                    {scan.Synced ? (
-                      <span className="text-green-600 font-semibold"> Ja</span>
-                    ) : (
-                      <span className="text-red-500 font-semibold"> Nein</span>
-                    )}
+                    {new Date(qr.creationdate).toLocaleString()}
+                  </td>
+                  <td className="p-2">
+                    <td className="p-2 flex gap-2 flex-wrap">
+                      <select
+                        onChange={(e) => {
+                          const action = e.target.value;
+                          if (!action) return;
+
+                          switch (action) {
+                            case "statistics":
+                              fetchQrStatistics(qr.id);
+                              break;
+                            case "scanLocations":
+                              fetchQrScanLocations(qr.id);
+                              break;
+                            default:
+                              break;
+                          }
+
+                          e.target.selectedIndex = 0; // Reset dropdown
+                        }}
+                        className="border border-gray-300 rounded px-2 py-1 text-sm text-[#412666] bg-white cursor-pointer">
+                        <option value="">Aktion wählen</option>
+                        <option value="statistics">Statistik anzeigen</option>
+                        <option value="scanLocations">
+                          Scan Locations anzeigen
+                        </option>
+                      </select>
+                    </td>
                   </td>
                 </tr>
               ))}
           </tbody>
         </table>
       </>
-
-      {/* QR-Scans zur Synchronisation */}
-      <section className="mt-10 mb-6">
-        <h2 className="text-xl font-bold text-[#412666] mb-2">
-          QR-Scans zur Synchronisation
-        </h2>
-        <div className="flex justify-between items-center mb-3">
-          <div className="border border-[#412666] rounded-lg px-4 w-1/3 flex items-center gap-2">
-            <Search />
-            <input
-              type="text"
-              placeholder="Suche nach Kampagne..."
-              value={syncSearch}
-              onChange={(e) => setSyncSearch(e.target.value)}
-              className="flex-1 border-none py-2 focus:outline-none"
-            />
-          </div>
-        </div>
-
-        {syncData.length === 0 ? (
-          <p className="text-sm text-gray-600">
-            Keine Daten zum Synchronisieren gefunden.
-          </p>
-        ) : (
-          <table className="w-full text-sm text-left">
-            <thead className="text-[#412666] border-b border-gray-200">
-              <tr>
-                <th className="py-2 px-3">Kampagnen-ID</th>
-                <th className="py-2 px-3">Scan-Anzahl</th>
-                <th className="py-2 px-3">Letzter Scan</th>
-                <th className="py-2 px-3">Aktion</th>
-              </tr>
-            </thead>
-            <tbody>
-              {syncData
-                .filter((item) =>
-                  item.CampaignID.toLowerCase().includes(
-                    syncSearch.toLowerCase()
-                  )
-                )
-                .map((item, index) => (
-                  <tr
-                    key={index}
-                    className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="py-2 px-3">{item.CampaignID}</td>
-                    <td className="py-2 px-3">{item.ScanCount}</td>
-                    <td className="py-2 px-3">
-                      {new Date(item.ScannedAt).toLocaleString()}
-                    </td>
-                    <td className="py-2 px-3">
-                      <button
-                        onClick={() => syncByCampaign(item.CampaignID)}
-                        className="bg-[#412666] text-white text-xs px-3 py-1 rounded hover:bg-[#5c3b91] transition cursor-pointer">
-                        <SyncAlt />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        )}
-      </section>
-
-      {showStatsModal && qrStats && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
-            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
-              QR-Scan Statistiken
+      {showStatisticsModal && selectedQRCode && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
+          <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-bold text-[#412666] mb-4 text-center">
+              QR-Code Statistik
             </h2>
-
-            <div className="space-y-4 text-sm text-gray-700 max-h-[400px] overflow-y-auto pr-2">
-              <div className="border border-gray-200 rounded-lg p-4 shadow-sm bg-gray-50">
-                <div className="flex justify-between">
-                  <span className="font-semibold">Gesamte Scans:</span>
-                  <span>{qrStats.total}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-semibold">Synchronisiert:</span>
-                  <span className="text-green-600">{qrStats.synced}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-semibold">Ausstehend:</span>
-                  <span className="text-red-500">{qrStats.pending}</span>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
+              <div>
+                <strong>ID:</strong> {selectedQRCode.id}
               </div>
-
-              <div className="border border-gray-200 rounded-lg p-4 shadow-sm bg-gray-50">
-                <h3 className="font-semibold mb-2">Scans nach Datum</h3>
-                {qrStats.labels.map((label, i) => (
-                  <div key={i} className="flex justify-between">
-                    <span>{label}</span>
-                    <span>{qrStats.values[i]}</span>
-                  </div>
-                ))}
+              <div>
+                <strong>URL:</strong> {selectedQRCode.url}
+              </div>
+              <div>
+                <strong>Short URL:</strong> {selectedQRCode.shorturl}
+              </div>
+              <div>
+                <strong>QR Bild:</strong>{" "}
+                <a
+                  href={selectedQRCode.qr}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-500 underline">
+                  Anzeigen
+                </a>
+              </div>
+              <div>
+                <strong>Erstellt am:</strong> {selectedQRCode.creationdate}
+              </div>
+              <div>
+                <strong>Erste Anfrage:</strong>{" "}
+                {selectedQRCode.firstrequestdate}
+              </div>
+              <div>
+                <strong>Letzte Anfrage:</strong>{" "}
+                {selectedQRCode.lastrequestdate}
+              </div>
+              <div>
+                <strong>Gesamte Anfragen:</strong> {selectedQRCode.requestcount}
+              </div>
+              <div>
+                <strong>Einzigartige Besucher:</strong>{" "}
+                {selectedQRCode.uniqevisitors}
+              </div>
+              <div>
+                <strong>Anfragen pro Tag:</strong> {selectedQRCode.callsperday}
+              </div>
+              <div>
+                <strong>Tage zwischen erster und letzter Anfrage:</strong>{" "}
+                {selectedQRCode.daysbetweenfirstandlastrequest}
+              </div>
+              <div>
+                <strong>Tage seit Erstellung:</strong>{" "}
+                {selectedQRCode.dayssincecreated}
               </div>
             </div>
 
+            <h3 className="text-lg font-semibold mt-6 mb-2">
+              Anfragen Details
+            </h3>
+            <div className="w-full overflow-x-auto">
+              <table className="w-full text-sm sm:text-xs text-left border border-gray-200 rounded-lg overflow-hidden">
+                <thead className="bg-gray-100 text-[#412666]">
+                  <tr>
+                    <th className="p-3 whitespace-nowrap">Datum</th>
+                    <th className="p-3 whitespace-nowrap">Uhrzeit</th>
+                    <th className="p-3 whitespace-nowrap">Stadt</th>
+                    <th className="p-3 whitespace-nowrap">Region</th>
+                    <th className="p-3 whitespace-nowrap">Gerät</th>
+                    <th className="p-3 whitespace-nowrap">OS</th>
+                    <th className="p-3 whitespace-nowrap">Browser</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedQRCode.requests.map((req, i) => (
+                    <tr
+                      key={i}
+                      className="border-b hover:bg-gray-50 text-gray-700">
+                      <td className="p-3">{req.requestdate}</td>
+                      <td className="p-3">{req.localscantime}</td>
+                      <td className="p-3">{req.city}</td>
+                      <td className="p-3">{req.region}</td>
+                      <td className="p-3">{req.brand || req.model || "—"}</td>
+                      <td className="p-3">{`${req.os} ${req.osversion}`}</td>
+                      <td className="p-3">{`${req.browser} ${req.browserversion}`}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
             <button
-              onClick={() => setShowStatsModal(false)}
+              onClick={() => setShowStatisticsModal(false)}
               className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
               Schließen
             </button>
           </div>
         </div>
       )}
-      <section className="mt-10 mb-6">
-        <h2 className="text-xl font-bold text-[#412666] mb-2">
-          Bereits synchronisierte QR-Scans
-        </h2>
 
-        <div className="flex justify-between items-center mb-3">
-          <div className="border border-[#412666] rounded-lg px-4 w-1/3 flex items-center gap-2">
-            <Search />
-            <input
-              type="text"
-              placeholder="Suche nach Kampagne..."
-              value={syncedSearch}
-              onChange={(e) => setSyncedSearch(e.target.value)}
-              className="flex-1 border-none py-2 focus:outline-none"
-            />
-          </div>
-        </div>
-
-        {syncedScans.length === 0 ? (
-          <p className="text-sm text-gray-600">
-            Keine synchronisierten Scans gefunden.
-          </p>
-        ) : (
-          <table className="w-full text-sm text-left">
-            <thead className="text-[#412666] border-b border-gray-200">
-              <tr>
-                <th className="py-2 px-3">Kampagne</th>
-                <th className="py-2 px-3">Gerät</th>
-                <th className="py-2 px-3">Standort</th>
-                <th className="py-2 px-3">Gescannt am</th>
-              </tr>
-            </thead>
-            <tbody>
-              {syncedScans
-                .filter((scan) =>
-                  (scan.Campaign || "")
-                    .toLowerCase()
-                    .includes(syncedSearch.toLowerCase())
-                )
-                .map((scan) => (
-                  <tr
-                    key={scan.ID}
-                    className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="py-2 px-3">{scan.Campaign}</td>
-                    <td className="py-2 px-3">{scan.DeviceID}</td>
-                    <td className="py-2 px-3">{scan.Location}</td>
-                    <td className="py-2 px-3">
-                      {new Date(scan.ScannedAt).toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        )}
-      </section>
-      {showQRScanLogsModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full relative">
-            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
-              QR-Scan Logs
+      {showGeoTagsModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold text-[#412666] text-center mb-4">
+              QR GeoTags Statistik
             </h2>
 
-            <div className="space-y-3 max-h-[400px] overflow-y-auto text-sm text-gray-700">
-              {qrScanLogs.length === 0 ? (
-                <p className="text-center text-gray-500">
-                  Keine Logs gefunden.
-                </p>
-              ) : (
-                qrScanLogs.map((log) => (
-                  <div
-                    key={log.id}
-                    className="border rounded-lg p-4 bg-gray-50 shadow-sm space-y-1 cursor-pointer"
-                    onClick={() => fetchQRScanLogByID(log.id)}>
-                    <div>
-                      <strong>Aktion:</strong> {log.action}
-                    </div>
-                    <div>
-                      <strong>Details:</strong> {log.details}
-                    </div>
-                    <div>
-                      <strong>Entität:</strong> {log.entity}
-                    </div>
-                    <div>
-                      <strong>Entitäts-ID:</strong> {log.entity_id}
-                    </div>
-                    <div>
-                      <strong>Zeitstempel:</strong>{" "}
-                      {new Date(log.timestamp).toLocaleString()}
-                    </div>
-                    <div>
-                      <strong>IP-Adresse:</strong> {log.ip_address}
-                    </div>
-                    <div>
-                      <strong>Kunde-ID:</strong> {log.kunde_id ?? "—"}
-                    </div>
-                    <div>
-                      <strong>User-Agent:</strong> {log.user_agent}
-                    </div>
-                    <div>
-                      <strong>User ID:</strong> {log.user_id}
-                    </div>
-                  </div>
-                ))
-              )}
-              {qrScanLogs.length >= 1 && (
-                <div className="space-x-2 flex items-center justify-between">
-                  <button
-                    onClick={() => handleExportQRScanLogs("csv")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
-                    Exportiere CSV
-                  </button>
+            <div className="grid sm:grid-cols-2 gap-4 text-sm text-gray-700">
+              <div>
+                <b>QR:</b> {geoTags.qr}
+              </div>
+              <div>
+                <b>URL:</b> {geoTags.url}
+              </div>
+              <div>
+                <b>Typ:</b> {geoTags.type}
+              </div>
+              <div>
+                <b>Short URL:</b> {geoTags.shorturl}
+              </div>
+              <div>
+                <b>Besuche:</b> {geoTags.uniqevisitors}
+              </div>
+              <div>
+                <b>Erstellt am:</b> {geoTags.creationdate}
+              </div>
+              <div>
+                <b>Anzahl Anfragen:</b> {geoTags.requestcount}
+              </div>
+              <div>
+                <b>Erste Anfrage:</b> {geoTags.firstrequestdate}
+              </div>
+              <div>
+                <b>Letzte Anfrage:</b> {geoTags.lastrequestdate}
+              </div>
+              <div>
+                <b>Tage seit Erstellung:</b> {geoTags.dayssincecreated}
+              </div>
+            </div>
 
-                  <button
-                    onClick={() => handleExportQRScanLogs("xlsx")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
-                    Exportiere XLSX
-                  </button>
+            <h3 className="text-lg font-semibold mt-6 mb-2 text-[#412666]">
+              Einzelne Geo-Requests
+            </h3>
 
-                  <button
-                    onClick={() => handleExportQRScanLogs("pdf")}
-                    className="border border-[#412666] px-4 py-2 rounded-lg text-sm hover:bg-[#412666] hover:text-white transition-all">
-                    Exportiere PDF
-                  </button>
-                </div>
-              )}
+            <div className="overflow-auto">
+              <table className="w-full text-xs text-left border border-gray-200">
+                <thead className="bg-gray-100 text-[#412666]">
+                  <tr>
+                    <th className="p-2">Zeit</th>
+                    <th className="p-2">Browser</th>
+                    <th className="p-2">Gerät</th>
+                    <th className="p-2">OS</th>
+                    <th className="p-2">Stadt</th>
+                    <th className="p-2">Region</th>
+                    <th className="p-2">Land</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {geoTags?.requests?.map((r, i) => (
+                    <tr key={i} className="border-b hover:bg-gray-50">
+                      <td className="p-2">{`${r.requestdate} ${r.localscantime}`}</td>
+                      <td className="p-2">{`${r.browser} ${r.browserversion}`}</td>
+                      <td className="p-2">{r.model || "—"}</td>
+                      <td className="p-2">{`${r.os} ${r.osversion}`}</td>
+                      <td className="p-2">{r.city}</td>
+                      <td className="p-2">{r.region}</td>
+                      <td className="p-2">{r.country}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
             <button
-              onClick={() => setShowQRScanLogsModal(false)}
-              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              onClick={() => setShowGeoTagsModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded hover:bg-[#341f4f] transition">
               Schließen
             </button>
           </div>
         </div>
       )}
-      {showQRScanLogDetailModal && qrScanLogDetail && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full relative">
-            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
-              QR-Scan Log Details
+
+      {showScanLocationsModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-2 sm:px-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#412666] text-center mb-4">
+              Scan Locations Übersicht
             </h2>
 
-            <div className="space-y-2 text-sm text-gray-700">
-              <div>
-                <strong>Aktion:</strong> {qrScanLogDetail.action}
-              </div>
-              <div>
-                <strong>Details:</strong> {qrScanLogDetail.details}
-              </div>
-              <div>
-                <strong>Entität:</strong> {qrScanLogDetail.entity}
-              </div>
-              <div>
-                <strong>Entitäts-ID:</strong> {qrScanLogDetail.entity_id}
-              </div>
-              <div>
-                <strong>ID:</strong> {qrScanLogDetail.id}
-              </div>
-              <div>
-                <strong>IP-Adresse:</strong> {qrScanLogDetail.ip_address}
-              </div>
-              <div>
-                <strong>Kunde-ID:</strong> {qrScanLogDetail.kunde_id ?? "—"}
-              </div>
-              <div>
-                <strong>Timestamp:</strong>{" "}
-                {new Date(qrScanLogDetail.timestamp).toLocaleString()}
-              </div>
-              <div>
-                <strong>User-Agent:</strong> {qrScanLogDetail.user_agent}
-              </div>
-              <div>
-                <strong>User ID:</strong> {qrScanLogDetail.user_id}
-              </div>
+            <div className="w-full overflow-x-auto">
+              <table className="w-full text-sm sm:text-xs text-left border border-gray-200 rounded-lg overflow-hidden">
+                <thead className="bg-gray-100 text-[#412666]">
+                  <tr>
+                    <th className="p-3 whitespace-nowrap">QR</th>
+                    <th className="p-3 whitespace-nowrap">URL</th>
+                    <th className="p-3 whitespace-nowrap">Gerät</th>
+                    <th className="p-3 whitespace-nowrap">Adresse</th>
+                    <th className="p-3 whitespace-nowrap">Latitude</th>
+                    <th className="p-3 whitespace-nowrap">Longitude</th>
+                    <th className="p-3 whitespace-nowrap">Scan Datum</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {qrScanLocations.map((scan, index) => (
+                    <tr
+                      key={index}
+                      className="border-b hover:bg-gray-50 text-gray-700">
+                      <td className="p-3 break-all">{scan.qr}</td>
+                      <td className="p-3 break-all">{scan.url}</td>
+                      <td className="p-3">{scan.device || "—"}</td>
+                      <td className="p-3">{scan.location.address || "—"}</td>
+                      <td className="p-3">{scan.location.lat || "—"}</td>
+                      <td className="p-3">{scan.location.lng || "—"}</td>
+                      <td className="p-3">{scan.scandate}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
             <button
-              onClick={() => setShowQRScanLogDetailModal(false)}
+              onClick={() => setShowScanLocationsModal(false)}
               className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition">
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showCustomerQRStatsModal && customerQRStats && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold text-[#412666] text-center mb-4">
+              QR Kampagnen-Statistiken
+            </h2>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm sm:text-xs text-left border border-gray-200 rounded-lg overflow-hidden">
+                <thead className="bg-gray-100 text-[#412666]">
+                  <tr>
+                    <th className="p-3 whitespace-nowrap">Kampagne</th>
+                    <th className="p-3 whitespace-nowrap">QR-Code</th>
+                    <th className="p-3 whitespace-nowrap">Letzter Scan</th>
+                    <th className="p-3 whitespace-nowrap">Scans</th>
+                    <th className="p-3 whitespace-nowrap">Eindeutige Scans</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {customerQRStats.map((item, idx) => (
+                    <tr
+                      key={idx}
+                      className="border-b hover:bg-gray-50 text-gray-700">
+                      <td className="p-3">{item.CampaignName}</td>
+                      <td className="p-3">
+                        <a
+                          href={item.QRCode}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 underline break-all">
+                          {item.QRCode}
+                        </a>
+                      </td>
+                      <td className="p-3">{item.LastScan}</td>
+                      <td className="p-3">{item.Scans}</td>
+                      <td className="p-3">{item.UniqueScans}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <button
+              onClick={() => setShowCustomerQRStatsModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded hover:bg-[#341f4f] transition">
               Schließen
             </button>
           </div>
