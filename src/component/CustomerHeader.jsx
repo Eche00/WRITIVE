@@ -87,6 +87,15 @@ function CustomerHeader() {
               }>
               Produktionsübersicht
             </NavLink>
+            <NavLink
+              to="/customer/qr"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-[14px] font-bold text-[#412666]"
+                  : " text-[14px] font-bold text-gray-600"
+              }>
+              QR-Code-Verarbeitung
+            </NavLink>
           </nav>
         )}
         {token && (
@@ -145,6 +154,15 @@ function CustomerHeader() {
                     : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
                 }>
                 Produktionsübersicht
+              </NavLink>
+              <NavLink
+                to="/customer/qr"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-[14px] font-bold text-[#412666] p-3 border-b border-gray-200"
+                    : " text-[14px] font-bold text-gray-600 p-3 border-b border-gray-200"
+                }>
+                QR-Code-Verarbeitung
               </NavLink>
             </nav>
           </div>
