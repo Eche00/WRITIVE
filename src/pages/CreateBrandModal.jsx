@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 const CreateBrandModal = ({ createModal, setCreateModal, fetchBrands }) => {
   const [customers, setCustomers] = useState([]);
@@ -53,15 +54,17 @@ const CreateBrandModal = ({ createModal, setCreateModal, fetchBrands }) => {
       const data = await res.json();
 
       if (res.status === 201) {
-        // alert(data.message);
         fetchBrands();
         setCreateModal(false);
+        toast.success("Marke erfolgreich erstellt.");
       } else {
         setError(data.error);
+        toast.error(data.error || "Ein Fehler ist aufgetreten.");
       }
     } catch (err) {
       console.error("Creation failed:", err);
       setError("Ein Fehler ist aufgetreten. Bitte versuche es erneut.");
+      toast.error("Ein Fehler ist aufgetreten. Bitte versuche es erneut.");
     }
   };
 
