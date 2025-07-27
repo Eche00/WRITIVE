@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 const VerifyOtpModal = ({ email, show, setShow }) => {
   const [otp, setOtp] = useState("");
@@ -23,17 +24,20 @@ const VerifyOtpModal = ({ email, show, setShow }) => {
       const data = await res.json();
 
       if (res.ok) {
-        setFeedback(" Registrierung erfolgreich bestätigt.");
+        setFeedback("Registrierung erfolgreich bestätigt.");
+        toast.success("Registrierung erfolgreich bestätigt.");
         setTimeout(() => {
           setShow(false);
           navigate("/signin");
         }, 2000);
       } else {
-        setFeedback(data.message || " OTP ungültig.");
+        setFeedback(data.message || "OTP ungültig.");
+        toast.error(data.message || "OTP ungültig.");
       }
     } catch (err) {
       console.error(err);
-      setFeedback(" Netzwerkfehler beim Verifizieren.");
+      setFeedback("Netzwerkfehler beim Verifizieren.");
+      toast.error("Netzwerkfehler beim Verifizieren.");
     } finally {
       setLoading(false);
     }

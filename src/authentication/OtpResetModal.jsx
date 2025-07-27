@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 const OtpResetModal = ({
   show,
@@ -33,16 +34,20 @@ const OtpResetModal = ({
       const data = await res.json();
       if (res.ok) {
         setSuccessMsg("Passwort wurde erfolgreich zurückgesetzt.");
+        toast.success("Passwort erfolgreich zurückgesetzt.");
         setTimeout(() => {
           setShow(false);
           navigate("/signin");
         }, 2000);
       } else {
-        setErrorMsg(data?.error || "Fehler beim Zurücksetzen.");
+        const error = data?.error || "Fehler beim Zurücksetzen.";
+        setErrorMsg(error);
+        toast.error(error);
       }
     } catch (err) {
       console.error(err);
-      setErrorMsg(" Netzwerkfehler beim Zurücksetzen.");
+      setErrorMsg("Netzwerkfehler beim Zurücksetzen.");
+      toast.error("Netzwerkfehler beim Zurücksetzen.");
     }
   };
 

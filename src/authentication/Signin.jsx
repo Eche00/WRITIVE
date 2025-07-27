@@ -5,6 +5,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 function Signin() {
   const [formData, setFormData] = useState({
@@ -57,12 +58,14 @@ function Signin() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setEmailError(true);
+      toast.error("Bitte gib eine gültige E-Mail-Adresse ein.");
       setLoading(false);
       return;
     }
 
     if (formData.password.length === 0) {
       setPasswordError(true);
+      toast.error("Bitte gib dein Passwort ein.");
       setLoading(false);
       return;
     }
@@ -80,7 +83,7 @@ function Signin() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result?.message ?? "Login failed");
+        throw new Error(result?.message ?? "Login fehlgeschlagen.");
       }
 
       // Save token and user info
@@ -89,17 +92,19 @@ function Signin() {
       localStorage.setItem("is_admin", result.is_admin);
       localStorage.setItem("userEmail", formData.email);
 
+      toast.success("Login erfolgreich!");
+
       // redirect to homepage
       if (result.is_admin) {
-        navigate("/admin/home"); //  admin route t
+        navigate("/admin/home");
       } else {
-        navigate("/customer/home"); // customer
+        navigate("/customer/home");
       }
     } catch (error) {
-      // handle backend error response
       setError(
         error.message || "Etwas ist schiefgelaufen. Bitte versuche es erneut."
       );
+      toast.error(error.message || "Fehler beim Login.");
     } finally {
       setLoading(false);
     }

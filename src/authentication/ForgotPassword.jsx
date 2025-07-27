@@ -5,6 +5,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import EmailIcon from "@mui/icons-material/Email";
 import OtpResetModal from "./OtpResetModal";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 function ForgotPassword() {
   const [formData, setFormData] = useState({
@@ -43,6 +44,7 @@ function ForgotPassword() {
     // Basic validation
     if (!formData.email.includes("@")) {
       setEmailError(true);
+      toast.error("Ungültige E-Mail-Adresse.");
       setLoading(false);
       return;
     }
@@ -57,15 +59,18 @@ function ForgotPassword() {
       const data = await response.json();
 
       if (response.ok) {
+        toast.success("OTP gesendet. Bitte überprüfen Sie Ihre E-Mail.");
         setSuccess(true);
         setShowOTPModal(true);
         setMessageError(false);
       } else {
         setMessageError(data?.error || "Ein Fehler ist aufgetreten.");
+        toast.error(data?.error || "Ein Fehler ist aufgetreten.");
       }
     } catch (error) {
       console.error("Fehler beim Zurücksetzen des Passworts:", error);
       setMessageError("Netzwerkfehler oder ungültige Antwort.");
+      toast.error("Netzwerkfehler oder ungültige Antwort.");
     } finally {
       setLoading(false);
     }

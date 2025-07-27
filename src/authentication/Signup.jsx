@@ -6,6 +6,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VerifyOtpModal from "./VerifyOtpModal";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -46,11 +47,13 @@ function Signup() {
 
     if (!formData.email.includes("@")) {
       setEmailError(true);
+      toast.error("Bitte gib eine gültige E-Mail-Adresse ein.");
       setLoading(false);
       return;
     }
     if (formData.password.length < 8) {
       setPasswordError(true);
+      toast.error("Das Passwort muss mindestens 8 Zeichen lang sein.");
       setLoading(false);
       return;
     }
@@ -73,11 +76,14 @@ function Signup() {
       localStorage.setItem("userEmail", formData.email);
 
       if (!response.ok) {
-        throw new Error(result.message || "Registration failed");
+        throw new Error(result.message || "Registrierung fehlgeschlagen");
       }
+
+      toast.success("Registrierung erfolgreich. Bitte OTP eingeben.");
       setShowOtpModal(true);
     } catch (err) {
       setError(err.message);
+      toast.error(err.message || "Ein Fehler ist aufgetreten.");
     } finally {
       setLoading(false);
     }
