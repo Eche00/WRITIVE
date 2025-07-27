@@ -23,10 +23,12 @@ import Categories from "./pages/Categories";
 import Articles from "./pages/Articles";
 import CustomerProduction from "./customer/CustomerProduction";
 import CustomerQr from "./customer/CustomerQr";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
     <div className=" text-white  overflow-hidden bg-white  dark:bg-[#1F1F1F]">
+      <Toaster position="top-right" reverseOrder={false} />
       <Routes>
         {/* Auth Routes */}
         <Route path="/signin" element={<Signin />} />
