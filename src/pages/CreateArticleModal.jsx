@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
   const [formData, setFormData] = useState({
@@ -77,6 +78,7 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
 
     if (!token) {
       setMessage("No token found. Please log in.");
+      toast.error("Kein Token gefunden. Bitte einloggen.");
       setLoading(false);
       return;
     }
@@ -84,6 +86,7 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
     for (let key in formData) {
       if (!formData[key]) {
         setMessage(`Field "${key}" cannot be empty.`);
+        toast.error(`Feld "${key}" darf nicht leer sein.`);
         setLoading(false);
         return;
       }
@@ -109,6 +112,7 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
 
       if (res.ok) {
         setMessage(data.message || "Artikel erfolgreich erstellt.");
+        toast.success(data.message || "Artikel erfolgreich erstellt.");
         onCreated?.(data.artikel);
         setFormData({
           BrandID: "",
@@ -125,22 +129,25 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
           Sonstige_Infos: "",
           StueckzahlProMonat: "",
           MusterkarteDesign: "",
-        }); // ✅ Reset form here
+        });
         setUploading(false);
         setUploadMessage("");
         setTimeout(() => setShowModal(false), 1500);
       } else {
         setMessage(data.message || "Fehler beim Erstellen des Artikels.");
+        toast.error(data.message || "Fehler beim Erstellen des Artikels.");
       }
     } catch (err) {
       console.error("Netzwerkfehler:", err);
       setMessage("Serverfehler. Bitte erneut versuchen.");
+      toast.error("Serverfehler. Bitte erneut versuchen.");
     } finally {
       setLoading(false);
     }
   };
 
   if (!showModal) return null;
+
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -170,12 +177,15 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
           MusterkarteDesign: data.filename,
         }));
         setUploadMessage(data.message || "Upload erfolgreich.");
+        toast.success(data.message || "Upload erfolgreich.");
       } else {
         setUploadMessage(data.message || "Fehler beim Hochladen.");
+        toast.error(data.message || "Fehler beim Hochladen.");
       }
     } catch (err) {
       console.error("Upload error:", err);
       setUploadMessage("Fehler beim Upload.");
+      toast.error("Fehler beim Upload.");
     } finally {
       setUploading(false);
     }
