@@ -5,6 +5,7 @@ import UpdateCustomerModal from "./UpdateCustomerModal";
 import CreateCustomerModal from "./CreateCustomerModal";
 import { motion } from "framer-motion";
 import { BASE_URL } from "../lib/baseurl";
+import toast from "react-hot-toast";
 
 const Users = () => {
   const [customers, setCustomers] = useState([]);
@@ -25,12 +26,13 @@ const Users = () => {
   const [auditLogs, setAuditLogs] = useState([]);
   const [selectedCustomerID, setSelectedCustomerID] = useState(null);
 
+  // FETCHING CUSTOMERS
   const fetchCustomers = async (query = "") => {
     setLoading(true);
     setShowingArchived(false);
 
     try {
-      const token = localStorage.getItem("token"); // or however you store the token
+      const token = localStorage.getItem("token");
       const res = await fetch(
         `${BASE_URL}/customers/?status=active&search=${query}`,
         {
@@ -38,20 +40,25 @@ const Users = () => {
           headers: {
             Authorization: "Bearer " + token,
             "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "true", // <-- this fixes it
+            "ngrok-skip-browser-warning": "true",
           },
         }
       );
+
       const data = await res.json();
       setCustomers(data.customers || []);
       setFiltered(data.customers || []);
+
+      toast.success("Kunden erfolgreich abgerufen!");
     } catch (err) {
       console.error("Error fetching customers:", err);
+      toast.error("Fehler beim Abrufen der Kunden.");
     } finally {
       setLoading(false);
     }
   };
-  // fetch archived users
+
+  //  FETCHING ARCHIVED CUSTOMERS
   const fetchArchivedCustomers = async () => {
     setHideArchived(false);
     setLoading(true);
@@ -67,7 +74,6 @@ const Users = () => {
       });
       const data = await res.json();
 
-      // ✅ Add `is_archived: true` flag locally
       const archivedWithFlag = (data.archived_customers || []).map((c) => ({
         ...c,
         is_archived: true,
@@ -76,8 +82,11 @@ const Users = () => {
       setCustomers(archivedWithFlag);
       setFiltered(archivedWithFlag);
       setShowingArchived(true);
+
+      toast.success("Archivierte Kunden erfolgreich geladen!");
     } catch (err) {
       console.error("Error fetching archived customers:", err);
+      toast.error("Fehler beim Laden der archivierten Kunden.");
     } finally {
       setLoading(false);
     }
@@ -104,10 +113,10 @@ const Users = () => {
     }
   }, [search, customers]);
 
-  // fetching customer details
+  // FETCHING CUSTOMER DETAILS
   const fetchCustomerDetails = async (id) => {
     try {
-      const token = localStorage.getItem("token"); // retrieve saved token
+      const token = localStorage.getItem("token");
       const res = await fetch(`${BASE_URL}/customers/${id}`, {
         method: "GET",
         headers: {
@@ -119,15 +128,17 @@ const Users = () => {
       const data = await res.json();
       setSelectedCustomer(data);
       setShowModal(true);
+      toast.success("Customer details loaded successfully!");
     } catch (err) {
       console.error("Detail fetch failed:", err);
+      toast.error("Failed to load customer details.");
     }
   };
 
-  // handling archiving user
+  // HANDLING ARCHIVE USERS
   const handleArchive = async (id) => {
     try {
-      const token = localStorage.getItem("token"); // retrieve saved token
+      const token = localStorage.getItem("token");
       await fetch(`${BASE_URL}/customers/${id}/archive`, {
         method: "PUT",
         headers: {
@@ -136,13 +147,15 @@ const Users = () => {
           "ngrok-skip-browser-warning": "true",
         },
       });
+      toast.success("Benutzer erfolgreich archiviert.");
       fetchCustomers();
     } catch (err) {
       console.error(err);
+      toast.error("Benutzer konnte nicht archiviert werden.");
     }
   };
 
-  // handling restore
+  // HANDLING RESTORE USERS
   const handleRestore = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -154,12 +167,15 @@ const Users = () => {
           "ngrok-skip-browser-warning": "true",
         },
       });
+      toast.success("Benutzer wurde erfolgreich wiederhergestellt.");
       fetchCustomers();
     } catch (err) {
       console.error(err);
+      toast.error("Benutzer konnte nicht wiederhergestellt werden.");
     }
   };
 
+  // HANDLING DELETE USERS
   const handleDelete = async (id) => {
     const token = localStorage.getItem("token");
     try {
@@ -172,12 +188,15 @@ const Users = () => {
         },
       });
 
+      toast.success("Benutzer dauerhaft gelöscht.");
       fetchCustomers();
     } catch (err) {
       console.error(err);
+      toast.error("Benutzer konnte nicht gelöscht werden.");
     }
   };
 
+  // HANDLING AUDIT FETCH FOR USERS
   const fetchAuditLogs = async (customerID) => {
     const token = localStorage.getItem("token");
 
@@ -191,21 +210,28 @@ const Users = () => {
         },
       });
 
-      if (!res.ok) throw new Error("Fehler beim Laden der Logs");
+      if (!res.ok) {
+        toast.error("Fehler beim Laden der Logs");
+        throw new Error("Fehler beim Laden der Logs");
+      }
 
       const data = await res.json();
       setAuditLogs(data);
       setSelectedCustomerID(customerID);
       setShowAuditLogsModal(true);
+      toast.success("Logs erfolgreich geladen");
     } catch (err) {
       console.error(err);
+      toast.error("Fehler beim Abrufen der Audit-Logs");
     }
   };
 
+  // HANDLING EXPORT
   const handleExport = (format) => {
     window.open(`${BASE_URL}/customers/export/${format}`, "_blank");
   };
 
+  // HANDLING EXPORTING USER LOGS
   const exportCustomerLogs = (format, kundeId = null) => {
     const query = new URLSearchParams({ format });
     if (kundeId) query.append("kunde_id", kundeId);
