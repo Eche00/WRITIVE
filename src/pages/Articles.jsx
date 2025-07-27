@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
-import {
-  BarChart,
-  Delete,
-  Edit,
-  Search,
-  Visibility,
-} from "@mui/icons-material";
+import { Search, Visibility } from "@mui/icons-material";
 import CreateArticleModal from "./CreateArticleModal";
 import EditArticleModal from "./EditArticleModal";
 import UserLoader from "../component/UserLoader";
 import { motion } from "framer-motion";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 const Articles = ({ setViewarticles }) => {
   const [articles, setArticles] = useState([]);
@@ -144,9 +139,11 @@ const Articles = ({ setViewarticles }) => {
         },
         body: JSON.stringify(payload),
       });
+      toast.success("Artikel erfolgreich gelöscht.");
       fetchArticles();
     } catch (err) {
       console.error("Delete failed:", err);
+      toast.error("Fehler beim Löschen des Artikels.");
     }
   };
 
