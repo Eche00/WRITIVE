@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 const UpdateBrandModal = ({ brand, setEditModal, fetchBrands }) => {
   const [brandData, setBrandData] = useState({
@@ -17,11 +18,13 @@ const UpdateBrandModal = ({ brand, setEditModal, fetchBrands }) => {
     }
   }, [brand]);
 
+  // HANDLING CHANGING OF THE CUSTOMER DETAILS
   const handleChange = (e) => {
     const { name, value } = e.target;
     setBrandData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // HANDLING THE SUBMISSION OF UPDATED INFO
   const handleSubmit = async () => {
     setError(null);
     try {
@@ -41,12 +44,15 @@ const UpdateBrandModal = ({ brand, setEditModal, fetchBrands }) => {
       if (res.status === 200) {
         fetchBrands();
         setEditModal(false);
+        toast.success("Marke erfolgreich aktualisiert!");
       } else {
         setError(data.error);
+        toast.error(data.error || "Aktualisierung fehlgeschlagen.");
       }
     } catch (err) {
       console.error("Update failed:", err);
       setError("Ein Fehler ist aufgetreten. Bitte versuche es erneut.");
+      toast.error("Ein Fehler ist aufgetreten. Bitte versuche es erneut.");
     }
   };
 
