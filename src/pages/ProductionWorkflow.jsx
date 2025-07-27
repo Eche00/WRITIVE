@@ -3,6 +3,7 @@ import { Add } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import UserLoader from "../component/UserLoader";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 const ProductionWorkflow = () => {
   const [productions, setProductions] = useState([]);
@@ -56,7 +57,7 @@ const ProductionWorkflow = () => {
     StandardStueckzahl: "",
   });
   const [logExportProductionOpen, setLogExportProductionOpen] = useState(false);
-
+  // ALL FETCHING
   const fetchProductions = async () => {
     setLoading(true);
     try {
@@ -163,6 +164,7 @@ const ProductionWorkflow = () => {
     }
   };
 
+  // HANDLING CREATE PRODUCTION
   const handleCreateProduction = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -187,8 +189,9 @@ const ProductionWorkflow = () => {
         throw new Error(data.message || "Creation failed.");
       }
 
-      // Optional: Show message or update UI with data.production
-      console.log("✅ Created:", data.production);
+      console.log("Created:", data.production);
+
+      toast.success("Produktion erfolgreich erstellt!");
 
       setNewProduction({
         KundeID: "",
@@ -202,10 +205,12 @@ const ProductionWorkflow = () => {
       setShowCreateModal(false);
       fetchProductions(); // Refresh list
     } catch (err) {
-      console.log("❌ Failed to create production:", err.message);
+      console.log("Failed to create production:", err.message);
+      toast.error("Produktion konnte nicht erstellt werden");
     }
   };
 
+  // HANDLING UPDATING PRODUCTION
   const handleUpdateProduction = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -232,16 +237,19 @@ const ProductionWorkflow = () => {
       }
 
       const data = await res.json();
-      console.log("✅ Update success:", data.message);
+      console.log("Update success:", data.message);
+      toast.success("Produktion erfolgreich aktualisiert");
 
       setEditingProductionId(null);
       setEditingProduction({});
       fetchProductions();
     } catch (err) {
-      console.error("❌ Update failed:", err);
+      console.error("Update failed:", err);
+      toast.error("Aktualisierung fehlgeschlagen");
     }
   };
 
+  // HANDLING DELETE PRODUCTION
   const handleDeleteProduction = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -253,11 +261,16 @@ const ProductionWorkflow = () => {
           "ngrok-skip-browser-warning": "true",
         },
       });
+
+      toast.success("Produktion erfolgreich gelöscht");
       fetchProductions();
     } catch (err) {
       console.error("Delete failed:", err);
+      toast.error("Löschen der Produktion fehlgeschlagen");
     }
   };
+
+  // HANDLING PRODUCTION LOGS
   const fetchProductionLogs = async (productionID) => {
     const token = localStorage.getItem("token");
 
