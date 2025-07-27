@@ -1,20 +1,11 @@
 import React, { useEffect, useState } from "react";
-import {
-  Add,
-  Article,
-  BarChart,
-  BrandingWatermark,
-  Delete,
-  Edit,
-  NoteAdd,
-  Search,
-  Visibility,
-} from "@mui/icons-material";
+import { Add, Search } from "@mui/icons-material";
 import UserLoader from "../component/UserLoader";
 import CreateBrandModal from "./CreateBrandModal";
 import UpdateBrandModal from "./UpdateBrandModal";
 import { motion } from "framer-motion";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 function Brand() {
   const [brands, setBrands] = useState([]);
@@ -216,9 +207,11 @@ function Brand() {
           Authorization: `Bearer ${token}`,
         },
       });
+      toast.success("Marke erfolgreich gelöscht.");
       fetchBrands();
     } catch (err) {
       console.error("Delete brand failed:", err);
+      toast.error("Fehler beim Löschen der Marke.");
     }
   };
 
