@@ -2,6 +2,7 @@ import { Close, DragHandle } from "@mui/icons-material";
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 function Header() {
   const [mobileNav, setMobileNav] = useState(false);
@@ -24,14 +25,15 @@ function Header() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Logout failed");
+        throw new Error(data.message || "Logout fehlgeschlagen");
       }
 
+      toast.success("Erfolgreich abgemeldet.");
       localStorage.clear();
-
       navigate("/signin");
     } catch (err) {
       console.error("Logout error:", err.message);
+      toast.error("Abmeldung fehlgeschlagen. Bitte erneut versuchen.");
     }
   };
 
