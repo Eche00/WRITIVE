@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Add,
-  BarChart,
-  Delete,
-  Edit,
-  Search,
-  Visibility,
-} from "@mui/icons-material";
+import { Add, Search } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import UserLoader from "../component/UserLoader";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 const Booking = () => {
   const [bookings, setBookings] = useState([]);
@@ -207,7 +201,7 @@ const Booking = () => {
           Kategorie: newBooking.Kategorie,
           Bezeichnung: newBooking.Bezeichnung,
           ArtikelID: newBooking.ArtikelID,
-          ProduktionsID: newBooking.ProduktionsID || null, // optional
+          ProduktionsID: newBooking.ProduktionsID || null,
           Buchungswert: parseFloat(newBooking.Buchungswert),
           KundeID: newBooking.KundeID,
         }),
@@ -216,7 +210,7 @@ const Booking = () => {
       const data = await res.json();
 
       if (res.ok) {
-        console.log(data.message || "Buchung erfolgreich erstellt.");
+        toast.success(data.message || "Buchung erfolgreich erstellt.");
         setShowBookingForm(false);
         setNewBooking({
           Buchungstyp: "",
@@ -227,13 +221,14 @@ const Booking = () => {
           Buchungswert: "",
           KundeID: "",
         });
-        fetchBookings(); // Refresh table
+        fetchBookings();
       } else {
         console.error("Buchung fehlgeschlagen:", data);
-        error("Fehler beim Erstellen der Buchung.");
+        toast.error("Fehler beim Erstellen der Buchung.");
       }
     } catch (err) {
       console.error("Buchungserstellung fehlgeschlagen:", err.message);
+      toast.error("Serverfehler bei der Buchungserstellung.");
     }
   };
 
@@ -286,14 +281,17 @@ const Booking = () => {
       const data = await res.json();
 
       if (res.ok) {
-        fetchBookings(); // refresh table
+        toast.success(data.message || "Buchung erfolgreich aktualisiert.");
+        fetchBookings();
         setShowUpdateModal(false);
         setSelectedBooking(null);
       } else {
         console.error("Update failed:", data);
+        toast.error(data.message || "Aktualisierung fehlgeschlagen.");
       }
     } catch (err) {
       console.error("Update error:", err.message);
+      toast.error("Fehler beim Aktualisieren der Buchung.");
     }
   };
 
@@ -364,9 +362,11 @@ const Booking = () => {
           "ngrok-skip-browser-warning": "true",
         },
       });
+      toast.success("Buchung erfolgreich gelöscht.");
       fetchBookings();
     } catch (err) {
       console.error("Error deleting booking:", err);
+      toast.error("Fehler beim Löschen der Buchung.");
     }
   };
 
