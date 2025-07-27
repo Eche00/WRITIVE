@@ -3,6 +3,7 @@ import { Delete, Edit, Search, Save, Add, BarChart } from "@mui/icons-material";
 import UserLoader from "../component/UserLoader";
 import { motion } from "framer-motion";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -51,15 +52,18 @@ const Categories = () => {
         body: JSON.stringify({ Name: newCategory }),
       });
       const data = await res.json();
+
       if (data.category) {
         setNewCategory("");
         fetchCategories();
+        toast.success("Kategorie erfolgreich hinzugefügt.");
       } else {
-        // alert(data.error || "Fehler beim Erstellen.");
         console.log(data.error || "Fehler beim Erstellen.");
+        toast.error(data.error || "Fehler beim Erstellen.");
       }
     } catch (err) {
       console.error("Add failed:", err);
+      toast.error("Fehler beim Erstellen der Kategorie.");
     }
   };
 
@@ -78,10 +82,13 @@ const Categories = () => {
       setEditingId(null);
       setEditingName("");
       fetchCategories();
+      toast.success("Kategorie erfolgreich aktualisiert.");
     } catch (err) {
       console.error("Update failed:", err);
+      toast.error("Aktualisierung der Kategorie fehlgeschlagen.");
     }
   };
+
   const fetchCategoryLogs = async (categoryID) => {
     const token = localStorage.getItem("token");
 
@@ -142,8 +149,10 @@ const Categories = () => {
         },
       });
       fetchCategories();
+      toast.success("Kategorie erfolgreich gelöscht.");
     } catch (err) {
       console.error("Delete failed:", err);
+      toast.error("Löschen der Kategorie fehlgeschlagen.");
     }
   };
 
