@@ -190,7 +190,7 @@ function CustomerProfile() {
                                   return (
                                     <div
                                       key={step}
-                                      className="flex flex-col items-center relative min-w-[120px] group">
+                                      className="flex flex-col items-center relative min-w-[120px] group ">
                                       {/* Connector line */}
                                       {!isLast && (
                                         <div
@@ -221,10 +221,10 @@ function CustomerProfile() {
                                       </div>
                                       {/* Label */}
                                       <div
-                                        className={`text-xs text-center ${
+                                        className={`text-xs text-center mr-10 ${
                                           p.Status === "Order Completed" &&
                                           isLast
-                                            ? "text-[#412666] text-3xl font-extrabold"
+                                            ? "text-[#412666] text-2xl font-extrabold"
                                             : "text-gray-700 font-bold"
                                         } max-w-[110px] group-hover:text-[#412666] cursor-pointer `}>
                                         {step}
