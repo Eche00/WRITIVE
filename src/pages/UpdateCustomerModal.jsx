@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
   const [customerData, setCustomerData] = useState({
@@ -14,7 +15,7 @@ const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
   });
 
   const [error, setError] = useState(null);
-
+  // DISPLAY DETAILS CUSTOMER TO UPDATE
   useEffect(() => {
     if (customer) {
       setCustomerData({
@@ -30,6 +31,7 @@ const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
     }
   }, [customer]);
 
+  // HANDLING CHANGING OF THE CUSTOMER DETAILS
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "is_active") return;
@@ -40,6 +42,7 @@ const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
     }));
   };
 
+  // HANDLING THE SUBMISSION OF UPDATED INFO
   const handleSubmit = async () => {
     setError(null);
     try {
@@ -59,12 +62,15 @@ const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
       if (res.ok) {
         fetchCustomers();
         setEditModal(false);
+        toast.success("Kundendaten erfolgreich aktualisiert!");
       } else {
         setError(data.message || "Ein Fehler ist aufgetreten.");
+        toast.error(data.message || "Aktualisierung fehlgeschlagen.");
       }
     } catch (err) {
       console.error("Update failed:", err);
       setError("Ein Fehler ist aufgetreten. Bitte versuche es erneut.");
+      toast.error("Ein Fehler ist aufgetreten. Bitte versuche es erneut.");
     }
   };
 
