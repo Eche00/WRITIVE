@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 const CreateCustomerModal = ({ setCreateModal, fetchCustomers }) => {
   const [loading, setLoading] = useState(false);
@@ -12,7 +13,7 @@ const CreateCustomerModal = ({ setCreateModal, fetchCustomers }) => {
     Anrede: "",
     Geburtstag: "",
     MusterAdresse: "",
-    is_active: true, // always true
+    is_active: true,
   });
 
   const [error, setError] = useState(null);
@@ -47,16 +48,22 @@ const CreateCustomerModal = ({ setCreateModal, fetchCustomers }) => {
       if (res.ok) {
         fetchCustomers();
         setCreateModal(false);
+        toast.success("Kunde erfolgreich erstellt.");
       } else {
         if (data.message === "Email bereits vorhanden.") {
           setError("Diese E-Mail-Adresse existiert bereits.");
+          toast.error("Diese E-Mail-Adresse existiert bereits.");
         } else {
           setError(data.message || "Ein Fehler ist aufgetreten.");
+          toast.error(data.message || "Ein Fehler ist aufgetreten.");
         }
       }
     } catch (err) {
       console.error("Create failed:", err);
       setError("Ein Serverfehler ist aufgetreten. Bitte versuche es erneut.");
+      toast.error(
+        "Ein Serverfehler ist aufgetreten. Bitte versuche es erneut."
+      );
     } finally {
       setLoading(false);
     }
