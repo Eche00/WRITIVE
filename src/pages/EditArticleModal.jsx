@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 const EditArticleModal = ({ showModal, setShowModal, artikel, onUpdated }) => {
   const [formData, setFormData] = useState({
@@ -43,6 +44,7 @@ const EditArticleModal = ({ showModal, setShowModal, artikel, onUpdated }) => {
     const token = localStorage.getItem("token");
     if (!token) {
       setMessage("No token found. Please log in.");
+      toast.error("Kein Token gefunden. Bitte einloggen.");
       setLoading(false);
       return;
     }
@@ -50,6 +52,7 @@ const EditArticleModal = ({ showModal, setShowModal, artikel, onUpdated }) => {
     for (let key in formData) {
       if (!formData[key]) {
         setMessage(`Field "${key}" cannot be empty.`);
+        toast.error(`Feld "${key}" darf nicht leer sein.`);
         setLoading(false);
         return;
       }
@@ -75,15 +78,18 @@ const EditArticleModal = ({ showModal, setShowModal, artikel, onUpdated }) => {
 
       if (res.ok) {
         setMessage(data.message || "Artikel erfolgreich aktualisiert.");
+        toast.success(data.message || "Artikel erfolgreich aktualisiert.");
         onUpdated?.(data.artikel);
         setTimeout(() => setShowModal(false), 1500);
       } else {
         console.error("Error response:", res.status, data);
         setMessage(data.message || "Fehler beim Aktualisieren des Artikels.");
+        toast.error(data.message || "Fehler beim Aktualisieren des Artikels.");
       }
     } catch (err) {
       console.error("Network error:", err);
       setMessage("Serverfehler. Bitte erneut versuchen.");
+      toast.error("Serverfehler. Bitte erneut versuchen.");
     } finally {
       setLoading(false);
     }
