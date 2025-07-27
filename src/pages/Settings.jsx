@@ -116,11 +116,14 @@ const Settings = () => {
       if (res.ok) {
         setNewRole({ name: "" }); // Clear input
         fetchSettings(); // Refresh list
+        toast.success("Rolle erfolgreich erstellt!");
       } else {
         console.log(data.error || "Erstellung der Rolle fehlgeschlagen.");
+        toast.error(data.error || "Erstellung der Rolle fehlgeschlagen.");
       }
     } catch (err) {
       console.error("Fehler beim Erstellen der Rolle:", err);
+      toast.error("Fehler beim Erstellen der Rolle.");
     }
   };
 
@@ -142,11 +145,14 @@ const Settings = () => {
 
       if (res.ok) {
         fetchSettings(); // Refresh list
+        toast.success("Rolle erfolgreich gelöscht!");
       } else {
         console.error(data.error || "Löschen der Rolle fehlgeschlagen.");
+        toast.error(data.error || "Löschen der Rolle fehlgeschlagen.");
       }
     } catch (err) {
       console.error("Fehler beim Löschen der Rolle:", err);
+      toast.error("Fehler beim Löschen der Rolle.");
     }
   };
 
@@ -175,11 +181,16 @@ const Settings = () => {
           trigger_condition: "",
         }); // Clear form
         fetchSettings(); // Refresh templates
+        toast.success("E-Mail-Vorlage erfolgreich erstellt!");
       } else {
         console.error(data.error || "Ein Fehler ist aufgetreten.");
+        toast.error(
+          data.error || "Erstellung der E-Mail-Vorlage fehlgeschlagen."
+        );
       }
     } catch (err) {
       console.error("Fehler beim Erstellen der Vorlage:", err);
+      toast.error("Fehler beim Erstellen der E-Mail-Vorlage.");
     }
   };
 
@@ -206,12 +217,17 @@ const Settings = () => {
         setShowTemplateModal(false); // Close modal
         setSelectedTemplate(null); // Clear selection
         fetchSettings(); // Refresh templates
+        toast.success("E-Mail-Vorlage erfolgreich aktualisiert!");
       } else {
         console.log(data.error || "Aktualisierung der Vorlage fehlgeschlagen.");
+        toast.error(
+          data.error || "Aktualisierung der E-Mail-Vorlage fehlgeschlagen."
+        );
       }
     } catch (err) {
       console.error("Fehler beim Aktualisieren der Vorlage:", err);
       console.error("Serverfehler bei der Aktualisierung.");
+      toast.error("Fehler beim Aktualisieren der E-Mail-Vorlage.");
     }
   };
 
@@ -233,11 +249,14 @@ const Settings = () => {
 
       if (res.ok) {
         fetchSettings(); // Refresh templates
+        toast.success("E-Mail-Vorlage erfolgreich gelöscht.");
       } else {
         console.log(data.error || "Löschen der Vorlage fehlgeschlagen.");
+        toast.error(data.error || "Löschen der E-Mail-Vorlage fehlgeschlagen.");
       }
     } catch (err) {
       console.error("Fehler beim Löschen der Vorlage:", err);
+      toast.error("Fehler beim Löschen der E-Mail-Vorlage.");
     }
   };
 
