@@ -3,6 +3,7 @@ import { Search, Sync, Add, SyncAlt } from "@mui/icons-material";
 import { BASE_URL } from "../lib/baseurl";
 import UserLoader from "../component/UserLoader";
 import { motion } from "framer-motion";
+import { toast } from "react-hot-toast";
 
 const QRCodeProcessing = () => {
   const [qrScans, setQrScans] = useState([]);
@@ -52,6 +53,7 @@ const QRCodeProcessing = () => {
     fetchQRScans();
   }, []);
 
+  // FETCHING STATISTICS
   const fetchQrStatistics = async (qrId) => {
     const token = localStorage.getItem("token");
 
@@ -72,11 +74,14 @@ const QRCodeProcessing = () => {
       const data = await res.json();
       setSelectedQRCode(data.result);
       setShowStatisticsModal(true);
+      toast.success("QR-Code-Statistiken erfolgreich geladen");
     } catch (err) {
       console.error(err);
       toast.error("Statistik konnte nicht geladen werden");
     }
   };
+
+  // FETCHING GEOTAGS
   const fetchGeoTags = async () => {
     const token = localStorage.getItem("token");
     console.log("hello");
@@ -98,14 +103,20 @@ const QRCodeProcessing = () => {
       setGeoTags(data.result);
       console.log("DATA" + Object.keys(data.result));
       setShowGeoTagsModal(true);
+
+      toast.success("Geotags erfolgreich geladen!");
     } catch (err) {
       console.error(err);
       console.error("Geotags konnten nicht geladen werden");
+
+      toast.error("Geotags konnten nicht geladen werden");
     }
   };
+
+  // FETCHING QR SCAN LOCATION
   const fetchQrScanLocations = async (qrId) => {
     try {
-      const token = localStorage.getItem("token"); // Adjust based on your auth flow
+      const token = localStorage.getItem("token");
 
       const res = await fetch(`${BASE_URL}/qrplanet/${qrId}/scans/locations`, {
         method: "GET",
@@ -122,11 +133,15 @@ const QRCodeProcessing = () => {
       const data = await res.json();
       setQrScanLocations(data.result.geotags);
       setShowScanLocationsModal(true);
+
+      toast.success("Scan-Locations erfolgreich geladen!");
     } catch (err) {
       console.error(err);
       toast.error("Scan-Locations konnten nicht geladen werden");
     }
   };
+
+  // FETCHING CUSTOMER QR STATISTICS
   const fetchCustomerQRStatistics = async () => {
     const token = localStorage.getItem("token");
 
@@ -146,9 +161,13 @@ const QRCodeProcessing = () => {
       const data = await res.json();
       setCustomerQRStats(data.campaigns || []);
       setShowCustomerQRStatsModal(true);
+
+      toast.success("QR-Statistiken erfolgreich geladen!");
     } catch (err) {
       console.error(err);
       console.error("Kampagnen-Statistiken konnten nicht geladen werden");
+
+      toast.error("QR-Statistiken konnten nicht geladen werden");
     }
   };
 
