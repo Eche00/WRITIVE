@@ -4,6 +4,7 @@ import { Search, Add } from "@mui/icons-material";
 import UserLoader from "../component/UserLoader";
 import { motion } from "framer-motion";
 import { BASE_URL } from "../lib/baseurl";
+import { toast } from "react-hot-toast";
 
 const Campaign = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -124,28 +125,26 @@ const Campaign = () => {
       const data = await res.json();
 
       if (res.ok) {
-        // Success feedback (can be toast/snackbar)
-        // alert("Kampagne erfolgreich erstellt!");
-
+        toast.success("Kampagne erfolgreich erstellt.");
         setShowCreateCampaignModal(false);
 
-        // Reset the form
         setNewCampaign({
           BrandID: "",
           Name: "",
           QRCode: "",
         });
 
-        // Optionally refresh campaigns list if needed
         fetchCampaigns();
       } else {
         console.error(
           "Fehler beim Erstellen der Kampagne:",
           data?.message || data
         );
+        toast.error(data?.message || "Fehler beim Erstellen der Kampagne.");
       }
     } catch (err) {
       console.error("Netzwerkfehler beim Erstellen der Kampagne:", err);
+      toast.error("Netzwerkfehler beim Erstellen der Kampagne.");
     }
   };
 
@@ -191,15 +190,21 @@ const Campaign = () => {
 
       const data = await response.json();
       if (response.ok) {
+        toast.success("Kampagne erfolgreich aktualisiert.");
         setShowUpdateCampaignModal(false);
-        fetchCampaigns(); // refresh the campaign list
+        fetchCampaigns();
       } else {
         console.error("Update error:", data);
+        toast.error(
+          data.message || "Aktualisierung der Kampagne fehlgeschlagen."
+        );
       }
     } catch (error) {
       console.error("Update failed:", error);
+      toast.error("Fehler beim Aktualisieren der Kampagne.");
     }
   };
+
   const handleAddBatch = async () => {
     const token = localStorage.getItem("token");
     try {
@@ -221,18 +226,21 @@ const Campaign = () => {
 
       const data = await res.json();
       if (res.ok) {
+        toast.success("Batch erfolgreich hinzugefügt.");
         setShowAddBatchModal(false);
         setBatchQuantity(0);
         setBatchStatus("pending");
         setBatches(true);
       } else {
         console.error("Batch add error:", data);
+        toast.error(data.message || "Fehler beim Hinzufügen des Batches.");
       }
     } catch (err) {
       console.error("Batch network error:", err);
-      // alert("Netzwerkfehler beim Hinzufügen des Batches.");
+      toast.error("Netzwerkfehler beim Hinzufügen des Batches.");
     }
   };
+
   const fetchCampaignLogs = async (campaignID) => {
     const token = localStorage.getItem("token");
 
@@ -299,35 +307,11 @@ const Campaign = () => {
           "ngrok-skip-browser-warning": "true",
         },
       });
+      toast.success("Kampagne erfolgreich gelöscht.");
       fetchCampaigns();
     } catch (err) {
       console.error("Failed to delete campaign:", err);
-    }
-  };
-  const handleStatusUpdate = async (campaignID, newStatus) => {
-    const token = localStorage.getItem("token");
-    try {
-      const res = await fetch(`${BASE_URL}/campaigns/${campaignID}/status`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify({ Status: newStatus }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        console.error("Status update failed:", data);
-        return;
-      }
-
-      console.log("Status updated:", data);
-      fetchCampaigns(); // Refresh list
-    } catch (err) {
-      console.error("Network error updating status:", err);
+      toast.error("Fehler beim Löschen der Kampagne.");
     }
   };
 
