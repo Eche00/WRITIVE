@@ -11,8 +11,6 @@ const QRCodeProcessing = () => {
   const [search, setSearch] = useState("");
   const [selectedQRCode, setSelectedQRCode] = useState(null);
   const [showStatisticsModal, setShowStatisticsModal] = useState(false);
-  const [geoTags, setGeoTags] = useState(null);
-  const [showGeoTagsModal, setShowGeoTagsModal] = useState(false);
   const [qrScanLocations, setQrScanLocations] = useState([]);
   const [showScanLocationsModal, setShowScanLocationsModal] = useState(false);
   const [customerQRStats, setCustomerQRStats] = useState([]);
@@ -81,38 +79,6 @@ const QRCodeProcessing = () => {
     }
   };
 
-  // FETCHING GEOTAGS
-  const fetchGeoTags = async () => {
-    const token = localStorage.getItem("token");
-    console.log("hello");
-
-    try {
-      const res = await fetch(`${BASE_URL}/qrplanet/geotags`, {
-        method: "GET",
-        headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-        credentials: "include",
-      });
-
-      if (!res.ok) throw new Error("Fehler beim Abrufen der Geotags");
-
-      const data = await res.json();
-      setGeoTags(data.result);
-      console.log("DATA" + Object.keys(data.result));
-      setShowGeoTagsModal(true);
-
-      toast.success("Geotags erfolgreich geladen!");
-    } catch (err) {
-      console.error(err);
-      console.error("Geotags konnten nicht geladen werden");
-
-      toast.error("Geotags konnten nicht geladen werden");
-    }
-  };
-
   // FETCHING QR SCAN LOCATION
   const fetchQrScanLocations = async (qrId) => {
     try {
@@ -178,11 +144,6 @@ const QRCodeProcessing = () => {
           <h3 className="text-xl font-semibold mb-2 text-[#412666]">
             QR-Code-Verarbeitung
           </h3>
-          <button
-            className=" bg-[#412666] text-white px-4 py-2 rounded-full hover:bg-[#341f4f] transition cursor-pointer"
-            onClick={fetchGeoTags}>
-            Alle Geo-Tags
-          </button>
         </div>
       </div>
       {loading ? (
@@ -381,88 +342,6 @@ const QRCodeProcessing = () => {
             <button
               onClick={() => setShowStatisticsModal(false)}
               className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
-              Schließen
-            </button>
-          </div>
-        </div>
-      )}
-
-      {showGeoTagsModal && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold text-[#412666] text-center mb-4">
-              QR GeoTags Statistik
-            </h2>
-
-            <div className="grid sm:grid-cols-2 gap-4 text-sm text-gray-700">
-              <div>
-                <b>QR:</b> {geoTags.qr}
-              </div>
-              <div>
-                <b>URL:</b> {geoTags.url}
-              </div>
-              <div>
-                <b>Typ:</b> {geoTags.type}
-              </div>
-              <div>
-                <b>Short URL:</b> {geoTags.shorturl}
-              </div>
-              <div>
-                <b>Besuche:</b> {geoTags.uniqevisitors}
-              </div>
-              <div>
-                <b>Erstellt am:</b> {geoTags.creationdate}
-              </div>
-              <div>
-                <b>Anzahl Anfragen:</b> {geoTags.requestcount}
-              </div>
-              <div>
-                <b>Erste Anfrage:</b> {geoTags.firstrequestdate}
-              </div>
-              <div>
-                <b>Letzte Anfrage:</b> {geoTags.lastrequestdate}
-              </div>
-              <div>
-                <b>Tage seit Erstellung:</b> {geoTags.dayssincecreated}
-              </div>
-            </div>
-
-            <h3 className="text-lg font-semibold mt-6 mb-2 text-[#412666]">
-              Einzelne Geo-Requests
-            </h3>
-
-            <div className="overflow-auto">
-              <table className="w-full text-xs text-left border border-gray-200">
-                <thead className="bg-gray-100 text-[#412666]">
-                  <tr>
-                    <th className="p-2">Zeit</th>
-                    <th className="p-2">Browser</th>
-                    <th className="p-2">Gerät</th>
-                    <th className="p-2">OS</th>
-                    <th className="p-2">Stadt</th>
-                    <th className="p-2">Region</th>
-                    <th className="p-2">Land</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {geoTags?.requests?.map((r, i) => (
-                    <tr key={i} className="border-b hover:bg-gray-50">
-                      <td className="p-2">{`${r.requestdate} ${r.localscantime}`}</td>
-                      <td className="p-2">{`${r.browser} ${r.browserversion}`}</td>
-                      <td className="p-2">{r.model || "—"}</td>
-                      <td className="p-2">{`${r.os} ${r.osversion}`}</td>
-                      <td className="p-2">{r.city}</td>
-                      <td className="p-2">{r.region}</td>
-                      <td className="p-2">{r.country}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <button
-              onClick={() => setShowGeoTagsModal(false)}
-              className="mt-6 w-full bg-[#412666] text-white py-2 rounded hover:bg-[#341f4f] transition">
               Schließen
             </button>
           </div>
