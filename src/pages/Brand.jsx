@@ -297,7 +297,6 @@ function Brand() {
                 <th className="py-2 px-3">Brandname</th>
                 <th className="py-2 px-3">Kunde-ID</th>
                 <th className="py-2 px-3">Kunde Firma</th>
-                <th className="py-2 px-3">Kontingent</th>
                 <th className="py-2 px-3">Gebuchte </th>
                 <th className="py-2 px-3">Aktionen</th>
               </tr>
@@ -311,7 +310,6 @@ function Brand() {
                   <td className="py-2 px-3">{brand.Brandname}</td>
                   <td className="py-2 px-3">{brand.KundeID || "—"}</td>
                   <td className="py-2 px-3">{brand.KundeFirma || "—"}</td>
-                  <td className="py-2 px-3">{brand.BuchungsKontingent}</td>
                   <td className="py-2 px-3">{brand.Belegt || 0}</td>
 
                   <td className="py-2 px-3 space-x-2">
@@ -462,10 +460,6 @@ function Brand() {
                 <span className="font-semibold">Kunde:</span>
                 <span>{singleBrand.Kunde || "—"}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Kontingent:</span>
-                <span>{singleBrand.BuchungsKontingent}</span>
-              </div>
 
               <div className="flex justify-between">
                 <span className="font-semibold">Archiviert:</span>
@@ -512,10 +506,7 @@ function Brand() {
                       <span className="font-semibold">Kunde:</span>
                       <span>{brand.Kunde || "—"}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Kontingent:</span>
-                      <span>{brand.BuchungsKontingent}</span>
-                    </div>
+
                     <div className="flex justify-between">
                       <span className="font-semibold">Status:</span>
                       <span
@@ -558,10 +549,6 @@ function Brand() {
               <div className="flex justify-between">
                 <span className="font-semibold">Brandname:</span>
                 <span>{kontingentSummary.Brandname}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Kontingent:</span>
-                <span>{kontingentSummary.BuchungsKontingent}</span>
               </div>
             </div>
 
