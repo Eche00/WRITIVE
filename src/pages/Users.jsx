@@ -490,6 +490,10 @@ const Users = () => {
                 <span className="font-semibold">Gebucht:</span>{" "}
                 {selectedCustomer.GesamtStueckzahlGebucht}
               </div>
+              <div>
+                <span className="font-semibold">Gesamtverbleibend:</span>{" "}
+                {selectedCustomer.Gesamtverbleibend}
+              </div>
             </div>
 
             <button
