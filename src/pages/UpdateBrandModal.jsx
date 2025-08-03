@@ -5,7 +5,6 @@ import { toast } from "react-hot-toast";
 const UpdateBrandModal = ({ brand, setEditModal, fetchBrands }) => {
   const [brandData, setBrandData] = useState({
     Brandname: "",
-    BuchungsKontingent: 0,
   });
   const [error, setError] = useState(null);
 
@@ -13,7 +12,6 @@ const UpdateBrandModal = ({ brand, setEditModal, fetchBrands }) => {
     if (brand) {
       setBrandData({
         Brandname: brand.Brandname || "",
-        BuchungsKontingent: brand.BuchungsKontingent || 0,
       });
     }
   }, [brand]);
@@ -72,18 +70,6 @@ const UpdateBrandModal = ({ brand, setEditModal, fetchBrands }) => {
               type="text"
               name="Brandname"
               value={brandData.Brandname}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-3 py-2 rounded"
-            />
-          </div>
-          <div>
-            <label className="font-semibold block mb-1">
-              Buchungskontingent:
-            </label>
-            <input
-              type="number"
-              name="BuchungsKontingent"
-              value={brandData.BuchungsKontingent}
               onChange={handleChange}
               className="w-full border border-gray-300 px-3 py-2 rounded"
             />
