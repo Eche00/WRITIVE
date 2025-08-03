@@ -37,6 +37,8 @@ const Campaign = () => {
     BrandID: "",
     Name: "",
     QRCode: "",
+    Format: "",
+    BuchungsKontingent: 0,
   });
 
   // fetch and store valid articles
@@ -104,6 +106,8 @@ const Campaign = () => {
         id: selectedCampaign.id,
         Name: selectedCampaign.name,
         QRCode: selectedCampaign.qr_code,
+        Format: selectedCampaign.Format,
+        BuchungsKontingent: selectedCampaign.BuchungsKontingent,
       });
     }
   }, [selectedCampaign]);
@@ -132,6 +136,8 @@ const Campaign = () => {
           BrandID: "",
           Name: "",
           QRCode: "",
+          Format: "",
+          BuchungsKontingent: 0,
         });
 
         fetchCampaigns();
@@ -175,6 +181,8 @@ const Campaign = () => {
     const payload = {
       Name: updatedCampaign.Name || "",
       QRCode: updatedCampaign.QRCode || "",
+      Format: updatedCampaign.Format || "",
+      BuchungsKontingent: updatedCampaign.BuchungsKontingent || 0,
     };
 
     try {
@@ -396,6 +404,8 @@ const Campaign = () => {
                   <th className="py-2 px-3">Name</th>
                   <th className="py-2 px-3">Start</th>
                   <th className="py-2 px-3">QR-code</th>
+                  <th className="py-2 px-3">Format</th>
+                  <th className="py-2 px-3">Kontingent</th>
                   <th className="py-2 px-3">Aktionen</th>
                 </tr>
               </thead>
@@ -415,6 +425,9 @@ const Campaign = () => {
                     <td className="py-2 px-3 capitalize  text-blue-500 underline cursor-pointer">
                       <a href={c.qr_code}>{c.qr_code}</a>
                     </td>
+                    <td className="py-2 px-3">{c.Format}</td>
+                    <td className="py-2 px-3">{c.BuchungsKontingent}</td>
+
                     <td className="py-2 px-3 space-x-2">
                       <select
                         onChange={(e) => {
@@ -513,6 +526,43 @@ const Campaign = () => {
                   }
                 />
               </div>
+              <div>
+                <label className="block font-medium mb-1">Format:</label>
+                <select
+                  className="w-full border px-2 py-1 rounded"
+                  value={newCampaign.Format}
+                  onChange={(e) =>
+                    setNewCampaign((prev) => ({
+                      ...prev,
+                      Format: e.target.value,
+                    }))
+                  }>
+                  <option value="">-- Select Format --</option>
+                  <option value="DIN-A6">DIN-A6</option>
+                  <option value="DIN-Lang">DIN-Lang</option>
+                  <option value="Maxipostkarte">Maxipostkarte</option>
+                  <option value="Sonderformat">Sonderformat</option>
+                  <option value="DIN-A6 Postkarte">DIN-A6 Postkarte</option>
+                  <option value="DIN-Lang Postkarte">DIN-Lang Postkarte</option>
+                  <option value="DIN-A4">DIN-A4</option>
+                  <option value="0,70€">0,70€</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-medium">BuchungsKontingent:</label>
+                <input
+                  type="number"
+                  className="w-full border px-2 py-1 rounded"
+                  value={newCampaign.BuchungsKontingent}
+                  onChange={(e) =>
+                    setNewCampaign((prev) => ({
+                      ...prev,
+                      BuchungsKontingent: e.target.value,
+                    }))
+                  }
+                />
+              </div>
             </div>
 
             <div className="flex gap-4 mt-6">
@@ -569,6 +619,14 @@ const Campaign = () => {
                   {new Date(singleCampaign.updated_at).toLocaleDateString()}
                 </span>
               </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">Format:</span>
+                <span>{singleCampaign.Format}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold">BuchungsKontingent:</span>
+                <span>{singleCampaign.BuchungsKontingent}</span>
+              </div>
             </div>
 
             <button
@@ -620,6 +678,43 @@ const Campaign = () => {
                     setUpdatedCampaign((prev) => ({
                       ...prev,
                       QRCode: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Format:</label>
+                <select
+                  className="w-full border px-2 py-1 rounded"
+                  value={updatedCampaign.Format}
+                  onChange={(e) =>
+                    setUpdatedCampaign((prev) => ({
+                      ...prev,
+                      Format: e.target.value,
+                    }))
+                  }>
+                  <option value="">-- Select Format --</option>
+                  <option value="DIN-A6">DIN-A6</option>
+                  <option value="DIN-Lang">DIN-Lang</option>
+                  <option value="Maxipostkarte">Maxipostkarte</option>
+                  <option value="Sonderformat">Sonderformat</option>
+                  <option value="DIN-A6 Postkarte">DIN-A6 Postkarte</option>
+                  <option value="DIN-Lang Postkarte">DIN-Lang Postkarte</option>
+                  <option value="DIN-A4">DIN-A4</option>
+                  <option value="0,70€">0,70€</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-medium">BuchungsKontingent:</label>
+                <input
+                  type="number"
+                  className="w-full border px-2 py-1 rounded"
+                  value={updatedCampaign.BuchungsKontingent}
+                  onChange={(e) =>
+                    setUpdatedCampaign((prev) => ({
+                      ...prev,
+                      BuchungsKontingent: e.target.value,
                     }))
                   }
                 />
