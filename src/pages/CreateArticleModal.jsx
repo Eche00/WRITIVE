@@ -83,7 +83,14 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
       return;
     }
 
-    for (let key in formData) {
+    const requiredFields = Object.keys(formData).filter(
+      (key) =>
+        key !== "ZusatzInfos" &&
+        key !== "Sonstige_Infos" &&
+        key !== "MusterkarteDesign"
+    );
+
+    for (let key of requiredFields) {
       if (!formData[key]) {
         setMessage(`Field "${key}" cannot be empty.`);
         toast.error(`Feld "${key}" darf nicht leer sein.`);
