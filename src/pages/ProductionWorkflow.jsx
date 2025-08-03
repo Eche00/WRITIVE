@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Add } from "@mui/icons-material";
+import { Add, ChangeCircle } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import UserLoader from "../component/UserLoader";
 import { BASE_URL } from "../lib/baseurl";
@@ -45,6 +45,8 @@ const ProductionWorkflow = () => {
     Shipped: "text-teal-600 bg-teal-100",
     "Order Completed": "text-green-600 bg-green-100",
   };
+  const [creditStatus, setCreditStatus] = useState(null);
+  const [showCreditStatusModal, setShowCreditStatusModal] = useState(false);
 
   const [openLogExportProduction, setOpenLogExportProduction] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -71,6 +73,7 @@ const ProductionWorkflow = () => {
       });
       const data = await res.json();
       setProductions(data?.productions || []);
+      console.log(data?.productions || []);
     } catch (err) {
       console.error("Fetch production failed:", err);
     } finally {
@@ -394,6 +397,33 @@ const ProductionWorkflow = () => {
       console.error("Status update failed:", err);
     }
   };
+  const fetchProductionCreditStatus = async (productionID) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        `${BASE_URL}/production/campaign_status/${productionID}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
+
+      const data = await res.json();
+      if (res.ok) {
+        setCreditStatus(data);
+        setShowCreditStatusModal(true);
+      } else {
+        toast.error(data.message || "Fehler beim Laden des Produktionsstatus.");
+      }
+    } catch (err) {
+      console.error("Credit status error:", err);
+      toast.error("Serverfehler beim Laden des Produktionsstatus.");
+    }
+  };
 
   useEffect(() => {
     fetchProductions();
@@ -418,6 +448,7 @@ const ProductionWorkflow = () => {
       setFiltered(productions);
     }
   }, [search, productions]);
+
   const handleExportProductionLogs = (format, productionId = null) => {
     const query = new URLSearchParams({ format });
     if (productionId) query.append("production_id", productionId);
@@ -438,7 +469,7 @@ const ProductionWorkflow = () => {
     setLogExportProductionOpen(false);
   };
   return (
-    <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
+    <div className="p-4 md:w-[90%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
       <h1 className="text-2xl font-bold mb-4 text-[#412666]">
         Produktionsübersicht
       </h1>
@@ -504,6 +535,7 @@ const ProductionWorkflow = () => {
                 <th className="py-2 px-3">Stückzahl (Standard / Geändert)</th>
                 <th className="py-2 px-3">Zusatzinfos</th>
                 <th className="py-2 px-3">Status</th>
+                <th className="py-2 px-3">Statuss</th>
                 <th className="py-2 px-3">Aktionen</th>
               </tr>
             </thead>
@@ -519,7 +551,7 @@ const ProductionWorkflow = () => {
                     {p.StandardStueckzahl} / {p.GeaenderteStueckzahl}
                   </td>
                   <td className="py-2 px-3">{p.Zusatzinfos || "-"}</td>
-                  <td className="py-2 px-3">
+                  <td className="py-2 px-3 text-nowrap">
                     {" "}
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -527,6 +559,16 @@ const ProductionWorkflow = () => {
                       }`}>
                       {p.Status}
                     </span>
+                  </td>
+                  <td className="py-2 px-3 group cursor-pointer relative text-[#412666]">
+                    <p
+                      className=" w-fit"
+                      onClick={() => openProgressModal(p.ID, p.requires_input)}>
+                      <ChangeCircle />
+                      <span className=" hidden group-hover:block absolute top-[-20px] right-[-110px] py-[5px] px-[15px] rounded-[8px] bg-[#412666] text-white shadow-2xl text-nowrap">
+                        Status fortschreiten
+                      </span>
+                    </p>
                   </td>
                   <td className="p-2 flex gap-2 flex-wrap">
                     <select
@@ -553,8 +595,8 @@ const ProductionWorkflow = () => {
                           case "checkStatus":
                             fetchProductionStatus(p.ID);
                             break;
-                          case "advanceStatus":
-                            openProgressModal(p.ID, p.requires_input);
+                          case "productionCreditStatus":
+                            fetchProductionCreditStatus(p.ID);
                             break;
                           case "logs":
                             fetchProductionLogs(p.ID);
@@ -573,9 +615,10 @@ const ProductionWorkflow = () => {
                       <option value="view">Anzeigen</option>
                       <option value="edit">Bearbeiten</option>
                       <option value="checkStatus">Status prüfen</option>
-                      <option value="advanceStatus">
-                        Status fortschreiten
+                      <option value="productionCreditStatus">
+                        Produktionscredits anzeigen
                       </option>
+
                       <option value="logs">Protokolle</option>
                       <option value="delete">Löschen</option>
                     </select>
@@ -1007,15 +1050,21 @@ const ProductionWorkflow = () => {
                 <select
                   className="w-full border px-2 py-1 rounded"
                   value={newProduction.ArtikelID}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const selectedID = e.target.value;
+                    const selectedArticle = articles.find(
+                      (a) => a.ID === selectedID
+                    );
                     setNewProduction({
                       ...newProduction,
-                      ArtikelID: e.target.value,
-                    })
-                  }>
+                      ArtikelID: selectedID,
+                      StandardStueckzahl:
+                        selectedArticle?.StueckzahlProMonat || 0,
+                    });
+                  }}>
                   <option value="">— Bitte wählen —</option>
                   {articles
-                    .filter((a) => a.BrandID?.startsWith(newProduction.BrandID))
+                    .filter((a) => a.ID?.startsWith(newProduction.CampaignID))
                     .map((a) => (
                       <option key={a.ID} value={a.ID}>
                         {a.ID} - {a.Artikelname}
@@ -1037,6 +1086,7 @@ const ProductionWorkflow = () => {
                       StandardStueckzahl: Number(e.target.value),
                     })
                   }
+                  readOnly
                 />
               </div>
 
@@ -1345,6 +1395,43 @@ const ProductionWorkflow = () => {
 
             <button
               onClick={() => setShowProductionLogDetailModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+      {showCreditStatusModal && creditStatus && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full relative">
+            <h2 className="text-xl font-bold text-[#412666] mb-4 text-center">
+              Produktions-Creditstatus
+            </h2>
+
+            <div className="space-y-2 text-gray-800 text-sm">
+              <div>
+                <span className="font-medium">Kampagne:</span>{" "}
+                {creditStatus.display}
+              </div>
+              <div>
+                <span className="font-medium">Gebucht:</span>{" "}
+                {creditStatus.booked}
+              </div>
+              <div>
+                <span className="font-medium">Produziert:</span>{" "}
+                {creditStatus.produced}
+              </div>
+              <div>
+                <span className="font-medium">Verbleibend:</span>{" "}
+                {creditStatus.remaining}
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setShowCreditStatusModal(false);
+                setCreditStatus(null);
+              }}
               className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
               Schließen
             </button>
