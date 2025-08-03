@@ -26,9 +26,7 @@ const CreateBrandModal = ({ createModal, setCreateModal, fetchBrands }) => {
   }, []);
   const [brandData, setBrandData] = useState({
     KundeID: "",
-    Firmenname: "",
     Brandname: "",
-    BuchungsKontingent: 0,
   });
   const [error, setError] = useState(null);
 
@@ -78,7 +76,7 @@ const CreateBrandModal = ({ createModal, setCreateModal, fetchBrands }) => {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
-          <div>
+          <div className="sm:col-span-2">
             <label className="font-semibold block mb-1">Kunde ID:</label>
             <select
               name="KundeID"
@@ -98,34 +96,12 @@ const CreateBrandModal = ({ createModal, setCreateModal, fetchBrands }) => {
             </select>
           </div>
 
-          <div>
-            <label className="font-semibold block mb-1">Firmenname:</label>
-            <input
-              type="text"
-              name="Firmenname"
-              value={brandData.Firmenname}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-3 py-2 rounded"
-            />
-          </div>
           <div className="sm:col-span-2">
             <label className="font-semibold block mb-1">Markenname:</label>
             <input
               type="text"
               name="Brandname"
               value={brandData.Brandname}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-3 py-2 rounded"
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="font-semibold block mb-1">
-              Buchungskontingent:
-            </label>
-            <input
-              type="number"
-              name="BuchungsKontingent"
-              value={brandData.BuchungsKontingent}
               onChange={handleChange}
               className="w-full border border-gray-300 px-3 py-2 rounded"
             />
