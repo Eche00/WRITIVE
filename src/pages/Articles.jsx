@@ -284,6 +284,7 @@ const Articles = ({ setViewarticles }) => {
       }
       {
         <EditArticleModal
+          fetchArticles={fetchArticles}
           showModal={editModalOpen}
           setShowModal={setEditModalOpen}
           artikel={selectedArticle}
