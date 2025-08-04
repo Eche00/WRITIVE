@@ -199,13 +199,16 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
   };
 
   const FORMAT_OPTIONS = [
-    "DIN-A6",
-    "DIN-Lang",
-    "Maxipostkarte",
-    "Sonderformat",
-    "DIN-A6 Postkarte",
-    "DIN-Lang Postkarte",
-    "DIN-A4",
+    "DIN A6 KARTE",
+    "DIN A6 POSTKARTE",
+    "DIN LANG KARTE",
+    "DIN LANG POSTKARTE",
+    "MAXI POSTKARTE",
+    "DIN A6 KARTE +KUVERT",
+    "C6 KUVERT",
+    "DIN LANG KUVERT",
+    "DIN A4 BRIEF",
+    "DIN A4 BRIEF +KUVERT",
   ];
 
   const VERSANDART_OPTIONS = [
