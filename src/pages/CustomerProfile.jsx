@@ -7,9 +7,9 @@ import {
   Campaign,
   ShoppingCart,
   Send,
-  Event,
   CheckCircle,
   Search,
+  Countertops,
 } from "@mui/icons-material";
 import UserLoader from "../component/UserLoader";
 import { motion } from "framer-motion";
@@ -365,14 +365,12 @@ function CustomerProfile() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Event className="text-teal-500 mt-1" />
+                  <Countertops className="text-teal-500 mt-1" />
                   <div>
                     <p className="font-semibold text-gray-500 dark:text-gray-400">
-                      Erstellt am
+                      Verbleibend
                     </p>
-                    <p className="font-medium">
-                      {new Date(profile?.ErstellungsDatum).toLocaleString()}
-                    </p>
+                    <p className="font-medium">{profile?.Gesamtverbleibend}</p>
                   </div>
                 </div>
               </div>
