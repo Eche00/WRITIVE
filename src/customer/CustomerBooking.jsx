@@ -76,7 +76,9 @@ const CustomerBooking = () => {
             </thead>
             <tbody>
               {bookings.map((b) => (
-                <tr className=" border-gray-100 hover:bg-gray-50 transition-all py-2 border-b">
+                <tr
+                  className=" border-gray-100 hover:bg-gray-50 transition-all py-2 border-b"
+                  key={b.KampagneID}>
                   <td className="py-4 px-3">{b.KampagneID}</td>
                   <td className="py-4 px-3 ">
                     <div className="flex flex-row items-center  h-full gap-[5px]">
