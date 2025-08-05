@@ -151,6 +151,7 @@ const EditArticleModal = ({
     "DIN LANG POSTKARTE",
     "MAXI POSTKARTE",
     "DIN A6 KARTE +KUVERT",
+    "DIN LANG KARTE +KUVERT",
     "C6 KUVERT",
     "DIN LANG KUVERT",
     "DIN A4 BRIEF",
