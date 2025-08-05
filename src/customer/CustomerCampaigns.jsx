@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Search } from "@mui/icons-material";
+import { Search, Visibility } from "@mui/icons-material";
 import UserLoader from "../component/UserLoader";
 import { motion } from "framer-motion";
 import { BASE_URL } from "../lib/baseurl";
@@ -81,15 +81,15 @@ const CustomerCampaigns = () => {
           <table className="w-full text-sm text-left">
             <thead className="text-[#412666] border-b border-gray-200 uppercase">
               <tr>
-                <th className="py-2 px-3">ID</th>
                 <th className="py-2 px-3">Artikel</th>
                 <th className="py-2 px-3">BrandName</th>
                 <th className="py-2 px-3">Kunde</th>
                 <th className="py-2 px-3">Status</th>
-                <th className="py-2 px-3">Startdatum</th>
-                <th className="py-2 px-3">Versand</th>
-                <th className="py-2 px-3">Credits</th>
-                <th className="py-2 px-3">productions</th>
+                <th className="py-2 px-3">Geprüft</th>
+                <th className="py-2 px-3">Erstellt</th>
+                <th className="py-2 px-3 flex items-center justify-center">
+                  Produktionen anzeigen
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -103,23 +103,21 @@ const CustomerCampaigns = () => {
                       <td
                         colSpan={8}
                         className="py-4 px-3 font-medium text-xl text-[#412666] uppercase">
-                        <p>{c.campaign_name}</p>
+                        <p>
+                          Buchung {c.campaign_name} - {c.campaign_id}
+                        </p>
                       </td>
                       <td
                         colSpan={8}
                         className="py-4 px-3 font-medium text-xl text-[#412666] uppercase flex items-center gap-[10px] justify-end">
-                        <span>Restguthaben: </span> <p>{c.remaining_credits}</p>
+                        <span>Credits gebucht: </span> <p>{c.booked_credits}</p>
                       </td>
                     </tr>
 
                     {c.productions.map((p) => (
                       <tr
                         className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
-                        onClick={() => {
-                          setSelectedProduction(p);
-                          setShowProductionDetailModal(true);
-                        }}>
-                        <td className="py-2 px-3">{p.ID}</td>
+                        key={p.ID}>
                         <td className="py-2 px-3">{p.ArtikelName}</td>
                         <td className="py-2 px-3">{p.BrandName}</td>
                         <td className="py-2 px-3">{p.KundeName}</td>
@@ -132,22 +130,24 @@ const CustomerCampaigns = () => {
                             {p.Status}
                           </span>
                         </td>
+                        <td className="py-2 px-3">{p.GepruefteStueckzahl}</td>
                         <td className="py-2 px-3">
-                          {p.DatenAufbereitungStartZeit
-                            ? new Date(
-                                p.DatenAufbereitungStartZeit
-                              ).toLocaleDateString("de-DE")
-                            : "-"}
-                        </td>
-                        <td className="py-2 px-3">
-                          {p.gep_SendoutDatum
-                            ? new Date(p.gep_SendoutDatum).toLocaleDateString(
+                          {p.ErstellungsDatum
+                            ? new Date(p.ErstellungsDatum).toLocaleDateString(
                                 "de-DE"
                               )
                             : "-"}
                         </td>
-                        <td className="py-2 px-3">{c.booked_credits}</td>
-                        <td className="py-2 px-3">{c.produced}</td>
+                        <td className="py-2 px-3 flex items-center justify-center">
+                          <button
+                            onClick={() => {
+                              setSelectedProduction(p);
+                              setShowProductionDetailModal(true);
+                            }}
+                            className=" py-[6px] px-[16px] bg-[#412666] rounded-full cursor-pointer hover:scale-[102%] transition-all duration-300 text-white">
+                            <Visibility />
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </React.Fragment>
@@ -158,70 +158,141 @@ const CustomerCampaigns = () => {
       )}
       {showProductionDetailModal && selectedProduction && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4 text-wrap">
-          <div className="bg-white p-6 rounded-xl shadow-lg max-w-xl w-full relative">
-            <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
-              Produktions-Details (ID: {selectedProduction.ID})
-            </h2>
+          <section className="bg-white p-6 rounded-xl shadow-lg max-w-xl w-full h-fit relative flex flex-col">
+            <div className="w-full   overflow-y-auto max-h-[70vh]">
+              <h2 className="text-2xl font-bold text-[#412666] mb-4 text-center">
+                Produktions-Details (ID: {selectedProduction.ID})
+              </h2>
 
-            <div className="space-y-3 text-sm text-gray-700">
-              <div className="flex justify-between">
-                <span className="font-semibold">Artikel:</span>
-                <span>{selectedProduction.ArtikelName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Brand:</span>
-                <span>{selectedProduction.BrandName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Kunde:</span>
-                <span>{selectedProduction.KundeName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Status:</span>
-                <span>{selectedProduction.Status}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Standard Stückzahl:</span>
-                <span>{selectedProduction.StandardStueckzahl}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Datenaufbereitung Start:</span>
-                <span>
-                  {selectedProduction.DatenAufbereitungStartZeit
-                    ? new Date(
-                        selectedProduction.DatenAufbereitungStartZeit
-                      ).toLocaleString()
-                    : "-"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Versand geplant:</span>
-                <span>
-                  {selectedProduction.gep_SendoutDatum
-                    ? new Date(
-                        selectedProduction.gep_SendoutDatum
-                      ).toLocaleString()
-                    : "-"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Produktion abgeschlossen:</span>
-                <span>
-                  {selectedProduction.ProduktionAbgeschlossenZeit
-                    ? new Date(
-                        selectedProduction.ProduktionAbgeschlossenZeit
-                      ).toLocaleString()
-                    : "-"}
-                </span>
+              <div className="space-y-3 text-sm text-gray-700">
+                {[
+                  { label: "Artikel", value: selectedProduction.ArtikelName },
+                  { label: "Artikel-ID", value: selectedProduction.ArtikelID },
+                  { label: "Brand", value: selectedProduction.BrandName },
+                  { label: "Brand-ID", value: selectedProduction.BrandID },
+                  { label: "Kunde", value: selectedProduction.KundeName },
+                  { label: "Kunde-ID", value: selectedProduction.KundeID },
+                  { label: "Status", value: selectedProduction.Status },
+                  {
+                    label: "Standard Stückzahl",
+                    value: selectedProduction.StandardStueckzahl,
+                  },
+                  {
+                    label: "Geänderte Stückzahl",
+                    value: selectedProduction.GeaenderteStueckzahl,
+                  },
+                  {
+                    label: "Geprüfte Stückzahl",
+                    value: selectedProduction.GepruefteStueckzahl,
+                  },
+                  {
+                    label: "Clean Cards",
+                    value: selectedProduction.CleanCards,
+                  },
+                  {
+                    label: "Versendet",
+                    value: selectedProduction.Versendet ? "Ja" : "Nein",
+                  },
+                  {
+                    label: "Versandbereit",
+                    value: selectedProduction.Versandbereit ? "Ja" : "Nein",
+                  },
+                  {
+                    label: "Daten Aufbereitung gestartet",
+                    value: selectedProduction.DatenAufbereitungStart
+                      ? "Ja"
+                      : "Nein",
+                  },
+                  {
+                    label: "Daten aufbereitet",
+                    value: selectedProduction.DatenAufbereitet ? "Ja" : "Nein",
+                  },
+                  {
+                    label: "Genug Material",
+                    value: selectedProduction.GenugMaterial ? "Ja" : "Nein",
+                  },
+                  {
+                    label: "Qualitätskontrolle durchgeführt",
+                    value: selectedProduction.QualitaetskontrolleDurchgefuehrt
+                      ? "Ja"
+                      : "Nein",
+                  },
+                  {
+                    label: "Qualitätskontrolle gestartet",
+                    value: selectedProduction.QualitaetskontrolleGestartet
+                      ? "Ja"
+                      : "Nein",
+                  },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex justify-between">
+                    <span className="font-semibold">{item.label}:</span>
+                    <span>{item.value || "-"}</span>
+                  </div>
+                ))}
+
+                {/* Date fields */}
+                {[
+                  {
+                    label: "Datenaufbereitung Startzeit",
+                    value: selectedProduction.DatenAufbereitungStartZeit,
+                  },
+                  {
+                    label: "Datenaufbereitung Fertig",
+                    value: selectedProduction.DatenAufbereitetZeit,
+                  },
+                  {
+                    label: "Produktion gestartet",
+                    value: selectedProduction.ProduktionGestartetZeit,
+                  },
+                  {
+                    label: "Produktion abgeschlossen",
+                    value: selectedProduction.ProduktionAbgeschlossenZeit,
+                  },
+                  {
+                    label: "Qualitätskontrolle Start",
+                    value: selectedProduction.QualitaetskontrolleGestartetZeit,
+                  },
+                  {
+                    label: "Qualitätskontrolle Ende",
+                    value:
+                      selectedProduction.QualitaetskontrolleDurchgefuehrtZeit,
+                  },
+                  {
+                    label: "Versandbereit Zeit",
+                    value: selectedProduction.VersandbereitZeit,
+                  },
+                  {
+                    label: "Versendet Zeit",
+                    value: selectedProduction.VersendetZeit,
+                  },
+                  {
+                    label: "Erstellungsdatum",
+                    value: selectedProduction.ErstellungsDatum,
+                  },
+                  {
+                    label: "Geplanter Produktionsstart",
+                    value: selectedProduction.gep_Produktionsstart,
+                  },
+                  {
+                    label: "Geplantes Versanddatum",
+                    value: selectedProduction.gep_SendoutDatum,
+                  },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex justify-between">
+                    <span className="font-semibold">{item.label}:</span>
+                    <span>
+                      {item.value ? new Date(item.value).toLocaleString() : "-"}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
-
             <button
               onClick={() => setShowProductionDetailModal(false)}
               className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
               Schließen
             </button>
-          </div>
+          </section>
         </div>
       )}
     </div>
