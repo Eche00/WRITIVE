@@ -105,7 +105,13 @@ const CustomerCampaigns = () => {
                         className="py-4 px-3 font-medium text-xl text-[#412666] uppercase">
                         <p>{c.campaign_name}</p>
                       </td>
+                      <td
+                        colSpan={8}
+                        className="py-4 px-3 font-medium text-xl text-[#412666] uppercase flex items-center gap-[10px] justify-end">
+                        <span>Restguthaben: </span> <p>{c.remaining_credits}</p>
+                      </td>
                     </tr>
+
                     {c.productions.map((p) => (
                       <tr
                         className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
