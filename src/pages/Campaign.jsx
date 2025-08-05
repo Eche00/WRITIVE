@@ -538,14 +538,23 @@ const Campaign = () => {
                     }))
                   }>
                   <option value="">-- Select Format --</option>
-                  <option value="DIN-A6">DIN-A6</option>
-                  <option value="DIN-Lang">DIN-Lang</option>
-                  <option value="Maxipostkarte">Maxipostkarte</option>
-                  <option value="Sonderformat">Sonderformat</option>
-                  <option value="DIN-A6 Postkarte">DIN-A6 Postkarte</option>
-                  <option value="DIN-Lang Postkarte">DIN-Lang Postkarte</option>
-                  <option value="DIN-A4">DIN-A4</option>
-                  <option value="0,70€">0,70€</option>
+                  <option value="DIN A6 KARTE">DIN A6 KARTE</option>
+                  <option value="DIN A6 POSTKARTE">DIN A6 POSTKARTE</option>
+                  <option value="DIN LANG KARTE">DIN LANG KARTE</option>
+                  <option value="DIN LANG POSTKARTE">DIN LANG POSTKARTE</option>
+                  <option value="MAXI POSTKARTE">MAXI POSTKARTE</option>
+                  <option value="DIN A6 KARTE +KUVERT">
+                    DIN A6 KARTE +KUVERT
+                  </option>
+                  <option value="DIN LANG KARTE +KUVERT">
+                    DIN LANG KARTE +KUVERT
+                  </option>
+                  <option value="C6 KUVERT">C6 KUVERT</option>
+                  <option value="DIN LANG KUVERT">DIN LANG KUVERT</option>
+                  <option value="DIN A4 BRIEF">DIN A4 BRIEF</option>
+                  <option value="DIN A4 BRIEF +KUVERT">
+                    DIN A4 BRIEF +KUVERT
+                  </option>
                 </select>
               </div>
 
@@ -694,14 +703,23 @@ const Campaign = () => {
                     }))
                   }>
                   <option value="">-- Select Format --</option>
-                  <option value="DIN-A6">DIN-A6</option>
-                  <option value="DIN-Lang">DIN-Lang</option>
-                  <option value="Maxipostkarte">Maxipostkarte</option>
-                  <option value="Sonderformat">Sonderformat</option>
-                  <option value="DIN-A6 Postkarte">DIN-A6 Postkarte</option>
-                  <option value="DIN-Lang Postkarte">DIN-Lang Postkarte</option>
-                  <option value="DIN-A4">DIN-A4</option>
-                  <option value="0,70€">0,70€</option>
+                  <option value="DIN A6 KARTE">DIN A6 KARTE</option>
+                  <option value="DIN A6 POSTKARTE">DIN A6 POSTKARTE</option>
+                  <option value="DIN LANG KARTE">DIN LANG KARTE</option>
+                  <option value="DIN LANG POSTKARTE">DIN LANG POSTKARTE</option>
+                  <option value="MAXI POSTKARTE">MAXI POSTKARTE</option>
+                  <option value="DIN A6 KARTE +KUVERT">
+                    DIN A6 KARTE +KUVERT
+                  </option>
+                  <option value="DIN LANG KARTE +KUVERT">
+                    DIN LANG KARTE +KUVERT
+                  </option>
+                  <option value="C6 KUVERT">C6 KUVERT</option>
+                  <option value="DIN LANG KUVERT">DIN LANG KUVERT</option>
+                  <option value="DIN A4 BRIEF">DIN A4 BRIEF</option>
+                  <option value="DIN A4 BRIEF +KUVERT">
+                    DIN A4 BRIEF +KUVERT
+                  </option>
                 </select>
               </div>
 
