@@ -3,6 +3,7 @@ import { Search, Visibility } from "@mui/icons-material";
 import UserLoader from "../component/UserLoader";
 import { motion } from "framer-motion";
 import { BASE_URL } from "../lib/baseurl";
+import { CheckCircle } from "@mui/icons-material";
 
 const CustomerCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -11,7 +12,8 @@ const CustomerCampaigns = () => {
   const [showProductionDetailModal, setShowProductionDetailModal] =
     useState(false);
   const [selectedProduction, setSelectedProduction] = useState(null);
-
+  const [showProductionStatusModal, setShowProductionStatusModal] =
+    useState(false);
   const fetchCampaigns = async () => {
     setLoading(true);
     try {
@@ -50,6 +52,24 @@ const CustomerCampaigns = () => {
     Shipped: "text-sky-600 bg-sky-100",
     "Order Completed": "text-green-700 bg-green-100",
   };
+
+  const allSteps = [
+    "Data Received",
+    "Data Preparation",
+    "In Progress",
+    "Production Started",
+    "Production Completed",
+    "Quality Check Started",
+    "Quality Check Completed",
+    "Ready for Shipment",
+    "Shipped",
+    "Order Completed",
+  ];
+  const statusIndex = allSteps.indexOf(selectedProduction?.Status);
+
+  const isCompleted = (index) => index < statusIndex;
+  const isCurrent = (index) => index === statusIndex;
+
   return (
     <div className="p-4 md:w-[80%] w-full mx-auto text-black flex flex-col h-fit">
       <div className="flex justify-between items-center mb-4">
@@ -88,7 +108,7 @@ const CustomerCampaigns = () => {
                 <th className="py-2 px-3">Geprüft</th>
                 <th className="py-2 px-3">Erstellt</th>
                 <th className="py-2 px-3 flex items-center justify-center">
-                  Produktionen anzeigen
+                  Anzeigen
                 </th>
               </tr>
             </thead>
@@ -139,14 +159,27 @@ const CustomerCampaigns = () => {
                             : "-"}
                         </td>
                         <td className="py-2 px-3 flex items-center justify-center">
-                          <button
-                            onClick={() => {
+                          <select
+                            onChange={(e) => {
+                              const value = e.target.value;
                               setSelectedProduction(p);
-                              setShowProductionDetailModal(true);
+
+                              if (value === "detail") {
+                                setShowProductionDetailModal(true);
+                              } else if (value === "status") {
+                                setShowProductionStatusModal(true);
+                              }
+
+                              // Reset to default to avoid auto-trigger on next render
+                              e.target.selectedIndex = 0;
                             }}
-                            className=" py-[6px] px-[16px] bg-[#412666] rounded-full cursor-pointer hover:scale-[102%] transition-all duration-300 text-white">
-                            <Visibility />
-                          </button>
+                            className="py-[6px] px-[8px] border text-[#412666] border-[#412666]  rounded-[4px] cursor-pointer hover:scale-[102%] transition-all duration-300">
+                            <option value="" disabled selected hidden>
+                              Aktionen auswählen
+                            </option>
+                            <option value="detail">Produktion anzeigen</option>
+                            <option value="status">Status anzeigen</option>
+                          </select>
                         </td>
                       </tr>
                     ))}
@@ -289,6 +322,70 @@ const CustomerCampaigns = () => {
             </div>
             <button
               onClick={() => setShowProductionDetailModal(false)}
+              className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+              Schließen
+            </button>
+          </section>
+        </div>
+      )}
+      {showProductionStatusModal && selectedProduction && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4 text-wrap">
+          <section className="bg-white p-6 rounded-xl shadow-lg max-w-[90%] w-full h-fit relative flex flex-col">
+            <div className="w-full   overflow-y-auto max-h-[70vh]">
+              <h2 className="text-xl font-bold text-[#412666] mb-4 text-center">
+                Produktions-Status (ID: {selectedProduction.ID})
+              </h2>
+              <div className="flex items-center justify-between overflow-x-auto py-2 px-1 space-x-4">
+                {allSteps.map((step, index) => {
+                  const isLast = index === allSteps.length - 1;
+
+                  return (
+                    <div
+                      key={step}
+                      className="flex flex-col items-center relative min-w-[120px] group">
+                      {/* Connector Line */}
+                      {!isLast && (
+                        <div
+                          className={`absolute top-[10px] left-1/2 w-full h-0.5 z-10 transform -translate-x-1/2 ${
+                            isCompleted(index) ? "bg-[#412666]" : "bg-gray-300"
+                          }`}
+                        />
+                      )}
+
+                      {/* Dot */}
+                      <div
+                        className={`w-5 h-5 rounded-full flex items-center justify-center mb-2 z-10 ${
+                          isCompleted(index) || isCurrent(index)
+                            ? "bg-[#412666]"
+                            : "bg-gray-300"
+                        }`}>
+                        {isCompleted(index) || isCurrent(index) ? (
+                          <CheckCircle
+                            fontSize="small"
+                            className="text-white"
+                          />
+                        ) : (
+                          <div className="w-2 h-2 bg-white rounded-full" />
+                        )}
+                      </div>
+
+                      {/* Label */}
+                      <div
+                        className={`text-xs text-center mr-10 ${
+                          selectedProduction?.Status === "Order Completed" &&
+                          isLast
+                            ? "text-[#412666] text-2xl font-extrabold"
+                            : "text-gray-700 font-bold"
+                        } max-w-[110px] group-hover:text-[#412666] cursor-pointer text-nowrap`}>
+                        {step}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <button
+              onClick={() => setShowProductionStatusModal(false)}
               className="mt-6 w-full bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
               Schließen
             </button>
