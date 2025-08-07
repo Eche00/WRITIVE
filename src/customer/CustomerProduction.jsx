@@ -93,7 +93,9 @@ const CustomerBooking = () => {
                     p.KampagneName.toLowerCase().includes(search.toLowerCase())
                   )
                   .map((p) => (
-                    <tr className=" border-gray-100 hover:bg-gray-50 transition-all py-2 border-b">
+                    <tr
+                      className=" border-gray-100 hover:bg-gray-50 transition-all py-2 border-b"
+                      key={p.KampagneID}>
                       <td className="py-4 px-3">
                         <img
                           src={
