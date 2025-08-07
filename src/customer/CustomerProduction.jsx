@@ -35,8 +35,7 @@ const CustomerBooking = () => {
         },
       });
       const data = await res.json();
-      setProductions(data || []);
-      console.log("data-" + data);
+      setProductions(data);
     } catch (err) {
       console.error("Fehler beim Laden der Produktionen:", err);
     } finally {
@@ -124,7 +123,12 @@ const CustomerBooking = () => {
                           className="w-[50px] h-[40px] object-cover"
                         />{" "}
                       </td>
-                      <td className="py-4 px-3">{p.KampagneName}</td>
+                      <td className="py-4 px-3 flex flex-col">
+                        <span className=" font-extrabold">
+                          {p.KampagneName}
+                        </span>
+                        <span className=" text-gray-500">{p.Format}</span>
+                      </td>
                       <td className="py-4 px-3">{p.UsedCredits}</td>
                       <td className="py-4 px-3">{p.Scans}</td>
                       <td className="py-4 px-3 w-40">
