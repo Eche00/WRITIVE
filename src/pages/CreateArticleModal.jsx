@@ -26,7 +26,7 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
   const [campaigns, setCampaigns] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState("");
-
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
   const fetchBrands = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -152,6 +152,21 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
       setLoading(false);
     }
   };
+  // Sync Format with selected campaign
+  useEffect(() => {
+    if (!formData.KampagneID) return;
+    const selected = campaigns.find(
+      (c) => String(c.id) === String(formData.KampagneID)
+    );
+    if (selected) {
+      console.log("Selected campaign details:", selected);
+      setSelectedCampaign(selected);
+      setFormData((prev) => ({
+        ...prev,
+        Format: selected.Format || "", // auto-fill Format
+      }));
+    }
+  }, [formData.KampagneID, campaigns]);
 
   if (!showModal) return null;
 
@@ -396,18 +411,13 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
           {/* Format */}
           <div className="flex flex-col">
             <label className="mb-1 font-medium">Format</label>
-            <select
+            <input
+              type="text"
               name="Format"
               value={formData.Format}
-              onChange={handleChange}
-              className="border rounded px-2 py-1">
-              <option value="">Select Format</option>
-              {FORMAT_OPTIONS.map((f) => (
-                <option key={f} value={f}>
-                  {f}
-                </option>
-              ))}
-            </select>
+              className="border rounded px-2 py-1"
+              readOnly
+            />
           </div>
 
           {/* ZusatzInfos */}
