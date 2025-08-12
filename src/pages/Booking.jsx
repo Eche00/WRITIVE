@@ -11,6 +11,8 @@ const Booking = () => {
   const [customers, setCustomers] = useState([]);
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [campaigns, setCampaigns] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [bookingDetails, setBookingDetails] = useState(null);
@@ -27,7 +29,7 @@ const Booking = () => {
     Buchungstyp: "",
     Kategorie: "",
     Bezeichnung: "",
-    ArtikelID: "",
+    CampaignID: "",
     ProduktionsID: "",
     Buchungswert: "",
     KundeID: "",
@@ -185,6 +187,24 @@ const Booking = () => {
       console.error("Fetch failed:", err);
     }
   };
+  const fetchCampaigns = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${BASE_URL}/campaigns/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+      const data = await res.json();
+      setCampaigns(data);
+    } catch (error) {
+      console.error("Failed to fetch campaigns:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleCreateBooking = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -200,7 +220,7 @@ const Booking = () => {
           Buchungstyp: newBooking.Buchungstyp,
           Kategorie: newBooking.Kategorie,
           Bezeichnung: newBooking.Bezeichnung,
-          ArtikelID: newBooking.ArtikelID,
+          CampaignID: newBooking.CampaignID,
           ProduktionsID: newBooking.ProduktionsID || null,
           Buchungswert: parseFloat(newBooking.Buchungswert),
           KundeID: newBooking.KundeID,
@@ -216,7 +236,7 @@ const Booking = () => {
           Buchungstyp: "",
           Kategorie: "",
           Bezeichnung: "",
-          ArtikelID: "",
+          CampaignID: "",
           ProduktionsID: "",
           Buchungswert: "",
           KundeID: "",
@@ -376,6 +396,7 @@ const Booking = () => {
     fetchCustomers();
     fetchArticles();
     fetchCategories();
+    fetchCampaigns();
   }, []);
 
   const handleExport = (format) => {
@@ -438,7 +459,7 @@ const Booking = () => {
               <Search />
               <input
                 type="text"
-                placeholder="Suche Firmenname oder KundeID..."
+                placeholder="Suche  KundeID oder kampagneID..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="flex-1 border-none py-2 focus:outline-none"
@@ -454,7 +475,7 @@ const Booking = () => {
           <table className="w-full text-sm text-left text-nowrap">
             <thead className="text-[#412666] border-b border-gray-200">
               <tr>
-                <th className="py-2 px-3">Artikel-ID</th>
+                <th className="py-2 px-3">Kampagne-ID</th>
                 <th className="py-2 px-3">Kategorie</th>
                 <th className="py-2 px-3">Buchungstyp</th>
                 <th className="py-2 px-3">Buchungswert (€)</th>
@@ -471,7 +492,7 @@ const Booking = () => {
                     (b.KundeID?.toLowerCase() || "").includes(
                       search.toLowerCase()
                     ) ||
-                    (b.ArtikelID?.toLowerCase() || "").includes(
+                    (b.CampaignID?.toLowerCase() || "").includes(
                       search.toLowerCase()
                     ) ||
                     (b.Buchungstyp?.toLowerCase() || "").includes(
@@ -482,7 +503,7 @@ const Booking = () => {
                   <tr
                     key={b.ID}
                     className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="py-2 px-3">{b.ArtikelID || "—"}</td>
+                    <td className="py-2 px-3">{b.CampaignID || "—"}</td>
                     <td className="py-2 px-3">{b.Kategorie || "—"}</td>
                     <td className="py-2 px-3">{b.Buchungstyp || "—"}</td>
                     <td className="py-2 px-3">€ {b.Buchungswert}</td>
@@ -554,7 +575,7 @@ const Booking = () => {
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold">Artikel ID:</span>
-                <span>{bookingDetails.ArtikelID || "—"}</span>
+                <span>{bookingDetails.CampaignID || "—"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold">Bezeichnung:</span>
@@ -624,22 +645,22 @@ const Booking = () => {
                 ))}
               </select>
 
-              {/* ArtikelID Dropdown */}
+              {/* Campaigns Dropdown */}
               <select
                 className="w-full border px-4 py-2 rounded"
-                value={newBooking.ArtikelID}
+                value={newBooking.CampaignID}
                 onChange={(e) =>
                   setNewBooking((prev) => ({
                     ...prev,
-                    ArtikelID: e.target.value,
+                    CampaignID: e.target.value,
                   }))
                 }>
                 <option value="">— Artikel wählen —</option>
-                {articles
-                  .filter((a) => a.BrandID?.startsWith(newBooking.KundeID))
+                {campaigns
+                  .filter((a) => a.id?.startsWith(newBooking.KundeID))
                   .map((a) => (
-                    <option key={a.ID} value={a.ID}>
-                      {a.ID} - {a.Artikelname}
+                    <option key={a.id} value={a.id}>
+                      {a.id} - {a.Artikelname}
                     </option>
                   ))}
               </select>
@@ -656,7 +677,7 @@ const Booking = () => {
                 }>
                 <option value="">— Produktion wählen —</option>
                 {productions
-                  .filter((p) => p.KundeID === newBooking.KundeID)
+                  .filter((p) => p.ID?.startsWith(newBooking.CampaignID))
                   .map((p) => (
                     <option key={p.ID} value={p.ID}>
                       {p.ID} - {p.Produktionsnummer}
