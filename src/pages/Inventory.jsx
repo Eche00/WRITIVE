@@ -71,7 +71,7 @@ const Inventory = () => {
             <tbody>
               {items.length === 0 && !loading ? (
                 <tr>
-                  <td colSpan="3" className="text-center p-4 text-gray-500">
+                  <td colSpan={3} className="text-center p-4 text-gray-500">
                     Keine Daten gefunden.
                   </td>
                 </tr>
@@ -87,8 +87,13 @@ const Inventory = () => {
                     <tr
                       key={`${catIdx}-${idx}`}
                       className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="py-2 px-3">{bezeichnung.Wert}</td>
+                      {/* Wert (shortened if needed) */}
+                      <td className="py-2 px-3">{bezeichnung.Wert || "—"}</td>
+
+                      {/* Kategorie */}
                       <td className="py-2 px-3">{item.Kategorie}</td>
+
+                      {/* Gesamtstückzahl */}
                       <td className="py-2 px-3">
                         {bezeichnung.GesamtStueckzahl}
                       </td>
