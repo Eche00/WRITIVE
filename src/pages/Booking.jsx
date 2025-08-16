@@ -47,13 +47,17 @@ const Booking = () => {
       "1,80€",
     ],
     Format: [
-      "DIN-A6",
-      "DIN-Lang",
-      "Maxipostkarte",
-      "Sonderformat",
-      "DIN-A6 Postkarte",
-      "DIN-Lang Postkarte",
-      "DIN-A4",
+      "DIN A6 KARTE",
+      "DIN A6 POSTKARTE",
+      "DIN LANG KARTE",
+      "DIN LANG POSTKARTE",
+      "MAXI POSTKARTE",
+      "DIN A6 KARTE +KUVERT",
+      "DIN LANG KARTE +KUVERT",
+      "C6 KUVERT",
+      "DIN LANG KUVERT",
+      "DIN A4 BRIEF",
+      "DIN A4 BRIEF +KUVERT",
     ],
     Karte: [
       "DIN-A6",
@@ -480,6 +484,7 @@ const Booking = () => {
                 <th className="py-2 px-3">Buchungstyp</th>
                 <th className="py-2 px-3">Buchungswert (€)</th>
                 <th className="py-2 px-3">Produktions-ID</th>
+                <th className="py-2 px-3">Bezeichnung</th>
                 <th className="py-2 px-3">Zeitstempel</th>
                 <th className="py-2 px-3">Aktionen</th>
               </tr>
@@ -502,12 +507,21 @@ const Booking = () => {
                 .map((b) => (
                   <tr
                     key={b.ID}
-                    className="border-b border-gray-200 hover:bg-gray-50">
+                    className={`
+                      ${b.Buchungstyp == "Austrag" && "text-red-500"}  
+                      ${
+                        b.Buchungstyp == "vorgemerkt Austrag" && "text-gray-500"
+                      }  
+                      ${b.Buchungstyp == "Eintrag" && "text-green-700"}  
+                    border-b border-gray-200 hover:bg-gray-50 font-bold`}>
                     <td className="py-2 px-3">{b.CampaignID || "—"}</td>
                     <td className="py-2 px-3">{b.Kategorie || "—"}</td>
                     <td className="py-2 px-3">{b.Buchungstyp || "—"}</td>
                     <td className="py-2 px-3">€ {b.Buchungswert}</td>
                     <td className="py-2 px-3">{b.ProduktionsID || "—"}</td>
+                    <td className="py-2 px-3">
+                      {b.Bezeichnung?.slice(0, 30) || "—"}
+                    </td>
                     <td className="py-2 px-3">
                       {b.Zeitstempel
                         ? new Date(b.Zeitstempel).toLocaleString("de-DE")
@@ -601,6 +615,10 @@ const Booking = () => {
                 </span>
               </div>
               <div className="flex justify-between">
+                <span className="font-semibold">Bezeichnung:</span>
+                <span>{bookingDetails.Bezeichnung || "—"}</span>
+              </div>
+              <div className="flex justify-between">
                 <span className="font-semibold">Zeitstempel:</span>
                 <span>
                   {new Date(bookingDetails.Zeitstempel).toLocaleString("de-DE")}
@@ -655,7 +673,7 @@ const Booking = () => {
                     CampaignID: e.target.value,
                   }))
                 }>
-                <option value="">— Artikel wählen —</option>
+                <option value="">— Kampagne wählen —</option>
                 {campaigns
                   .filter((a) => a.id?.startsWith(newBooking.KundeID))
                   .map((a) => (
