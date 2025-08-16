@@ -533,7 +533,7 @@ const ProductionWorkflow = () => {
                 <th className="py-2 px-3">ID</th>
                 <th className="py-2 px-3">Artikelname</th>
                 <th className="py-2 px-3">Stückzahl (Standard / Geändert)</th>
-                <th className="py-2 px-3">Zusatzinfos</th>
+                {/* <th className="py-2 px-3">Zusatzinfos</th> */}
                 <th className="py-2 px-3">Status</th>
                 <th className="py-2 px-3">Statuss</th>
                 <th className="py-2 px-3">Aktionen</th>
@@ -550,7 +550,7 @@ const ProductionWorkflow = () => {
                   <td className="py-2 px-3">
                     {p.StandardStueckzahl} / {p.GeaenderteStueckzahl}
                   </td>
-                  <td className="py-2 px-3">{p.Zusatzinfos || "-"}</td>
+                  {/* <td className="py-2 px-3">{p.Zusatzinfos || "-"}</td> */}
                   <td className="py-2 px-3 text-nowrap">
                     {" "}
                     <span
@@ -663,6 +663,10 @@ const ProductionWorkflow = () => {
                 {selectedProductionID.KundeID || "—"}
               </div>
               <div>
+                <span className="font-semibold">Campaign ID:</span>{" "}
+                {selectedProductionID.CampaignID || "—"}
+              </div>
+              <div>
                 <span className="font-semibold">Produktionsnummer:</span>{" "}
                 {selectedProductionID.Produktionsnummer || "—"}
               </div>
@@ -676,6 +680,8 @@ const ProductionWorkflow = () => {
                   {selectedProductionID.Status || "—"}
                 </span>
               </div>
+
+              {/* Stückzahlen */}
               <div>
                 <span className="font-semibold">Geänderte Stückzahl:</span>{" "}
                 {selectedProductionID.GeaenderteStueckzahl || "—"}
@@ -684,6 +690,20 @@ const ProductionWorkflow = () => {
                 <span className="font-semibold">Standard Stückzahl:</span>{" "}
                 {selectedProductionID.StandardStueckzahl || "—"}
               </div>
+              <div>
+                <span className="font-semibold">Aufbereitete Stückzahl:</span>{" "}
+                {selectedProductionID.AufbereiteteStueckzahl || 0}
+              </div>
+              <div>
+                <span className="font-semibold">Geprüfte Stückzahl:</span>{" "}
+                {selectedProductionID.GepruefteStueckzahl || 0}
+              </div>
+              <div>
+                <span className="font-semibold">Stückzahl pro Monat:</span>{" "}
+                {selectedProductionID.StueckzahlProMonat || 0}
+              </div>
+
+              {/* Booleans */}
               <div>
                 <span className="font-semibold">Genug Material:</span>{" "}
                 <span
@@ -695,20 +715,44 @@ const ProductionWorkflow = () => {
                   {selectedProductionID.GenugMaterial ? "Ja" : "Nein"}
                 </span>
               </div>
+
+              {/* Zusatzinfos */}
               <div>
                 <span className="font-semibold">Zusatzinfos:</span>{" "}
-                {selectedProductionID.Zusatzinfos || "—"}
-              </div>
-              <div>
-                <span className="font-semibold">Aufbereitete Stückzahl:</span>{" "}
-                {selectedProductionID.AufbereiteteStueckzahl || 0}
-              </div>
-              <div>
-                <span className="font-semibold">Geprüfte Stückzahl:</span>{" "}
-                {selectedProductionID.GepruefteStueckzahl || 0}
+                {selectedProductionID.ZusatzInfos || "—"}
               </div>
 
-              {/* Boolean and Timestamp flags */}
+              {/* New String Fields */}
+              <div>
+                <span className="font-semibold">Format:</span>{" "}
+                {selectedProductionID.Format || "—"}
+              </div>
+              <div>
+                <span className="font-semibold">Frankierung:</span>{" "}
+                {selectedProductionID.Frankierung || "—"}
+              </div>
+              <div>
+                <span className="font-semibold">Schrift:</span>{" "}
+                {selectedProductionID.Schrift || "—"}
+              </div>
+              <div>
+                <span className="font-semibold">Stift:</span>{" "}
+                {selectedProductionID.Stift || "—"}
+              </div>
+              <div>
+                <span className="font-semibold">Text:</span>{" "}
+                {selectedProductionID.Text || "—"}
+              </div>
+              <div>
+                <span className="font-semibold">Variablen:</span>{" "}
+                {selectedProductionID.Variablen || "—"}
+              </div>
+              <div>
+                <span className="font-semibold">Versandart:</span>{" "}
+                {selectedProductionID.Versandart || "—"}
+              </div>
+
+              {/* Daten Aufbereitung */}
               <div>
                 <span className="font-semibold">
                   Daten Aufbereitung gestartet:
@@ -736,6 +780,7 @@ const ProductionWorkflow = () => {
                   : "—"}
               </div>
 
+              {/* Produktion */}
               <div>
                 <span className="font-semibold">Produktion gestartet:</span>{" "}
                 {selectedProductionID.ProduktionGestartet ? "Ja" : "Nein"}
@@ -761,6 +806,7 @@ const ProductionWorkflow = () => {
                   : "—"}
               </div>
 
+              {/* Qualitätskontrolle */}
               <div>
                 <span className="font-semibold">
                   Qualitätskontrolle gestartet:
@@ -798,6 +844,7 @@ const ProductionWorkflow = () => {
                   : "—"}
               </div>
 
+              {/* Versand */}
               <div>
                 <span className="font-semibold">Versandbereit:</span>{" "}
                 {selectedProductionID.Versandbereit ? "Ja" : "Nein"}
@@ -822,8 +869,16 @@ const ProductionWorkflow = () => {
                     )
                   : "—"}
               </div>
+              <div>
+                <span className="font-semibold">Sendout Datum:</span>{" "}
+                {selectedProductionID.SendoutDatum
+                  ? new Date(selectedProductionID.SendoutDatum).toLocaleString(
+                      "de-DE"
+                    )
+                  : "—"}
+              </div>
 
-              {/* Gep timestamps */}
+              {/* GEP */}
               <div>
                 <span className="font-semibold">GEP Produktionsstart:</span>{" "}
                 {selectedProductionID.gep_Produktionsstart
@@ -841,6 +896,7 @@ const ProductionWorkflow = () => {
                   : "—"}
               </div>
 
+              {/* Abschluss */}
               <div>
                 <span className="font-semibold">Abgeschlossen:</span>{" "}
                 {selectedProductionID.Abgeschlossen ? "Ja" : "Nein"}
