@@ -57,7 +57,9 @@ const ProductionWorkflow = () => {
     ArtikelID: "",
     GeaenderteStueckzahl: "",
     StandardStueckzahl: "",
+    credit: 0,
   });
+
   const [logExportProductionOpen, setLogExportProductionOpen] = useState(false);
   // ALL FETCHING
   const fetchProductions = async () => {
@@ -183,6 +185,7 @@ const ProductionWorkflow = () => {
           ...newProduction,
           GeaenderteStueckzahl: Number(newProduction.GeaenderteStueckzahl),
           StandardStueckzahl: Number(newProduction.StandardStueckzahl),
+          credit: Number(newProduction.credit),
         }),
       });
 
@@ -196,6 +199,7 @@ const ProductionWorkflow = () => {
 
       toast.success("Produktion erfolgreich erstellt!");
 
+      // reset state
       setNewProduction({
         KundeID: "",
         BrandID: "",
@@ -203,6 +207,7 @@ const ProductionWorkflow = () => {
         ArtikelID: "",
         GeaenderteStueckzahl: "",
         StandardStueckzahl: "",
+        credit: 0,
       });
 
       setShowCreateModal(false);
@@ -1102,12 +1107,18 @@ const ProductionWorkflow = () => {
                 <select
                   className="w-full border px-2 py-1 rounded"
                   value={newProduction.CampaignID}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const selectedId = e.target.value;
+                    const selectedCampaign = campaigns.find(
+                      (c) => c.id === selectedId
+                    );
+
                     setNewProduction({
                       ...newProduction,
-                      CampaignID: e.target.value,
-                    })
-                  }>
+                      CampaignID: selectedId,
+                      credit: selectedCampaign?.BuchungsKontingent || 0, // update credit here
+                    });
+                  }}>
                   <option value="">— Bitte wählen —</option>
                   {campaigns
                     .filter((c) => c.id?.startsWith(newProduction.BrandID))
@@ -1146,6 +1157,23 @@ const ProductionWorkflow = () => {
                       </option>
                     ))}
                 </select>
+              </div>
+
+              {/* Credit */}
+              <div>
+                <label className="block font-medium">Credit:</label>
+                <input
+                  type="number"
+                  className="w-full border px-2 py-1 rounded"
+                  value={newProduction.credit}
+                  onChange={(e) =>
+                    setNewProduction({
+                      ...newProduction,
+                      credit: Number(e.target.value),
+                    })
+                  }
+                  readOnly
+                />
               </div>
 
               {/* Standard Stückzahl */}
