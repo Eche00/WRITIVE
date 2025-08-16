@@ -533,7 +533,7 @@ const ProductionWorkflow = () => {
                 <th className="py-2 px-3">ID</th>
                 <th className="py-2 px-3">Artikelname</th>
                 <th className="py-2 px-3">Stückzahl (Standard / Geändert)</th>
-                {/* <th className="py-2 px-3">Zusatzinfos</th> */}
+                <th className="py-2 px-3">Zusatzinfos</th>
                 <th className="py-2 px-3">Status</th>
                 <th className="py-2 px-3">Statuss</th>
                 <th className="py-2 px-3">Aktionen</th>
@@ -550,7 +550,7 @@ const ProductionWorkflow = () => {
                   <td className="py-2 px-3">
                     {p.StandardStueckzahl} / {p.GeaenderteStueckzahl}
                   </td>
-                  {/* <td className="py-2 px-3">{p.Zusatzinfos || "-"}</td> */}
+                  <td className="py-2 px-3">{p.Zusatzinfos || "-"}</td>
                   <td className="py-2 px-3 text-nowrap">
                     {" "}
                     <span
@@ -919,6 +919,25 @@ const ProductionWorkflow = () => {
                     ).toLocaleString("de-DE")
                   : "—"}
               </div>
+            </div>
+            {/* P Format export  */}
+            <div className="mt-6 flex gap-3 justify-center">
+              {["pdf", "xlsx", "csv"].map((format) => (
+                <button
+                  key={format}
+                  onClick={() => {
+                    const token = localStorage.getItem("token");
+
+                    // open export in new tab with token
+                    window.open(
+                      `${BASE_URL}/production/${selectedProductionID.ID}/export/${format}`,
+                      "_blank"
+                    );
+                  }}
+                  className="px-4 py-2 bg-[#412666] text-white rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+                  {format.toUpperCase()} Export
+                </button>
+              ))}
             </div>
 
             <button
