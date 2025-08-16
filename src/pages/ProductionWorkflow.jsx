@@ -57,7 +57,7 @@ const ProductionWorkflow = () => {
     ArtikelID: "",
     GeaenderteStueckzahl: "",
     StandardStueckzahl: "",
-    credit: 0,
+    credit: "",
   });
 
   const [logExportProductionOpen, setLogExportProductionOpen] = useState(false);
@@ -185,7 +185,7 @@ const ProductionWorkflow = () => {
           ...newProduction,
           GeaenderteStueckzahl: Number(newProduction.GeaenderteStueckzahl),
           StandardStueckzahl: Number(newProduction.StandardStueckzahl),
-          credit: Number(newProduction.credit),
+          credit: newProduction.credit,
         }),
       });
 
@@ -207,7 +207,7 @@ const ProductionWorkflow = () => {
         ArtikelID: "",
         GeaenderteStueckzahl: "",
         StandardStueckzahl: "",
-        credit: 0,
+        credit: "",
       });
 
       setShowCreateModal(false);
@@ -1116,7 +1116,7 @@ const ProductionWorkflow = () => {
                     setNewProduction({
                       ...newProduction,
                       CampaignID: selectedId,
-                      credit: selectedCampaign?.BuchungsKontingent || 0, // update credit here
+                      credit: selectedCampaign?.display || "", // use numeric "remaining"
                     });
                   }}>
                   <option value="">— Bitte wählen —</option>
@@ -1163,13 +1163,13 @@ const ProductionWorkflow = () => {
               <div>
                 <label className="block font-medium">Credit:</label>
                 <input
-                  type="number"
+                  type="text"
                   className="w-full border px-2 py-1 rounded"
                   value={newProduction.credit}
                   onChange={(e) =>
                     setNewProduction({
                       ...newProduction,
-                      credit: Number(e.target.value),
+                      credit: e.target.value,
                     })
                   }
                   readOnly
