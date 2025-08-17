@@ -318,17 +318,6 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
             />
           </div>
 
-          {/* Text */}
-          <div className="flex flex-col">
-            <label className="mb-1 font-medium">Text</label>
-            <input
-              name="Text"
-              value={formData.Text}
-              onChange={handleChange}
-              className="border rounded px-2 py-1"
-            />
-          </div>
-
           {/* Variablen */}
           <div className="flex flex-col">
             <label className="mb-1 font-medium">Variablen</label>
@@ -477,6 +466,16 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
               </p>
             )}
           </div>
+        </div>
+        {/* Text */}
+        <div className="flex flex-col">
+          <label className="mb-1 font-medium">Text</label>
+          <textarea
+            name="Text"
+            value={formData.Text}
+            onChange={handleChange}
+            className="border rounded px-2 py-1"
+          />
         </div>
 
         {message && (
