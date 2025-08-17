@@ -18,6 +18,9 @@ const Categories = () => {
   const [showCategoryLogDetailModal, setShowCategoryLogDetailModal] =
     useState(false);
   const [categoryLogDetail, setCategoryLogDetail] = useState(null);
+  // entry
+  const [showAddEntryModal, setShowAddEntryModal] = useState(false);
+  const [newEntryValue, setNewEntryValue] = useState("");
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -179,28 +182,44 @@ const Categories = () => {
     handleExportCategoryLogs(format, categoryID);
     setOpenCustom(false);
   };
-  const addCategoryEntry = async (categoryId, value = "0,70€") => {
+  const addCategoryEntry = async () => {
+    if (!selectedCategoryID) {
+      toast.error("Bitte zuerst eine Kategorie auswählen.");
+      return;
+    }
+
+    if (!newEntryValue || newEntryValue.trim() === "") {
+      toast.error("Bitte geben Sie einen Wert ein, bevor Sie fortfahren.");
+      return;
+    }
+
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(`${BASE_URL}/categories/${categoryId}/entries`, {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify({ Wert: value }),
-      });
+      const res = await fetch(
+        `${BASE_URL}/categories/${selectedCategoryID}/entries`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+          body: JSON.stringify({ Wert: newEntryValue }),
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.message || "Fehler beim Hinzufügen");
 
-      alert(data.message || "Eintrag erfolgreich hinzugefügt.");
+      toast.success(data.message || "Eintrag erfolgreich hinzugefügt.");
+
+      setNewEntryValue("");
+      setShowAddEntryModal(false);
     } catch (err) {
       console.error(err);
-      alert("Fehler beim Hinzufügen des Eintrags.");
+      toast.error(err.message || "Fehler beim Hinzufügen des Eintrags.");
     }
   };
 
@@ -407,7 +426,8 @@ const Categories = () => {
                             fetchCategoryLogs(cat.ID);
                             break;
                           case "addEntry":
-                            addCategoryEntry(cat.ID);
+                            setSelectedCategoryID(cat.ID);
+                            setShowAddEntryModal(true);
                             break;
                           case "viewEntries":
                             fetchCategoryEntries(cat.ID);
@@ -433,7 +453,6 @@ const Categories = () => {
                       <option value="logs">Protokolle</option>
                       <option value="addEntry">Eintrag hinzufügen</option>
                       <option value="viewEntries">Einträge anzeigen</option>
-
                       <option value="delete">Löschen</option>
                     </select>
                   </td>
@@ -443,6 +462,48 @@ const Categories = () => {
           </table>
         </motion.div>
       )}
+
+      {showAddEntryModal && selectedCategoryID && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full relative">
+            <h2 className="text-xl font-bold text-[#412666] mb-4 text-center">
+              Neuen Eintrag hinzufügen (Kategorie ID: {selectedCategoryID})
+            </h2>
+
+            <input
+              type="text"
+              placeholder="....."
+              value={newEntryValue}
+              onChange={(e) => setNewEntryValue(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-[#412666]"
+            />
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowAddEntryModal(false);
+                  setNewEntryValue("");
+                }}
+                className="flex-1 bg-gray-300 text-gray-800 py-2 rounded-lg hover:bg-gray-400 transition cursor-pointer">
+                Abbrechen
+              </button>
+              <button
+                onClick={() => {
+                  addCategoryEntry(
+                    selectedCategoryID,
+                    newEntryValue || "0,70€"
+                  );
+                  setShowAddEntryModal(false);
+                  setNewEntryValue("");
+                }}
+                className="flex-1 bg-[#412666] text-white py-2 rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
+                Hinzufügen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showCategoryEntriesModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-xl w-full relative">
