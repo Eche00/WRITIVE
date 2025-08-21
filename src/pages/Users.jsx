@@ -227,8 +227,39 @@ const Users = () => {
   };
 
   // HANDLING EXPORT
-  const handleExport = (format) => {
-    window.open(`${BASE_URL}/customers/export/${format}`, "_blank");
+  const handleExport = async (format) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${BASE_URL}/customers/export/${format}`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download file");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `customers.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      toast.success(`Exported customers as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to export customers");
+    }
   };
 
   // HANDLING EXPORTING USER LOGS
@@ -244,14 +275,50 @@ const Users = () => {
   const [openFormats, setOpenFormats] = useState(false);
   const formats = ["csv", "xls", "pdf"];
   const [openCustomLogs, setOpenCustomLogs] = useState(false);
-  const handleClick = (format) => {
-    if (format === "pdf") {
-      exportCustomerLogs("pdf", "K001");
-    } else {
-      exportCustomerLogs(format);
+
+  const handleClick = async (format) => {
+    console.log(selectedCustomerID);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const url =
+        format === "pdf"
+          ? `${BASE_URL}/customers/logs/export?format=${format}&kunde_id=${selectedCustomerID}`
+          : `${BASE_URL}/customers/export/${format}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download file");
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = `${selectedCustomerID}-logs.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(downloadUrl);
+
+      toast.success(`Exported customers as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to export customers");
     }
-    setOpen(false);
   };
+
   return (
     <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
       <h1 className="text-2xl font-bold mb-4 capitalize"> Nutzerseite</h1>
@@ -388,6 +455,7 @@ const Users = () => {
                             break;
                           case "audit":
                             fetchAuditLogs(c.ID);
+                            setSelectedCustomerID(c.ID);
                             break;
                           case "delete":
                             handleDelete(c.ID);
@@ -587,7 +655,7 @@ const Users = () => {
                         Exportiere XLS
                       </button>
                       <button
-                        onClick={() => handleClick("pdf")}
+                        onClick={() => handleClick("pdf", selectedCustomerID)}
                         className="w-full  px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white transition-all duration-200 rounded-[10px] my-1 cursor-pointer text-center">
                         Exportiere PDF (K001)
                       </button>
