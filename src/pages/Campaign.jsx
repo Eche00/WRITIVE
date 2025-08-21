@@ -21,6 +21,7 @@ const Campaign = () => {
   const [timelineCampaignID, setTimelineCampaignID] = useState(null);
   const [showAddBatchModal, setShowAddBatchModal] = useState(false);
   const [batchCampaignID, setBatchCampaignID] = useState(null);
+  const [selectedCampaignId, setSelectedCampaignId] = useState(null);
   const [batchQuantity, setBatchQuantity] = useState(0);
   const [batchStatus, setBatchStatus] = useState("pending");
   const [batches, setBatches] = useState(false);
@@ -323,16 +324,85 @@ const Campaign = () => {
     }
   };
 
-  const handleExport = (format) => {
-    window.open(`${BASE_URL}/campaigns/export/${format}`, "_blank");
-  };
-  const handleExportCampaignLogs = (format) => {
-    const query = new URLSearchParams({ format });
+  const handleExport = async (format) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${BASE_URL}/campaigns/export/${format}`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
 
-    window.open(
-      `${BASE_URL}/campaigns/logs/export?${query.toString()}`,
-      "_blank"
-    );
+      if (!response.ok) {
+        throw new Error("Failed to download file");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `campaigns.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      toast.success(`Exported campaigns as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to export campaigns");
+    }
+  };
+
+  const handleExportCampaignLogs = async (format) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      // Always hit /campaigns/logs/export
+      const query = new URLSearchParams({ format });
+      if (selectedCampaignId) {
+        query.append("campaign_id", selectedCampaignId);
+      }
+
+      const url = `${BASE_URL}/campaigns/logs/export?${query.toString()}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download campaign logs");
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = selectedCampaignId
+        ? `${selectedCampaignId}-campaign-logs.${format}`
+        : `campaign-logs.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(downloadUrl);
+
+      toast.success(`Exported campaign logs as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to export campaign logs");
+    }
   };
 
   return (
@@ -444,6 +514,7 @@ const Campaign = () => {
                               break;
                             case "logs":
                               fetchCampaignLogs(c.id);
+                              setSelectedCampaignId(c.id);
                               break;
                             case "delete":
                               handleDelete(c.id);
