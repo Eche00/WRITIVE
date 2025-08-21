@@ -215,17 +215,88 @@ function Brand() {
     }
   };
 
-  const handleExport = (format) => {
-    window.open(`${BRAND_BASE_URL}/brands/export?format=${format}`, "_blank");
-  };
-  const handleExportBrandLogs = (format, brandId = null) => {
-    const query = new URLSearchParams({ format });
-    if (brandId) query.append("brand_id", brandId);
+  const handleExport = async (format) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${BRAND_BASE_URL}/brands/export?format=${format}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
 
-    window.open(
-      `${BRAND_BASE_URL}/brands/logs/export?${query.toString()}`,
-      "_blank"
-    );
+      if (!response.ok) {
+        throw new Error("Failed to download file");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `brands.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      toast.success(`Exported brands as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to export brands");
+    }
+  };
+
+  const handleExportBrandLogs = async (format) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      // Always hit /brands/logs/export
+      const query = new URLSearchParams({ format });
+      if (selectedBrand?.ID) {
+        query.append("brand_id", selectedBrand.ID);
+      }
+
+      const url = `${BRAND_BASE_URL}/brands/logs/export?${query.toString()}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download file");
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = selectedBrand?.ID
+        ? `${selectedBrand.ID}-logs.${format}`
+        : `brand-logs.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(downloadUrl);
+
+      toast.success(`Exported brand logs as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to export brand logs");
+    }
   };
 
   return (
@@ -337,6 +408,7 @@ function Brand() {
                             break;
                           case "logs":
                             fetchBrandLogs(brand.ID);
+                            setSelectedBrand(brand);
                             break;
                           case "delete":
                             handleDelete(brand.ID);
