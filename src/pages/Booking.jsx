@@ -403,20 +403,88 @@ const Booking = () => {
     fetchCampaigns();
   }, []);
 
-  const handleExport = (format) => {
-    window.open(
-      `${BASE_URL}/buchungshistorie/export?format=${format}`,
-      "_blank"
-    );
-    setLogExportBuchungshistorieOpen(false);
-  };
-  const handleExportBuchungshistorieLogs = (format) => {
-    const query = new URLSearchParams({ format });
+  const handleExport = async (format) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${BASE_URL}/buchungshistorie/export?format=${format}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
 
-    window.open(
-      `${BASE_URL}/buchungshistorie/logs/export?${query.toString()}`,
-      "_blank"
-    );
+      if (!response.ok) {
+        throw new Error("Failed to download buchungshistorie file");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `buchungshistorie.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      setLogExportBuchungshistorieOpen(false);
+      toast.success(`Exported Buchungshistorie as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to export Buchungshistorie");
+    }
+  };
+
+  const handleExportBuchungshistorieLogs = async (format) => {
+    try {
+      const token = localStorage.getItem("token");
+      const query = new URLSearchParams({ format });
+      if (selectedBuchungID) {
+        query.append("production_id", selectedBuchungID);
+      }
+
+      const response = await fetch(
+        `${BASE_URL}/buchungshistorie/logs/export?${query.toString()}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to download logs file");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${selectedBuchungID}-logs.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      toast.success(
+        `Exported Buchungshistorie logs as ${format.toUpperCase()}`
+      );
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to export logs");
+    }
   };
 
   return (
@@ -547,6 +615,7 @@ const Booking = () => {
                               break;
                             case "logs":
                               fetchBuchungshistorieLogs(b.ID);
+                              setSelectedBuchungID(b.ID);
                               break;
                             case "delete":
                               deleteBooking(b.ID);
