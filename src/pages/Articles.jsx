@@ -147,10 +147,45 @@ const Articles = ({ setViewarticles }) => {
     }
   };
 
-  const handleExportClick = (format) => {
-    window.open(`${BASE_URL}/products/export?format=${format}`, "_blank");
-    setLogExportOpenProducts(false);
+  const handleExportClick = async (format) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${BASE_URL}/products/export?format=${format}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to download file");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `products.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      setLogExportOpenProducts(false);
+      toast.success(`Exported products as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to export products");
+    }
   };
+
   return (
     <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
       <h1 className="text-2xl font-bold mb-4 capitalize"> Artikelverwaltung</h1>
