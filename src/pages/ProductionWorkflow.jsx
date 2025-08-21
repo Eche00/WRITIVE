@@ -15,6 +15,7 @@ const ProductionWorkflow = () => {
   const [articles, setArticles] = useState([]);
   const [search, setSearch] = useState("");
   const [editingProductionId, setEditingProductionId] = useState(null);
+  const [logSelectedId, setLogSelectedId] = useState(null);
   const [editingProduction, setEditingProduction] = useState({});
   const [showProductionLogsModal, setShowProductionLogsModal] = useState(false);
   const [productionLogs, setProductionLogs] = useState([]);
@@ -454,25 +455,89 @@ const ProductionWorkflow = () => {
     }
   }, [search, productions]);
 
-  const handleExportProductionLogs = (format, productionId = null) => {
-    const query = new URLSearchParams({ format });
-    if (productionId) query.append("production_id", productionId);
+  const handleExportProductionLogs = async (format) => {
+    try {
+      const token = localStorage.getItem("token");
 
-    window.open(
-      `${BASE_URL}/production/logs/export?${query.toString()}`,
-      "_blank"
-    );
+      // Always hit /production/logs/export
+      const query = new URLSearchParams({ format });
+      if (logSelectedId) {
+        query.append("production_id", logSelectedId);
+      }
+
+      const url = `${BASE_URL}/production/logs/export?${query.toString()}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download file");
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = logSelectedId
+        ? `${logSelectedId}-logs.${format}`
+        : `production-logs.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(downloadUrl);
+
+      setLogExportProductionOpen(false);
+      toast.success(`Exported production logs as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to export production logs");
+    }
   };
 
-  const handleExportProduction = (format) => {
-    window.open(`${BASE_URL}/production/export/${format}`, "_blank");
-    setOpenLogExportProduction(false);
+  const handleExportProduction = async (format) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${BASE_URL}/production/export/${format}`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download production file");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `production.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      setOpenLogExportProduction(false);
+      toast.success(`Exported production as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to export production");
+    }
   };
 
-  const handleExport = (format, id = null) => {
-    handleExportProductionLogs(format, id); // assumes this function handles both cases
-    setLogExportProductionOpen(false);
-  };
   return (
     <div className="p-4 md:w-[90%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
       <h1 className="text-2xl font-bold mb-4 text-[#412666]">
@@ -605,6 +670,7 @@ const ProductionWorkflow = () => {
                             break;
                           case "logs":
                             fetchProductionLogs(p.ID);
+                            setLogSelectedId(p.ID);
                             break;
                           case "delete":
                             handleDeleteProduction(p.ID);
@@ -1413,22 +1479,24 @@ const ProductionWorkflow = () => {
                   {logExportProductionOpen && (
                     <div className="absolute left-0 mt-2 top-[-180px] w-64 bg-white border border-gray-200 rounded-lg shadow z-50 p-2">
                       <button
-                        onClick={() => handleExport("csv")}
+                        onClick={() => handleExportProductionLogs("csv")}
                         className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white rounded-[10px] my-1 text-center transition-all">
                         Exportiere CSV
                       </button>
                       <button
-                        onClick={() => handleExport("xlsx")}
+                        onClick={() => handleExportProductionLogs("xlsx")}
                         className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white rounded-[10px] my-1 text-center transition-all">
                         Exportiere XLSX
                       </button>
                       <button
-                        onClick={() => handleExport("pdf")}
+                        onClick={() => handleExportProductionLogs("pdf")}
                         className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white rounded-[10px] my-1 text-center transition-all">
                         Exportiere PDF
                       </button>
                       <button
-                        onClick={() => handleExport("csv", "ID33")}
+                        onClick={() =>
+                          handleExportProductionLogs("csv", "ID33")
+                        }
                         className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white rounded-[10px] my-1 text-center transition-all">
                         Exportiere CSV
                       </button>
