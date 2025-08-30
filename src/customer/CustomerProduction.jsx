@@ -50,7 +50,7 @@ const CustomerBooking = () => {
     <div className="p-4 md:w-[80%] w-full mx-auto text-black flex flex-col h-fit overflow-scroll">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-[42px] font-bold font-mono text-[#412666]">
-          AUSWERTUNG KAMPAGNEN / PRODUKTE
+          AUSWERTUNG KAMPAGNEN
         </h2>
       </div>
 
@@ -63,9 +63,6 @@ const CustomerBooking = () => {
             whileInView={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1.5, delay: 0.3 }}
             className="bg-white p-4 rounded-xl shadow border border-gray-100 w-fit xl:w-full">
-            <h2 className="text-[24px] font-bold font-mono text-[#412666] uppercase mb-2">
-              Auswertung gruppiert nach Kampagnen / nach Produkten
-            </h2>
             <div className="border border-[#412666] rounded-lg px-4 w-full md:w-1/2 flex items-center gap-2 mb-4">
               <Search />
               <input
@@ -79,8 +76,8 @@ const CustomerBooking = () => {
             <table className="w-full text-sm text-left">
               <thead className="text-[#412666] border-b border-gray-200 uppercase text-nowrap">
                 <tr>
-                  <th className="py-2 px-3">Bild</th>
-                  <th className="py-2 px-3">Produkt/kampagne</th>
+                  <th className="py-2 px-3">Produkt</th>
+                  <th className="py-2 px-3">kampagne</th>
                   <th className="py-2 px-3">Karten</th>
                   <th className="py-2 px-3">scans</th>
                   <th className="py-2 px-3">Conversional Rate</th>
@@ -124,26 +121,30 @@ const CustomerBooking = () => {
                           alt={p.Format}
                           className="w-[50px] h-[40px] object-cover"
                         />{" "}
+                        <span className=" text-gray-500">{p.Format}</span>
                       </td>
                       <td className="py-4 px-3 flex flex-col">
                         <span className=" font-extrabold">
                           {p.KampagneName}
                         </span>
-                        <span className=" text-gray-500">{p.Format}</span>
                       </td>
                       <td className="py-4 px-3">{p.UsedCredits}</td>
-                      <td className="py-4 px-3">{p.Scans}</td>
+                      <td className="py-4 px-3">{p.Scans > 0 ? p.Scans : 0}</td>
                       <td className="py-4 px-3 w-40">
-                        <div className="flex items-center gap-2">
-                          <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-                            <div
-                              className="bg-green-500 h-4 rounded-full"
-                              style={{ width: `${p.ConversionRate}%` }}></div>
+                        {p.Scans > 0 ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                              <div
+                                className="bg-green-500 h-4 rounded-full"
+                                style={{ width: `${p.ConversionRate}%` }}></div>
+                            </div>
+                            <span className="text-sm font-medium ">
+                              {p.ConversionRate}%
+                            </span>
                           </div>
-                          <span className="text-sm font-medium ">
-                            {p.ConversionRate}%
-                          </span>
-                        </div>
+                        ) : (
+                          "0%"
+                        )}
                       </td>
                     </tr>
                   ))}
