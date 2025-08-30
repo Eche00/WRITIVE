@@ -64,8 +64,8 @@ function App() {
         <Route path="/customer" element={<CustomerContainer />}>
           <Route path="/customer/home" element={<CustomerProfile />} />
           <Route path="/customer/booking" element={<CustomerBooking />} />
-          <Route path="/customer/campaign" element={<CustomerCampaigns />} />
-          <Route path="/customer/production" element={<CustomerProduction />} />
+          <Route path="/customer/production" element={<CustomerCampaigns />} />
+          <Route path="/customer/campaign" element={<CustomerProduction />} />
           <Route
             path="/customer/amazonreviews"
             element={<CustomerAmazonReviews />}
