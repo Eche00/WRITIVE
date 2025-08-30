@@ -101,14 +101,13 @@ const CustomerCampaigns = () => {
           <table className="w-full text-sm text-left">
             <thead className="text-[#412666] border-b border-gray-200 uppercase">
               <tr>
-                <th className="py-2 px-3">Artikel</th>
                 <th className="py-2 px-3">BrandName</th>
-                <th className="py-2 px-3">Kunde</th>
+                <th className="py-2 px-3">Artikel</th>
                 <th className="py-2 px-3">Status</th>
-                <th className="py-2 px-3">Geprüft</th>
+                <th className="py-2 px-3">BATCHGRÖẞE</th>
                 <th className="py-2 px-3">Erstellt</th>
                 <th className="py-2 px-3 flex items-center justify-center">
-                  Anzeigen
+                  Status
                 </th>
               </tr>
             </thead>
@@ -130,7 +129,7 @@ const CustomerCampaigns = () => {
                       <td
                         colSpan={8}
                         className="py-4 px-3 font-medium text-xl text-[#412666] uppercase flex items-center gap-[10px] justify-end">
-                        <span>Credits gebucht: </span> <p>{c.booked_credits}</p>
+                        <span>Credits gebucht: </span> <p>{c.display}</p>
                       </td>
                     </tr>
 
@@ -138,9 +137,8 @@ const CustomerCampaigns = () => {
                       <tr
                         className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
                         key={p.ID}>
-                        <td className="py-2 px-3">{p.ArtikelName}</td>
                         <td className="py-2 px-3">{p.BrandName}</td>
-                        <td className="py-2 px-3">{p.KundeName}</td>
+                        <td className="py-2 px-3">{p.ArtikelName}</td>
                         <td className="py-2 px-3">
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-semibold bg-opacity-20 ${
@@ -159,27 +157,15 @@ const CustomerCampaigns = () => {
                             : "-"}
                         </td>
                         <td className="py-2 px-3 flex items-center justify-center">
-                          <select
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setSelectedProduction(p);
-
-                              if (value === "detail") {
-                                setShowProductionDetailModal(true);
-                              } else if (value === "status") {
-                                setShowProductionStatusModal(true);
-                              }
-
-                              // Reset to default to avoid auto-trigger on next render
-                              e.target.selectedIndex = 0;
-                            }}
-                            className="py-[6px] px-[8px] border text-[#412666] border-[#412666]  rounded-[4px] cursor-pointer hover:scale-[102%] transition-all duration-300">
-                            <option value="" disabled selected hidden>
-                              Aktionen auswählen
-                            </option>
-                            <option value="detail">Produktion anzeigen</option>
-                            <option value="status">Status anzeigen</option>
-                          </select>
+                          <span
+                            value="status"
+                            onClick={() => {
+                              setShowProductionStatusModal(true),
+                                setSelectedProduction(p);
+                            }}>
+                            <Visibility />
+                            {/* <span>Status anzeigen</span> */}
+                          </span>
                         </td>
                       </tr>
                     ))}
