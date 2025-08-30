@@ -129,7 +129,7 @@ const CustomerBooking = () => {
                         </span>
                       </td>
                       <td className="py-4 px-3">{p.UsedCredits}</td>
-                      <td className="py-4 px-3">{p.Scans > 0 ? p.Scans : 0}</td>
+                      <td className="py-4 px-3">{p.Scans}</td>
                       <td className="py-4 px-3 w-40">
                         {p.Scans > 0 ? (
                           <div className="flex items-center gap-2">
@@ -143,7 +143,7 @@ const CustomerBooking = () => {
                             </span>
                           </div>
                         ) : (
-                          "0%"
+                          ""
                         )}
                       </td>
                     </tr>
