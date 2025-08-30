@@ -321,14 +321,14 @@ const CustomerCampaigns = () => {
               <h2 className="text-xl font-bold text-[#412666] mb-4 text-center">
                 Produktions-Status (ID: {selectedProduction.ID})
               </h2>
-              <div className="flex items-center justify-between overflow-x-auto py-2 px-1 space-x-4">
+              <div className="flex items-center justify-between overflow-x-auto py-2 px-1 space-x-10">
                 {allSteps.map((step, index) => {
                   const isLast = index === allSteps.length - 1;
 
                   return (
                     <div
                       key={step}
-                      className="flex flex-col items-center relative min-w-[120px] group">
+                      className="flex flex-col items-center relative min-w-[120px] group gap-2">
                       {/* Connector Line */}
                       {!isLast && (
                         <div
