@@ -6,6 +6,7 @@ const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
   const [customerData, setCustomerData] = useState({
     KontaktName: "",
     Firma: "",
+    EmailAdresse: "",
     Handynr: "",
     Anrede: "",
     MusterAdresse: "",
@@ -21,6 +22,7 @@ const UpdateCustomerModal = ({ customer, setEditModal, fetchCustomers }) => {
       setCustomerData({
         KontaktName: customer.KontaktName || "",
         Firma: customer.Firma || "",
+        EmailAdresse: customer.EmailAdresse || "",
         Handynr: customer.Handynr || "",
         Anrede: customer.Anrede || "",
         MusterAdresse: customer.MusterAdresse || "",
