@@ -21,7 +21,6 @@ const EditArticleModal = ({
     Schrift: "",
     Format: "",
     ZusatzInfos: "",
-    Sonstige_Infos: "",
     StueckzahlProMonat: "",
     MusterkarteDesign: "",
   });
@@ -47,7 +46,6 @@ const EditArticleModal = ({
         Schrift,
         Format,
         ZusatzInfos,
-        Sonstige_Infos,
         StueckzahlProMonat,
         MusterkarteDesign,
       } = artikel;
@@ -64,7 +62,6 @@ const EditArticleModal = ({
         Schrift: Schrift || "",
         Format: Format || "",
         ZusatzInfos: ZusatzInfos || "",
-        Sonstige_Infos: Sonstige_Infos || "",
         StueckzahlProMonat: StueckzahlProMonat?.toString() || "",
         MusterkarteDesign: MusterkarteDesign || "",
       });
@@ -82,27 +79,12 @@ const EditArticleModal = ({
   const handleUpdate = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
+
     if (!token) {
       setMessage("No token found. Please log in.");
       toast.error("Kein Token gefunden. Bitte einloggen.");
       setLoading(false);
       return;
-    }
-
-    const requiredFields = Object.keys(formData).filter(
-      (key) =>
-        key !== "ZusatzInfos" &&
-        key !== "Sonstige_Infos" &&
-        key !== "MusterkarteDesign"
-    );
-
-    for (let key of requiredFields) {
-      if (!formData[key]) {
-        setMessage(`Field "${key}" cannot be empty.`);
-        toast.error(`Feld "${key}" darf nicht leer sein.`);
-        setLoading(false);
-        return;
-      }
     }
 
     const payload = {
@@ -277,16 +259,6 @@ const EditArticleModal = ({
           </div>
 
           <div className="flex flex-col">
-            <label className="mb-1 font-medium">Text</label>
-            <input
-              name="Text"
-              value={formData.Text}
-              onChange={handleChange}
-              className="border rounded px-2 py-1"
-            />
-          </div>
-
-          <div className="flex flex-col">
             <label className="mb-1 font-medium">Variablen</label>
             <input
               name="Variablen"
@@ -387,16 +359,6 @@ const EditArticleModal = ({
           </div>
 
           <div className="flex flex-col">
-            <label className="mb-1 font-medium">Sonstige_Infos</label>
-            <input
-              name="Sonstige_Infos"
-              value={formData.Sonstige_Infos}
-              onChange={handleChange}
-              className="border rounded px-2 py-1"
-            />
-          </div>
-
-          <div className="flex flex-col">
             <label className="mb-1 font-medium">StueckzahlProMonat</label>
             <input
               name="StueckzahlProMonat"
@@ -430,6 +392,16 @@ const EditArticleModal = ({
               </p>
             )}
           </div>
+        </div>
+        {/* Text */}
+        <div className="flex flex-col">
+          <label className="mb-1 font-medium">Text</label>
+          <textarea
+            name="Text"
+            value={formData.Text}
+            onChange={handleChange}
+            className="border rounded px-2 py-1"
+          />
         </div>
 
         {message && (

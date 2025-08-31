@@ -15,7 +15,6 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
     Schrift: "",
     Format: "",
     ZusatzInfos: "",
-    Sonstige_Infos: "",
     StueckzahlProMonat: "",
     MusterkarteDesign: "",
   });
@@ -77,26 +76,29 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      setMessage("No token found. Please log in.");
       toast.error("Kein Token gefunden. Bitte einloggen.");
+      setMessage("No token found. Please log in.");
       setLoading(false);
       return;
     }
 
+    //  Required fields (excluding optional ones)
     const requiredFields = Object.keys(formData).filter(
       (key) =>
+        key !== "Text" &&
+        key !== "Variablen" &&
         key !== "ZusatzInfos" &&
-        key !== "Sonstige_Infos" &&
         key !== "MusterkarteDesign"
     );
 
-    for (let key of requiredFields) {
-      if (!formData[key]) {
-        setMessage(`Field "${key}" cannot be empty.`);
-        toast.error(`Feld "${key}" darf nicht leer sein.`);
-        setLoading(false);
-        return;
-      }
+    // Check if any required field is empty
+    const missingFields = requiredFields.filter((key) => !formData[key]);
+
+    if (missingFields.length > 0) {
+      toast.error("Bitte füllen Sie alle Pflichtfelder aus."); // one toast for all
+      setMessage(`Fehlende Felder: ${missingFields.join(", ")}`); // optional detailed message
+      setLoading(false);
+      return; //  stop function execution
     }
 
     const payload = {
@@ -118,9 +120,10 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage(data.message || "Artikel erfolgreich erstellt.");
         toast.success(data.message || "Artikel erfolgreich erstellt.");
+        setMessage(data.message || "Artikel erfolgreich erstellt.");
         onCreated?.(data.artikel);
+
         setFormData({
           BrandID: "",
           KampagneID: "",
@@ -133,25 +136,26 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
           Schrift: "",
           Format: "",
           ZusatzInfos: "",
-          Sonstige_Infos: "",
           StueckzahlProMonat: "",
           MusterkarteDesign: "",
         });
+
         setUploading(false);
         setUploadMessage("");
         setTimeout(() => setShowModal(false), 1500);
       } else {
-        setMessage(data.message || "Fehler beim Erstellen des Artikels.");
         toast.error(data.message || "Fehler beim Erstellen des Artikels.");
+        setMessage(data.message || "Fehler beim Erstellen des Artikels.");
       }
     } catch (err) {
       console.error("Netzwerkfehler:", err);
-      setMessage("Serverfehler. Bitte erneut versuchen.");
       toast.error("Serverfehler. Bitte erneut versuchen.");
+      setMessage("Serverfehler. Bitte erneut versuchen.");
     } finally {
       setLoading(false);
     }
   };
+
   // Sync Format with selected campaign
   useEffect(() => {
     if (!formData.KampagneID) return;
@@ -280,11 +284,13 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
               onChange={handleChange}
               className="border rounded px-2 py-1">
               <option value="">Select brand</option>
-              {brands.map((b) => (
-                <option key={b.ID} value={b.ID}>
-                  {b.ID} - {b.Brandname}
-                </option>
-              ))}
+              {brands
+                .filter((b) => formData.KampagneID.startsWith(b.ID))
+                .map((b) => (
+                  <option key={b.ID} value={b.ID}>
+                    {b.ID} - {b.Brandname}
+                  </option>
+                ))}
             </select>
           </div>
 
@@ -297,13 +303,11 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
               onChange={handleChange}
               className="border rounded px-2 py-1">
               <option value="">Select campaign</option>
-              {campaigns
-                .filter((c) => c.id.startsWith(formData.BrandID))
-                .map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.id} - {c.name}
-                  </option>
-                ))}
+              {campaigns.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.id} - {c.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -415,17 +419,6 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
             <input
               name="ZusatzInfos"
               value={formData.ZusatzInfos}
-              onChange={handleChange}
-              className="border rounded px-2 py-1"
-            />
-          </div>
-
-          {/* Sonstige_Infos */}
-          <div className="flex flex-col">
-            <label className="mb-1 font-medium">Sonstige_Infos</label>
-            <input
-              name="Sonstige_Infos"
-              value={formData.Sonstige_Infos}
               onChange={handleChange}
               className="border rounded px-2 py-1"
             />
