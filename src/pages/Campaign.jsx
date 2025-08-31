@@ -406,7 +406,7 @@ const Campaign = () => {
   };
 
   return (
-    <div className="p-4 md:w-[80%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
+    <div className="p-4 md:w-[95%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
       <div className=" flex items-center justify-between gap-[10px]">
         <h1 className="text-2xl font-bold mb-4 text-[#412666]"> Kampagnen</h1>
 
@@ -476,6 +476,9 @@ const Campaign = () => {
                   <th className="py-2 px-3">QR-code</th>
                   <th className="py-2 px-3">Format</th>
                   <th className="py-2 px-3">Kontingent</th>
+                  <th className="py-2 px-3">Karten</th>
+                  <th className="py-2 px-3">scans</th>
+                  <th className="py-2 px-3">Conversional Rate</th>
                   <th className="py-2 px-3">Aktionen</th>
                 </tr>
               </thead>
@@ -497,7 +500,24 @@ const Campaign = () => {
                     </td>
                     <td className="py-2 px-3">{c.Format}</td>
                     <td className="py-2 px-3">{c.BuchungsKontingent}</td>
-
+                    <td className="py-4 px-3">{c.produced}</td>
+                    <td className="py-4 px-3">{c.scans}</td>
+                    <td className="py-4 px-3 w-40">
+                      {c.scans > 0 ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                            <div
+                              className="bg-green-500 h-4 rounded-full"
+                              style={{ width: `${c.conversion_rate}%` }}></div>
+                          </div>
+                          <span className="text-sm font-medium ">
+                            {c.conversion_rate}%
+                          </span>
+                        </div>
+                      ) : (
+                        ""
+                      )}
+                    </td>
                     <td className="py-2 px-3 space-x-2">
                       <select
                         onChange={(e) => {
