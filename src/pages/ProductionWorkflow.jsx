@@ -60,6 +60,7 @@ const ProductionWorkflow = () => {
     StandardStueckzahl: "",
     credit: "",
   });
+  const [selectedArticle, setSelectedArticle] = useState(null);
 
   const [logExportProductionOpen, setLogExportProductionOpen] = useState(false);
   // ALL FETCHING
@@ -537,6 +538,73 @@ const ProductionWorkflow = () => {
       toast.error("Failed to export production");
     }
   };
+  const handleExportProductionById = async (format) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${BASE_URL}/production/${selectedProductionID.ID}/export/${format}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to download production file");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `production.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      setOpenLogExportProduction(false);
+      toast.success(`Exported production as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to export production");
+    }
+  };
+
+  // Sync Format with selected campaign
+  useEffect(() => {
+    if (!newProduction.ArtikelID) return;
+
+    const selected = articles.find(
+      (a) => String(a.ID) === String(newProduction.ArtikelID)
+    );
+
+    const selectedK = customers.find((k) =>
+      newProduction.ArtikelID.startsWith(k.ID)
+    );
+    const selectedC = brands.find((b) =>
+      newProduction.ArtikelID.startsWith(b.ID)
+    );
+    const selectedB = campaigns.find((c) =>
+      newProduction.ArtikelID.startsWith(c.id)
+    );
+
+    if (selected) {
+      setSelectedArticle(selected);
+      setNewProduction((prev) => ({
+        ...prev,
+        KundeID: selectedK?.ID || "",
+        BrandID: selectedC?.ID || "",
+        CampaignID: selectedB?.id || "",
+      }));
+    }
+  }, [newProduction.ArtikelID, articles, customers, brands, campaigns]);
 
   return (
     <div className="p-4 md:w-[90%] w-fit overflow-scroll mx-auto text-black flex flex-col h-fit ">
@@ -992,23 +1060,27 @@ const ProductionWorkflow = () => {
               </div>
             </div>
             {/* P Format export  */}
-            <div className="mt-6 flex gap-3 justify-center">
-              {["pdf", "xlsx", "csv"].map((format) => (
-                <button
-                  key={format}
-                  onClick={() => {
-                    const token = localStorage.getItem("token");
+            <div className="relative inline-block text-left">
+              <button
+                onClick={() =>
+                  setLogExportProductionOpen(!logExportProductionOpen)
+                }
+                className="border border-[#412666] px-4 py-2 rounded-lg text-sm text-[#412666] hover:bg-[#412666] hover:text-white transition-all duration-300">
+                Produktions-Export ▾
+              </button>
 
-                    // open export in new tab with token
-                    window.open(
-                      `${BASE_URL}/production/${selectedProductionID.ID}/export/${format}`,
-                      "_blank"
-                    );
-                  }}
-                  className="px-4 py-2 bg-[#412666] text-white rounded-lg hover:bg-[#341f4f] transition cursor-pointer">
-                  {format.toUpperCase()} Export
-                </button>
-              ))}
+              {logExportProductionOpen && (
+                <div className="absolute left-0 top-[-145px] mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow z-50 p-2">
+                  {["pdf", "xlsx", "csv"].map((format) => (
+                    <button
+                      key={format}
+                      onClick={() => handleExportProductionById(format)}
+                      className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-[#412666] hover:text-white rounded-[10px] my-1 text-center transition-all">
+                      Exportiere {format.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <button
@@ -1134,7 +1206,8 @@ const ProductionWorkflow = () => {
                       ...newProduction,
                       KundeID: e.target.value,
                     })
-                  }>
+                  }
+                  disabled>
                   <option value="">— Bitte wählen —</option>
                   {customers.map((c) => (
                     <option key={c.ID} value={c.ID}>
@@ -1155,7 +1228,8 @@ const ProductionWorkflow = () => {
                       ...newProduction,
                       BrandID: e.target.value,
                     })
-                  }>
+                  }
+                  disabled>
                   <option value="">— Bitte wählen —</option>
                   {brands
                     .filter((b) => b.ID?.startsWith(newProduction.KundeID))
@@ -1184,7 +1258,8 @@ const ProductionWorkflow = () => {
                       CampaignID: selectedId,
                       credit: selectedCampaign?.display || "", // use numeric "remaining"
                     });
-                  }}>
+                  }}
+                  disabled>
                   <option value="">— Bitte wählen —</option>
                   {campaigns
                     .filter((c) => c.id?.startsWith(newProduction.BrandID))
@@ -1215,13 +1290,11 @@ const ProductionWorkflow = () => {
                     });
                   }}>
                   <option value="">— Bitte wählen —</option>
-                  {articles
-                    .filter((a) => a.ID?.startsWith(newProduction.CampaignID))
-                    .map((a) => (
-                      <option key={a.ID} value={a.ID}>
-                        {a.ID} - {a.Artikelname}
-                      </option>
-                    ))}
+                  {articles.map((a) => (
+                    <option key={a.ID} value={a.ID}>
+                      {a.ID} - {a.Artikelname}
+                    </option>
+                  ))}
                 </select>
               </div>
 
