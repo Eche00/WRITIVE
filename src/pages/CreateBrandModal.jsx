@@ -84,15 +84,17 @@ const CreateBrandModal = ({ createModal, setCreateModal, fetchBrands }) => {
               onChange={handleChange}
               className="w-full border border-gray-300 px-3 py-2 rounded text-sm curpor-pointer">
               <option value="">Bitte wählen</option>
-              {customers.map((customer) => (
-                <option
-                  key={customer.ID}
-                  value={customer.ID}
-                  className=" cursor-pointer">
-                  {customer.ID} –{" "}
-                  {customer.KontaktName || customer.Vorname || "Unbenannt"}
-                </option>
-              ))}
+              {customers
+                .filter((c) => !c.ID?.toLowerCase().startsWith("admin"))
+                .map((customer) => (
+                  <option
+                    key={customer.ID}
+                    value={customer.ID}
+                    className="cursor-pointer">
+                    {customer.ID} –{" "}
+                    {customer.KontaktName || customer.Vorname || "Unbenannt"}
+                  </option>
+                ))}
             </select>
           </div>
 
