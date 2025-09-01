@@ -213,6 +213,24 @@ const Booking = () => {
     try {
       const token = localStorage.getItem("token");
 
+      let bodyData = {
+        Buchungstyp: newBooking.Buchungstyp,
+        CampaignID: newBooking.CampaignID,
+        ProduktionsID: newBooking.ProduktionsID || null,
+        KundeID: newBooking.KundeID,
+      };
+
+      if (newBooking.Kategorie) {
+        bodyData.Kategorie = newBooking.Kategorie;
+      }
+      if (newBooking.Bezeichnung) {
+        bodyData.Bezeichnung = newBooking.Bezeichnung;
+      }
+
+      if (newBooking.Buchungswert) {
+        bodyData.Buchungswert = parseFloat(newBooking.Buchungswert);
+      }
+
       const res = await fetch(`${BASE_URL}/buchungshistorie/`, {
         method: "POST",
         headers: {
@@ -220,15 +238,7 @@ const Booking = () => {
           "Content-Type": "application/json",
           "ngrok-skip-browser-warning": "true",
         },
-        body: JSON.stringify({
-          Buchungstyp: newBooking.Buchungstyp,
-          Kategorie: newBooking.Kategorie,
-          Bezeichnung: newBooking.Bezeichnung,
-          CampaignID: newBooking.CampaignID,
-          ProduktionsID: newBooking.ProduktionsID || null,
-          Buchungswert: parseFloat(newBooking.Buchungswert),
-          KundeID: newBooking.KundeID,
-        }),
+        body: JSON.stringify(bodyData),
       });
 
       const data = await res.json();
@@ -585,7 +595,7 @@ const Booking = () => {
                     <td className="py-2 px-3">{b.CampaignID || "—"}</td>
                     <td className="py-2 px-3">{b.Kategorie || "—"}</td>
                     <td className="py-2 px-3">{b.Buchungstyp || "—"}</td>
-                    <td className="py-2 px-3">€ {b.Buchungswert}</td>
+                    <td className="py-2 px-3"> {b.Buchungswert}</td>
                     <td className="py-2 px-3">{b.ProduktionsID || "—"}</td>
                     <td className="py-2 px-3">
                       {b.Bezeichnung?.slice(0, 30) || "—"}
