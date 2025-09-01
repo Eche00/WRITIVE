@@ -162,12 +162,13 @@ const CreateArticleModal = ({ showModal, setShowModal, onCreated }) => {
     const selected = campaigns.find(
       (c) => String(c.id) === String(formData.KampagneID)
     );
+    const selectedB = brands.find((b) => formData.KampagneID.startsWith(b.ID));
     if (selected) {
-      console.log("Selected campaign details:", selected);
       setSelectedCampaign(selected);
       setFormData((prev) => ({
         ...prev,
-        Format: selected.Format || "", // auto-fill Format
+        Format: selected.Format || "",
+        BrandID: selectedB.ID || "",
       }));
     }
   }, [formData.KampagneID, campaigns]);
