@@ -213,11 +213,24 @@ const Booking = () => {
     try {
       const token = localStorage.getItem("token");
 
+      // Determine if KundeID, CampaignID, ProduktionsID are optional
+      const isOptional =
+        newBooking.Buchungstyp === "Eintrag" &&
+        newBooking.Kategorie === "Briefmarken";
+
+      // Basic validation only if not optional
+      if (!isOptional) {
+        if (!newBooking.KundeID || !newBooking.CampaignID) {
+          toast.error("Bitte Kunde und Kampagne auswählen.");
+          return;
+        }
+      }
+
       let bodyData = {
         Buchungstyp: newBooking.Buchungstyp,
-        CampaignID: newBooking.CampaignID,
+        CampaignID: newBooking.CampaignID || null,
         ProduktionsID: newBooking.ProduktionsID || null,
-        KundeID: newBooking.KundeID,
+        KundeID: newBooking.KundeID || null,
       };
 
       if (newBooking.Kategorie) {
