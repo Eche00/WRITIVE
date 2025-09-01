@@ -602,6 +602,7 @@ const ProductionWorkflow = () => {
         KundeID: selectedK?.ID || "",
         BrandID: selectedC?.ID || "",
         CampaignID: selectedB?.id || "",
+        credit: selectedB?.display || "",
       }));
     }
   }, [newProduction.ArtikelID, articles, customers, brands, campaigns]);
