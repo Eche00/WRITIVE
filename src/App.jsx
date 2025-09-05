@@ -23,6 +23,7 @@ import Categories from "./pages/Categories";
 import Articles from "./pages/Articles";
 import CustomerProduction from "./customer/CustomerProduction";
 import { Toaster } from "react-hot-toast";
+import ProtectedRoute from "./component/ProtectedRoute";
 
 function App() {
   return (
@@ -35,7 +36,13 @@ function App() {
         <Route path="/forgotpassword" element={<ForgotPassword />} />
 
         {/* Admin Protected Routes  */}
-        <Route path="/admin" element={<Container />}>
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <Container />
+            </ProtectedRoute>
+          }>
           {/* Dashboard */}
           <Route path="/admin/home" element={<Dashboard />} />
 
@@ -61,7 +68,13 @@ function App() {
           <Route path="/admin/settings" element={<Settings />} />
         </Route>
         {/* Customer routes */}
-        <Route path="/customer" element={<CustomerContainer />}>
+        <Route
+          path="/customer"
+          element={
+            <ProtectedRoute>
+              <CustomerContainer />
+            </ProtectedRoute>
+          }>
           <Route path="/customer/home" element={<CustomerProfile />} />
           <Route path="/customer/booking" element={<CustomerBooking />} />
           <Route path="/customer/production" element={<CustomerCampaigns />} />
