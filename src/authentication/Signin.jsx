@@ -22,18 +22,6 @@ function Signin() {
 
   const navigate = useNavigate();
 
-  // check if user is already logged in
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const is_admin = localStorage.getItem("is_admin");
-    if (!token) return;
-    if (is_admin === "true") {
-      navigate("/admin/home"); //  admin route t
-    } else if (is_admin === "false") {
-      navigate("/customer/home"); // customer
-    }
-  }, [navigate]);
-
   // handling change function
   const handleChange = (e) => {
     e.preventDefault();
@@ -87,7 +75,9 @@ function Signin() {
       }
 
       // Save token and user info
-      localStorage.setItem("token", result.token);
+      localStorage.setItem("token", result.access_token);
+      localStorage.setItem("refresh_token", result.refresh_token);
+
       localStorage.setItem("user_id", result.user_id);
       localStorage.setItem("is_admin", result.is_admin);
       localStorage.setItem("userEmail", formData.email);
